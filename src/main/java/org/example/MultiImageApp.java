@@ -7,9 +7,7 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 public class MultiImageApp extends JFrame {
     private final JPanel imagePanel;

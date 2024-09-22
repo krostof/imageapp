@@ -35,7 +35,9 @@ public class HistogramPanel extends JPanel {
         int width = getWidth();
         int height = getHeight();
         int numBins = 256;
-        int binWidth = width / numBins;
+        int binWidth = (width - 80) / numBins; // Dodajemy margines z każdej strony (lewy i prawy) o 40px
+        int marginLeft = 40;
+        int marginBottom = 30;
 
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -55,18 +57,26 @@ public class HistogramPanel extends JPanel {
         }
 
         // Rysowanie histogramu w jednolitym kolorze
-        g2d.setColor(Color.BLUE); // Możesz zmienić kolor na czarny lub inny
+        g2d.setColor(Color.BLUE); // Kolor histogramu
         for (int i = 0; i < numBins; i++) {
-            int barHeight = (int) ((double) grayHistogram[i] / maxFrequency * height);
-            g2d.fillRect(i * binWidth, height - barHeight, binWidth, barHeight);
+            int barHeight = (int) ((double) grayHistogram[i] / maxFrequency * (height - marginBottom));
+            g2d.fillRect(i * binWidth + marginLeft, height - barHeight - marginBottom, binWidth, barHeight);
         }
 
-        // Rysowanie etykiet osi
+        // Rysowanie osi X i Y
         g2d.setColor(Color.BLACK);
-        g2d.drawString("0", 5, height - 5);
-        g2d.drawString("255", width - 40, height - 5);
+        g2d.drawLine(marginLeft, height - marginBottom, width - marginLeft, height - marginBottom); // Oś X
+        g2d.drawLine(marginLeft, marginBottom, marginLeft, height - marginBottom); // Oś Y
+
+        // Etykiety osi X i Y
+        g2d.drawString("0", marginLeft - 10, height - marginBottom + 15);
+        g2d.drawString("255", width - marginLeft, height - marginBottom + 15);
+
+        g2d.drawString("0", marginLeft - 25, height - marginBottom); // Y etykieta
+        g2d.drawString(Integer.toString(maxFrequency), marginLeft - 35, marginBottom + 10); // Max wartość na osi Y
 
         g2d.dispose();
     }
+
 
 }
