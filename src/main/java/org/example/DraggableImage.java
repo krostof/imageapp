@@ -10,19 +10,21 @@ import java.io.File;
 public class DraggableImage extends JLabel {
     private Point initialClick;
     private final JPopupMenu popupMenu;
-    private final BufferedImage image;
+    private final BufferedImage originalImage; // Oryginalny obraz
+    private BufferedImage scaledImage;         // Przeskalowany obraz
     private final ImageService imageService;
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
 
     public DraggableImage(BufferedImage image, ImageService imageService, JPanel imagePanel, JFileChooser fileChooser) {
         super(new ImageIcon(image));
-        this.image = image;
+        this.originalImage = image;
+        this.scaledImage = image;
         this.imageService = imageService;
         this.imagePanel = imagePanel;
         this.fileChooser = fileChooser;
 
-        // Create context menu
+        // Tworzenie menu kontekstowego
         popupMenu = new JPopupMenu();
         createContextMenu();
 
@@ -48,7 +50,7 @@ public class DraggableImage extends JLabel {
         });
     }
 
-    // Create context menu with options to duplicate, save, close, and generate histogram
+    // Tworzenie menu kontekstowego z opcjami: duplikuj, zapisz, zamknij, generuj histogram
     private void createContextMenu() {
         JMenuItem duplicateItem = new JMenuItem("Duplicate");
         JMenuItem saveItem = new JMenuItem("Save");
@@ -66,29 +68,28 @@ public class DraggableImage extends JLabel {
         popupMenu.add(histogramItem);
     }
 
-    // Generate and display the histogram for this image
-    private void generateHistogram() {
-        // Create a new JFrame for displaying the histogram
-        JFrame histogramFrame = new JFrame("Image Histogram");
-        histogramFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    // Zmiana współczynnika skalowania
+    public void setScaleFactor(double scaleFactor) {
+        // Domyślny współczynnik skalowania
+        int newWidth = (int) (originalImage.getWidth() * scaleFactor);
+        int newHeight = (int) (originalImage.getHeight() * scaleFactor);
 
-        // Ensure imageService and image are properly set
-        if (image != null) {
-            HistogramPanel histogramPanel = new HistogramPanel(imageService);
-            histogramPanel.setImage(image); // Set the image for the panel
-            histogramFrame.add(histogramPanel);
-            histogramFrame.pack();
-            histogramFrame.setLocationRelativeTo(this);
-            histogramFrame.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(this, "No image loaded to generate histogram.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        // Skalowanie obrazu
+        scaledImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g2d.dispose();
+
+        // Aktualizacja ikony i rozmiaru
+        setIcon(new ImageIcon(scaledImage));
+        setSize(new Dimension(newWidth, newHeight));
+        revalidate();
+        repaint();
     }
 
-
-    // Duplicate image and add to panel
+    // Duplikowanie obrazu
     private void duplicateImage() {
-        BufferedImage duplicated = imageService.duplicateImage(image);
+        BufferedImage duplicated = imageService.duplicateImage(originalImage);
         DraggableImage duplicate = new DraggableImage(duplicated, imageService, imagePanel, fileChooser);
         imagePanel.add(duplicate);
         duplicate.setBounds(getX() + 20, getY() + 20, duplicated.getWidth(), duplicated.getHeight());
@@ -96,19 +97,36 @@ public class DraggableImage extends JLabel {
         imagePanel.repaint();
     }
 
-    // Save image to a selected file
+    // Zapisz obraz do pliku
     private void saveImage() {
         int result = fileChooser.showSaveDialog(imagePanel);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            imageService.saveImageToFile(image, file);
+            imageService.saveImageToFile(originalImage, file);
         }
     }
 
-    // Remove image from panel
+    // Zamknij obraz
     private void closeImage() {
         imagePanel.remove(this);
         imagePanel.revalidate();
         imagePanel.repaint();
+    }
+
+    // Generowanie histogramu
+    private void generateHistogram() {
+        JFrame histogramFrame = new JFrame("Image Histogram");
+        histogramFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        if (originalImage != null) {
+            HistogramPanel histogramPanel = new HistogramPanel(imageService);
+            histogramPanel.setImage(originalImage);
+            histogramFrame.add(histogramPanel);
+            histogramFrame.pack();
+            histogramFrame.setLocationRelativeTo(this);
+            histogramFrame.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "No image loaded to generate histogram.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
