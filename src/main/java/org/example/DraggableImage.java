@@ -15,14 +15,16 @@ public class DraggableImage extends JLabel {
     private final ImageService imageService;
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
+    private final HistogramProcessor histogramProcessor;
 
-    public DraggableImage(BufferedImage image, ImageService imageService, JPanel imagePanel, JFileChooser fileChooser) {
+    public DraggableImage(BufferedImage image, ImageService imageService, JPanel imagePanel, JFileChooser fileChooser, HistogramProcessor histogramProcessor) {
         super(new ImageIcon(image));
         this.originalImage = image;
         this.scaledImage = image;
         this.imageService = imageService;
         this.imagePanel = imagePanel;
         this.fileChooser = fileChooser;
+        this.histogramProcessor = histogramProcessor;
 
         // Tworzenie menu kontekstowego
         popupMenu = new JPopupMenu();
@@ -56,16 +58,28 @@ public class DraggableImage extends JLabel {
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem closeItem = new JMenuItem("Close");
         JMenuItem histogramItem = new JMenuItem("Generate Histogram");
+        JMenuItem linearStretchItem = new JMenuItem("Linear Stretch");
 
         duplicateItem.addActionListener(e -> duplicateImage());
         saveItem.addActionListener(e -> saveImage());
         closeItem.addActionListener(e -> closeImage());
         histogramItem.addActionListener(e -> generateHistogram());
+        linearStretchItem.addActionListener(e -> applyLinearStretch());
 
         popupMenu.add(duplicateItem);
         popupMenu.add(saveItem);
         popupMenu.add(closeItem);
         popupMenu.add(histogramItem);
+        popupMenu.add(linearStretchItem);
+    }
+
+    private void applyLinearStretch() {
+        BufferedImage stretchedImage = histogramProcessor.linearStretch(originalImage);
+        DraggableImage stretchedDraggableImage = new DraggableImage(stretchedImage, imageService, imagePanel, fileChooser, histogramProcessor);
+        imagePanel.add(stretchedDraggableImage);
+        stretchedDraggableImage.setBounds(getX() + 20, getY() + 20, stretchedImage.getWidth(), stretchedImage.getHeight());
+        imagePanel.revalidate();
+        imagePanel.repaint();
     }
 
     // Zmiana współczynnika skalowania
@@ -90,7 +104,7 @@ public class DraggableImage extends JLabel {
     // Duplikowanie obrazu
     private void duplicateImage() {
         BufferedImage duplicated = imageService.duplicateImage(originalImage);
-        DraggableImage duplicate = new DraggableImage(duplicated, imageService, imagePanel, fileChooser);
+        DraggableImage duplicate = new DraggableImage(duplicated, imageService, imagePanel, fileChooser, histogramProcessor);
         imagePanel.add(duplicate);
         duplicate.setBounds(getX() + 20, getY() + 20, duplicated.getWidth(), duplicated.getHeight());
         imagePanel.revalidate();

@@ -95,7 +95,7 @@ public class MultiImageApp extends JFrame {
     private void loadImage(File file) {
         BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
-            draggableImage = new DraggableImage(image, imageService, imagePanel, fileChooser);
+            draggableImage = new DraggableImage(image, imageService, imagePanel, fileChooser,new HistogramProcessor() );
             imagePanel.add(draggableImage);
             draggableImage.setBounds(0, 0, image.getWidth(), image.getHeight());
             imagePanel.revalidate();
