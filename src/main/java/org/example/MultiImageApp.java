@@ -24,24 +24,20 @@ public class MultiImageApp extends JFrame {
         fileChooser = new JFileChooser();
         imageService = new ImageService();
 
-        // Panel do wyświetlania obrazów z obsługą przewijania
         imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Panel na dole z przyciskiem "Otwórz obraz"
         JPanel panel = new JPanel();
         JButton openButton = new JButton("Open Image");
         panel.add(openButton);
         add(panel, BorderLayout.SOUTH);
 
-        // Menu rozwijane do wyboru powiększenia
         JComboBox<String> zoomComboBox = new JComboBox<>(new String[]{
                 "Dopasowanie do szerokości", "100%", "50%", "25%", "20%", "10%", "150%", "200%"
         });
         panel.add(zoomComboBox);
 
-        // Obsługa zmiany powiększenia
         zoomComboBox.addActionListener(e -> {
             String selectedZoom = (String) zoomComboBox.getSelectedItem();
             double scaleFactor = switch (Objects.requireNonNull(selectedZoom)) {
@@ -58,7 +54,6 @@ public class MultiImageApp extends JFrame {
             draggableImage.setScaleFactor(scaleFactor);
         });
 
-        // Obsługa przeciągania i upuszczania obrazów
         imagePanel.setDropTarget(new DropTarget() {
             @Override
             public synchronized void drop(DropTargetDropEvent dtde) {
@@ -74,7 +69,6 @@ public class MultiImageApp extends JFrame {
             }
         });
 
-        // Obsługa przycisku do otwierania obrazów
         openButton.addActionListener(e -> openImage());
 
         setSize(800, 600);
@@ -82,7 +76,6 @@ public class MultiImageApp extends JFrame {
         setVisible(true);
     }
 
-    // Funkcja otwierająca obraz
     private void openImage() {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -91,11 +84,10 @@ public class MultiImageApp extends JFrame {
         }
     }
 
-    // Ładowanie obrazu i dodanie go do panelu
     private void loadImage(File file) {
         BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
-            draggableImage = new DraggableImage(image, imageService, imagePanel, fileChooser,new HistogramProcessor() );
+            draggableImage = new DraggableImage(image, imageService, imagePanel, fileChooser, new HistogramProcessor());
             imagePanel.add(draggableImage);
             draggableImage.setBounds(0, 0, image.getWidth(), image.getHeight());
             imagePanel.revalidate();

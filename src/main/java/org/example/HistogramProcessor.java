@@ -12,10 +12,9 @@ public class HistogramProcessor {
         int minPixelValue = 255;
         int maxPixelValue = 0;
 
-        // Znajdź minimalną i maksymalną wartość piksela
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixelValue = new Color(image.getRGB(x, y)).getRed();  // Przyjmujemy, że obraz jest w skali szarości
+                int pixelValue = new Color(image.getRGB(x, y)).getRed();
                 if (pixelValue < minPixelValue) {
                     minPixelValue = pixelValue;
                 }
@@ -25,14 +24,13 @@ public class HistogramProcessor {
             }
         }
 
-        // Przeprowadź rozciąganie liniowe
         BufferedImage stretchedImage = new BufferedImage(width, height, image.getType());
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int pixelValue = new Color(image.getRGB(x, y)).getRed();
                 int newPixelValue = (pixelValue - minPixelValue) * 255 / (maxPixelValue - minPixelValue);
 
-                Color newColor = new Color(newPixelValue, newPixelValue, newPixelValue); // Przyjmujemy obraz w odcieniach szarości
+                Color newColor = new Color(newPixelValue, newPixelValue, newPixelValue);
                 stretchedImage.setRGB(x, y, newColor.getRGB());
             }
         }

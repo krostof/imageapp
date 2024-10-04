@@ -4,7 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes" />
+    <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/HistogramPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/HistogramPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/HistogramProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/HistogramProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/MultiImageApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/DraggableImage$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/DraggableImage$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/DraggableImage$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/DraggableImage$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/DraggableImage.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/DraggableImage.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/HistogramPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/HistogramPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/HistogramProcessor.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/HistogramProcessor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +38,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/org/example/HistogramPanel.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -29,22 +50,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ImageInterface.executor": "Run",
-    "Application.MultiImageApp.executor": "Run",
-    "Application.MultiImageInterface.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "7c77ceb7",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ImageInterface.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MultiImageApp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MultiImageInterface.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ImageApp [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ImageApp [install].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.example" />
@@ -52,6 +79,8 @@
   </component>
   <component name="RunManager" selected="Application.MultiImageApp">
     <configuration name="MultiImageApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="org.example.MultiImageApp" />
       <module name="ImageApp" />
       <extension name="coverage">
@@ -73,17 +102,6 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <option name="filePath" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -119,7 +137,9 @@
       <workItem from="1727040724126" duration="17000" />
       <workItem from="1727983543452" duration="2870000" />
       <workItem from="1728040093899" duration="26000" />
-      <workItem from="1728080253333" duration="805000" />
+      <workItem from="1728080253333" duration="2547000" />
+      <workItem from="1728082822419" duration="490000" />
+      <workItem from="1728083326023" duration="223000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

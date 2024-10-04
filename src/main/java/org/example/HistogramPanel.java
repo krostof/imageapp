@@ -42,13 +42,11 @@ public class HistogramPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Zsumowanie wartości RGB do odcieni szarości
         int[] grayHistogram = new int[numBins];
         for (int i = 0; i < numBins; i++) {
             grayHistogram[i] = histogram[0][i] + histogram[1][i] + histogram[2][i];
         }
 
-        // Znajdź maksymalną częstotliwość dla skalowania
         int maxFrequency = 0;
         for (int value : grayHistogram) {
             if (value > maxFrequency) {
@@ -56,19 +54,16 @@ public class HistogramPanel extends JPanel {
             }
         }
 
-        // Rysowanie histogramu w jednolitym kolorze
-        g2d.setColor(Color.BLUE); // Kolor histogramu
+        g2d.setColor(Color.BLUE);
         for (int i = 0; i < numBins; i++) {
             int barHeight = (int) ((double) grayHistogram[i] / maxFrequency * (height - marginBottom));
             g2d.fillRect(i * binWidth + marginLeft, height - barHeight - marginBottom, binWidth, barHeight);
         }
 
-        // Rysowanie osi X i Y
         g2d.setColor(Color.BLACK);
         g2d.drawLine(marginLeft, height - marginBottom, width - marginLeft, height - marginBottom); // Oś X
         g2d.drawLine(marginLeft, marginBottom, marginLeft, height - marginBottom); // Oś Y
 
-        // Etykiety osi X i Y
         g2d.drawString("0", marginLeft - 10, height - marginBottom + 15);
         g2d.drawString("255", width - marginLeft, height - marginBottom + 15);
 
