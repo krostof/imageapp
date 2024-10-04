@@ -48,6 +48,7 @@ public class DraggableImage extends JLabel {
         });
     }
 
+    // Create context menu with options to duplicate, save, close, and generate histogram
     private void createContextMenu() {
         JMenuItem duplicateItem = new JMenuItem("Duplicate");
         JMenuItem saveItem = new JMenuItem("Save");
