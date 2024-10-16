@@ -5,61 +5,58 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 public class MultiImageApp extends JFrame {
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
     private final ImageService imageService;
-    private DraggableImage draggableImage;
+    private final ImageLoader imageLoader;  // Nowa instancja ImageLoader
+    private final ImageSaver imageSaver;    // Nowa instancja ImageSaver
+    private final ImageDuplicator imageDuplicator; // Nowa instancja ImageDuplicator
+    private DraggableImage selectedImage;
 
     public MultiImageApp() {
         super("Multi Image Interface");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
 
+        imageService = new ImageService(); // Inicjalizacja ImageService
+        imageLoader = new ImageLoader();   // Inicjalizacja ImageLoader
+        imageSaver = new ImageSaver();     // Inicjalizacja ImageSaver
+        imageDuplicator = new ImageDuplicator(); // Inicjalizacja ImageDuplicator
         fileChooser = new JFileChooser();
-        imageService = new ImageService();
-
         imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        JPanel panel = new JPanel();
-        JButton openButton = new JButton("Open Image");
-        panel.add(openButton);
-        add(panel, BorderLayout.SOUTH);
+        // Dodanie obsługi Drag & Drop
+        enableDragAndDrop();
 
-        JComboBox<String> zoomComboBox = new JComboBox<>(new String[]{
-                "Dopasowanie do szerokości", "100%", "50%", "25%", "20%", "10%", "150%", "200%"
-        });
-        panel.add(zoomComboBox);
+        // Dodanie menu
+        createMenuBar();
 
-        zoomComboBox.addActionListener(e -> {
-            String selectedZoom = (String) zoomComboBox.getSelectedItem();
-            double scaleFactor = switch (Objects.requireNonNull(selectedZoom)) {
-                case "Dopasowanie do szerokości" -> (double) imagePanel.getWidth() / draggableImage.getWidth();
-                case "100%" -> 1.0;
-                case "50%" -> 0.5;
-                case "25%" -> 0.25;
-                case "20%" -> 0.2;
-                case "10%" -> 0.1;
-                case "150%" -> 1.5;
-                case "200%" -> 2.0;
-                default -> 1.0;
-            };
-            draggableImage.setScaleFactor(scaleFactor);
-        });
+        // Konfiguracja okna
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
 
+    private void enableDragAndDrop() {
+        // Ustawienie DropTarget na panel obrazów
         imagePanel.setDropTarget(new DropTarget() {
             @Override
             public synchronized void drop(DropTargetDropEvent dtde) {
                 try {
+                    // Zaakceptowanie akcji przeciągnięcia i upuszczenia
                     dtde.acceptDrop(dtde.getDropAction());
+                    // Pobranie plików przeciągniętych do aplikacji
                     List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+
+                    // Przetwarzanie przeciągniętych plików
                     for (File file : droppedFiles) {
                         loadImage(file);
                     }
@@ -68,12 +65,56 @@ public class MultiImageApp extends JFrame {
                 }
             }
         });
+    }
 
-        openButton.addActionListener(e -> openImage());
+    private void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
 
-        setSize(800, 600);
-        setLocationRelativeTo(null);
-        setVisible(true);
+        // Menu "File"
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem openMenuItem = new JMenuItem("Open Image");
+        openMenuItem.addActionListener(e -> openImage());
+        JMenuItem saveMenuItem = new JMenuItem("Save Image");
+        saveMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                saveImage(selectedImage.getImage());
+            }
+        });
+        fileMenu.add(openMenuItem);
+        fileMenu.add(saveMenuItem);
+
+        // Menu "Operations"
+        JMenu operationsMenu = new JMenu("Operations");
+        JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
+        duplicateMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                duplicateImage(selectedImage, selectedImage.getImage());
+            }
+        });
+
+        JMenuItem histogramMenuItem = new JMenuItem("Generate Histogram");
+        histogramMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                generateHistogram(selectedImage.getImage());
+            }
+        });
+
+        JMenuItem stretchMenuItem = new JMenuItem("Apply Linear Stretch");
+        stretchMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                applyLinearStretch(selectedImage, selectedImage.getImage());
+            }
+        });
+
+        operationsMenu.add(duplicateMenuItem);
+        operationsMenu.add(histogramMenuItem);
+        operationsMenu.add(stretchMenuItem);
+
+        // Dodanie menu do paska menu
+        menuBar.add(fileMenu);
+        menuBar.add(operationsMenu);
+
+        setJMenuBar(menuBar);
     }
 
     private void openImage() {
@@ -85,14 +126,74 @@ public class MultiImageApp extends JFrame {
     }
 
     private void loadImage(File file) {
-        BufferedImage image = imageService.loadImageFromFile(file);
+        BufferedImage image = imageLoader.loadImageFromFile(file);
         if (image != null) {
-            draggableImage = new DraggableImage(image, imageService, imagePanel, fileChooser, new HistogramProcessor());
-            imagePanel.add(draggableImage);
-            draggableImage.setBounds(0, 0, image.getWidth(), image.getHeight());
-            imagePanel.revalidate();
-            imagePanel.repaint();
+            addImageToPanel(image);
         }
+    }
+
+    private void addImageToPanel(BufferedImage image) {
+        DraggableImage draggableImage = new DraggableImage(image, imagePanel, this);
+        draggableImage.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                setSelectedImage(draggableImage);
+            }
+        });
+        imagePanel.add(draggableImage);
+        draggableImage.setBounds(0, 0, image.getWidth(), image.getHeight());
+        imagePanel.revalidate();
+        imagePanel.repaint();
+    }
+
+    private void setSelectedImage(DraggableImage draggableImage) {
+        this.selectedImage = draggableImage;
+        System.out.println("Selected image at position: " + draggableImage.getX() + ", " + draggableImage.getY());
+    }
+
+    private void saveImage(BufferedImage image) {
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            imageSaver.saveImageToFile(image, file);
+        }
+    }
+
+    private void duplicateImage(DraggableImage originalImage, BufferedImage image) {
+        BufferedImage duplicatedImage = imageDuplicator.duplicateImage(image);
+        DraggableImage newImage = new DraggableImage(duplicatedImage, imagePanel, this);
+        newImage.setBounds(originalImage.getX() + 20, originalImage.getY() + 20, duplicatedImage.getWidth(), duplicatedImage.getHeight());
+        newImage.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                setSelectedImage(newImage);
+            }
+        });
+        imagePanel.add(newImage);
+        imagePanel.revalidate();
+        imagePanel.repaint();
+    }
+
+    private void generateHistogram(BufferedImage image) {
+        int[][] histogram = imageService.generateHistogram(image);
+
+        // Tworzenie panelu histogramu
+        HistogramPanel histogramPanel = new HistogramPanel(histogram, image);
+
+        // Wyświetlanie histogramu w nowym oknie
+        JFrame histogramFrame = new JFrame("Histogram");
+        histogramFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        histogramFrame.getContentPane().add(histogramPanel);
+        histogramFrame.pack();
+        histogramFrame.setVisible(true);
+    }
+
+
+
+
+    private void applyLinearStretch(DraggableImage draggableImage, BufferedImage image) {
+        imageService.applyLinearStretch(image);
+        draggableImage.updateImage(image);  // Aktualizuj obraz w DraggableImage
     }
 
     public static void main(String[] args) {
