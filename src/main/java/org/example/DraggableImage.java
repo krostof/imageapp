@@ -10,16 +10,13 @@ public class DraggableImage extends JLabel {
     private final BufferedImage image;
     private Point initialClick;
     private final JPanel parentPanel;
-    private final MultiImageApp mainApp;
     private final JPopupMenu popupMenu;
 
     public DraggableImage(BufferedImage image, JPanel parentPanel, MultiImageApp mainApp) {
         this.image = image;
         this.parentPanel = parentPanel;
-        this.mainApp = mainApp;
         setIcon(new ImageIcon(image));
 
-        // Inicjalizacja menu kontekstowego
         popupMenu = new JPopupMenu();
         JMenuItem closeItem = new JMenuItem("Close");
         closeItem.addActionListener(e -> closeImage());
@@ -31,7 +28,6 @@ public class DraggableImage extends JLabel {
                 initialClick = e.getPoint();
                 getComponentAt(initialClick);
 
-                // Jeśli kliknięto prawym przyciskiem myszy, pokaż menu kontekstowe
                 if (SwingUtilities.isRightMouseButton(e)) {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
@@ -66,7 +62,6 @@ public class DraggableImage extends JLabel {
         repaint();
     }
 
-    // Funkcja zamykająca (usuwająca) obraz z panelu
     private void closeImage() {
         parentPanel.remove(this);
         parentPanel.revalidate();

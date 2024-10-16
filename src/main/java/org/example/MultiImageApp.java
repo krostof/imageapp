@@ -15,30 +15,27 @@ public class MultiImageApp extends JFrame {
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
     private final ImageService imageService;
-    private final ImageLoader imageLoader;  // Nowa instancja ImageLoader
-    private final ImageSaver imageSaver;    // Nowa instancja ImageSaver
-    private final ImageDuplicator imageDuplicator; // Nowa instancja ImageDuplicator
+    private final ImageLoader imageLoader;
+    private final ImageSaver imageSaver;
+    private final ImageDuplicator imageDuplicator;
     private DraggableImage selectedImage;
 
     public MultiImageApp() {
         super("Multi Image Interface");
 
-        imageService = new ImageService(); // Inicjalizacja ImageService
-        imageLoader = new ImageLoader();   // Inicjalizacja ImageLoader
-        imageSaver = new ImageSaver();     // Inicjalizacja ImageSaver
-        imageDuplicator = new ImageDuplicator(); // Inicjalizacja ImageDuplicator
+        imageService = new ImageService();
+        imageLoader = new ImageLoader();
+        imageSaver = new ImageSaver();
+        imageDuplicator = new ImageDuplicator();
         fileChooser = new JFileChooser();
         imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Dodanie obsługi Drag & Drop
         enableDragAndDrop();
 
-        // Dodanie menu
         createMenuBar();
 
-        // Konfiguracja okna
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -46,17 +43,13 @@ public class MultiImageApp extends JFrame {
     }
 
     private void enableDragAndDrop() {
-        // Ustawienie DropTarget na panel obrazów
         imagePanel.setDropTarget(new DropTarget() {
             @Override
             public synchronized void drop(DropTargetDropEvent dtde) {
                 try {
-                    // Zaakceptowanie akcji przeciągnięcia i upuszczenia
                     dtde.acceptDrop(dtde.getDropAction());
-                    // Pobranie plików przeciągniętych do aplikacji
                     List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
-                    // Przetwarzanie przeciągniętych plików
                     for (File file : droppedFiles) {
                         loadImage(file);
                     }
@@ -70,7 +63,6 @@ public class MultiImageApp extends JFrame {
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
-        // Menu "File"
         JMenu fileMenu = new JMenu("File");
         JMenuItem openMenuItem = new JMenuItem("Open Image");
         openMenuItem.addActionListener(e -> openImage());
@@ -83,7 +75,15 @@ public class MultiImageApp extends JFrame {
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
 
-        // Menu "Operations"
+        JMenu operationsMenu = getjMenu();
+
+        menuBar.add(fileMenu);
+        menuBar.add(operationsMenu);
+
+        setJMenuBar(menuBar);
+    }
+
+    private JMenu getjMenu() {
         JMenu operationsMenu = new JMenu("Operations");
         JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
         duplicateMenuItem.addActionListener(e -> {
@@ -109,12 +109,7 @@ public class MultiImageApp extends JFrame {
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);
-
-        // Dodanie menu do paska menu
-        menuBar.add(fileMenu);
-        menuBar.add(operationsMenu);
-
-        setJMenuBar(menuBar);
+        return operationsMenu;
     }
 
     private void openImage() {
@@ -175,13 +170,10 @@ public class MultiImageApp extends JFrame {
     }
 
     private void generateHistogram(BufferedImage image) {
-        // Tworzenie panelu histogramu z usługą imageService
         HistogramPanel histogramPanel = new HistogramPanel(imageService);
 
-        // Ustawienie obrazu w panelu histogramu
         histogramPanel.setImage(image);
 
-        // Wyświetlanie histogramu w nowym oknie
         JFrame histogramFrame = new JFrame("Histogram");
         histogramFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         histogramFrame.getContentPane().add(histogramPanel);
@@ -195,7 +187,7 @@ public class MultiImageApp extends JFrame {
 
     private void applyLinearStretch(DraggableImage draggableImage, BufferedImage image) {
         imageService.applyLinearStretch(image);
-        draggableImage.updateImage(image);  // Aktualizuj obraz w DraggableImage
+        draggableImage.updateImage(image);
     }
 
     public static void main(String[] args) {

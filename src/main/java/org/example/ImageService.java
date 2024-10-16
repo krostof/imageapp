@@ -1,13 +1,11 @@
 package org.example;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ImageService {
 
-    // Generowanie histogramu dla kanałów RGB
     public int[][] generateHistogram(BufferedImage image) {
-        int[][] histogram = new int[3][256]; // [0] - Red, [1] - Green, [2] - Blue
+        int[][] histogram = new int[3][256];
 
         int width = image.getWidth();
         int height = image.getHeight();
@@ -29,15 +27,13 @@ public class ImageService {
         return histogram;
     }
 
-    // Zastosowanie rozciągania liniowego
     public void applyLinearStretch(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
 
-        int[] min = {255, 255, 255};  // minimalne wartości dla kanałów R, G, B
-        int[] max = {0, 0, 0};        // maksymalne wartości dla kanałów R, G, B
+        int[] min = {255, 255, 255};
+        int[] max = {0, 0, 0};
 
-        // Znalezienie minimalnych i maksymalnych wartości dla każdego kanału
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int pixel = image.getRGB(x, y);
@@ -56,7 +52,6 @@ public class ImageService {
             }
         }
 
-        // Zastosowanie rozciągania liniowego
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int pixel = image.getRGB(x, y);
@@ -75,49 +70,13 @@ public class ImageService {
         }
     }
 
-    // Funkcja rozciągająca wartość z danego zakresu do zakresu 0-255
     private int stretchValue(int value, int min, int max) {
         if (max == min) {
-            return value; // Unikamy dzielenia przez zero
+            return value;
         }
-        return (int) (((value - min) * 255.0) / (max - min)); // Normalizacja wartości do zakresu 0-255
+        return (int) (((value - min) * 255.0) / (max - min));
     }
 }
 
 
-//    public BufferedImage generateHistogram(BufferedImage image) {
-//        int[][] histogram = calculateHistogram(image);
-//
-//        int width = 256;
-//        int height = 100;
-//        BufferedImage histogramImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-//        Graphics2D g2d = histogramImage.createGraphics();
-//
-//        g2d.setColor(Color.WHITE);
-//        g2d.fillRect(0, 0, width, height);
-//
-//        Color[] colors = {Color.RED, Color.GREEN, Color.BLUE};
-//
-//        int max = 0;
-//        for (int i = 0; i < 256; i++) {
-//            for (int j = 0; j < 3; j++) {
-//                if (histogram[j][i] > max) {
-//                    max = histogram[j][i];
-//                }
-//            }
-//        }
-//
-//        for (int channel = 0; channel < 3; channel++) {
-//            g2d.setColor(colors[channel]);
-//            for (int i = 0; i < 256; i++) {
-//                int value = histogram[channel][i];
-//                int barHeight = (int) ((value / (float) max) * height);
-//                g2d.drawLine(i, height, i, height - barHeight);
-//            }
-//        }
-//
-//        g2d.dispose();
-//
-//        return histogramImage;
-//    }
 
