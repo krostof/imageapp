@@ -175,10 +175,11 @@ public class MultiImageApp extends JFrame {
     }
 
     private void generateHistogram(BufferedImage image) {
-        int[][] histogram = imageService.generateHistogram(image);
+        // Tworzenie panelu histogramu z usługą imageService
+        HistogramPanel histogramPanel = new HistogramPanel(imageService);
 
-        // Tworzenie panelu histogramu
-        HistogramPanel histogramPanel = new HistogramPanel(histogram, image);
+        // Ustawienie obrazu w panelu histogramu
+        histogramPanel.setImage(image);
 
         // Wyświetlanie histogramu w nowym oknie
         JFrame histogramFrame = new JFrame("Histogram");
@@ -187,6 +188,7 @@ public class MultiImageApp extends JFrame {
         histogramFrame.pack();
         histogramFrame.setVisible(true);
     }
+
 
 
 
