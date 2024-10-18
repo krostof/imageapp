@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 public class HistogramPanel extends JPanel {
     private BufferedImage image;
     private final ImageService imageService;
+    private int peakValue;
+    private double maxValue;
 
     public HistogramPanel(ImageService imageService) {
         this.imageService = imageService;
@@ -30,6 +32,8 @@ public class HistogramPanel extends JPanel {
         }
 
         int[][] histogram = imageService.getHistogram(image);
+        this.peakValue = imageService.getHistogramPeak(histogram);
+        this.maxValue = imageService.getHistogramMaximum(histogram);
         drawHistogram(g, histogram);
     }
 
@@ -45,19 +49,12 @@ public class HistogramPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-
         int[] grayHistogram = new int[numBins];
         for (int i = 0; i < numBins; i++) {
             grayHistogram[i] = histogram[0][i] + histogram[1][i] + histogram[2][i];
         }
 
-        int maxFrequency = 0;
-        for (int value : grayHistogram) {
-            if (value > maxFrequency) {
-                maxFrequency = value;
-            }
-        }
-
+        int maxFrequency = (int) maxValue;
         g2d.setColor(Color.BLACK);
         for (int i = 0; i < numBins; i++) {
             int barHeight = (int) ((double) grayHistogram[i] / maxFrequency * (height - marginBottom - marginTop));
@@ -73,6 +70,7 @@ public class HistogramPanel extends JPanel {
 
         g2d.drawString("0", marginLeft - 25, height - marginBottom);
         g2d.drawString(Integer.toString(maxFrequency), marginLeft - 35, marginTop + 10);
+        g2d.drawString("Peak: " + peakValue, marginLeft - 35, marginTop + 30); // Dodanie szczytowej wartości
 
         g2d.dispose();
     }

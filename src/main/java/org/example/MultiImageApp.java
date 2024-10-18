@@ -23,7 +23,6 @@ public class MultiImageApp extends JFrame {
     public MultiImageApp() {
         super("Multi Image Interface");
 
-        // Inicjalizacja komponentów
         HistogramGenerator histogramGenerator = new HistogramGenerator();
         ImageLoader imageLoader = new ImageLoader();
         ImageSaver imageSaver = new ImageSaver();

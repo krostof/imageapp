@@ -25,6 +25,14 @@ public class ImageService {
         return histogramGenerator.generateHistogram(image);
     }
 
+    public int getHistogramPeak(int[][] histogram) {
+        return histogramGenerator.getPeakValue(histogram);
+    }
+
+    public double getHistogramMaximum(int[][] histogram) {
+        return histogramGenerator.getMaximumValue(histogram);
+    }
+
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
     }
@@ -38,6 +46,6 @@ public class ImageService {
     }
 
     public void applyLinearStretch(BufferedImage image) {
-        linearStretchProcessor.applyLinearStretch(image); // Zastosowanie nowej klasy
+        linearStretchProcessor.applyLinearStretch(image);
     }
 }

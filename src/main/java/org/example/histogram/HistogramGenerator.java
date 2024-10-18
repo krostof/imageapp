@@ -24,4 +24,26 @@ public class HistogramGenerator {
         }
         return histogram;
     }
+
+    public int getPeakValue(int[][] histogram) {
+        int maxIndex = 0;
+        int maxValue = 0;
+        for (int i = 0; i < histogram[0].length; i++) {
+            int currentValue = histogram[0][i] + histogram[1][i] + histogram[2][i];
+            if (currentValue > maxValue) {
+                maxValue = currentValue;
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
+    }
+
+    public double getMaximumValue(int[][] histogram) {
+        int maxValue = 0;
+        for (int i = 0; i < histogram[0].length; i++) {
+            int currentValue = histogram[0][i] + histogram[1][i] + histogram[2][i];
+            maxValue = Math.max(maxValue, currentValue);
+        }
+        return maxValue;
+    }
 }
