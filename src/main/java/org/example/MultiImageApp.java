@@ -23,6 +23,7 @@ public class MultiImageApp extends JFrame {
     public MultiImageApp() {
         super("Multi Image Interface");
 
+        // Inicjalizacja komponentów
         HistogramGenerator histogramGenerator = new HistogramGenerator();
         ImageLoader imageLoader = new ImageLoader();
         ImageSaver imageSaver = new ImageSaver();
@@ -57,7 +58,7 @@ public class MultiImageApp extends JFrame {
                         loadImage(file);
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(MultiImageApp.this, "Failed to load image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -127,6 +128,8 @@ public class MultiImageApp extends JFrame {
         BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
             addImageToPanel(image);
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to load image.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
