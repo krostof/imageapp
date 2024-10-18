@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.histogram.HistogramGenerator;
+import org.example.histogram.HistogramPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -15,25 +18,25 @@ public class MultiImageApp extends JFrame {
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
     private final ImageService imageService;
-    private final ImageLoader imageLoader;
-    private final ImageSaver imageSaver;
-    private final ImageDuplicator imageDuplicator;
     private DraggableImage selectedImage;
 
     public MultiImageApp() {
         super("Multi Image Interface");
 
-        imageService = new ImageService();
-        imageLoader = new ImageLoader();
-        imageSaver = new ImageSaver();
-        imageDuplicator = new ImageDuplicator();
+        HistogramGenerator histogramGenerator = new HistogramGenerator();
+        ImageLoader imageLoader = new ImageLoader();
+        ImageSaver imageSaver = new ImageSaver();
+        ImageDuplicator imageDuplicator = new ImageDuplicator();
+        LinearStretchProcessor linearStretchProcessor = new LinearStretchProcessor();
+
+        imageService = new ImageService(histogramGenerator, imageLoader, imageSaver, imageDuplicator, linearStretchProcessor);
+
         fileChooser = new JFileChooser();
         imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
         add(scrollPane, BorderLayout.CENTER);
 
         enableDragAndDrop();
-
         createMenuBar();
 
         setSize(800, 600);
@@ -75,7 +78,7 @@ public class MultiImageApp extends JFrame {
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
 
-        JMenu operationsMenu = getjMenu();
+        JMenu operationsMenu = getOperationsMenu();
 
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);
@@ -83,7 +86,7 @@ public class MultiImageApp extends JFrame {
         setJMenuBar(menuBar);
     }
 
-    private JMenu getjMenu() {
+    private JMenu getOperationsMenu() {
         JMenu operationsMenu = new JMenu("Operations");
         JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
         duplicateMenuItem.addActionListener(e -> {
@@ -121,7 +124,7 @@ public class MultiImageApp extends JFrame {
     }
 
     private void loadImage(File file) {
-        BufferedImage image = imageLoader.loadImageFromFile(file);
+        BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
             addImageToPanel(image);
         }
@@ -150,12 +153,12 @@ public class MultiImageApp extends JFrame {
         int result = fileChooser.showSaveDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            imageSaver.saveImageToFile(image, file);
+            imageService.saveImageToFile(image, file);
         }
     }
 
     private void duplicateImage(DraggableImage originalImage, BufferedImage image) {
-        BufferedImage duplicatedImage = imageDuplicator.duplicateImage(image);
+        BufferedImage duplicatedImage = imageService.duplicateImage(image);
         DraggableImage newImage = new DraggableImage(duplicatedImage, imagePanel, this);
         newImage.setBounds(originalImage.getX() + 20, originalImage.getY() + 20, duplicatedImage.getWidth(), duplicatedImage.getHeight());
         newImage.addMouseListener(new MouseAdapter() {
@@ -180,10 +183,6 @@ public class MultiImageApp extends JFrame {
         histogramFrame.pack();
         histogramFrame.setVisible(true);
     }
-
-
-
-
 
     private void applyLinearStretch(DraggableImage draggableImage, BufferedImage image) {
         imageService.applyLinearStretch(image);

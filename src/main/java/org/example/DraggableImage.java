@@ -1,5 +1,7 @@
 package org.example;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -7,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class DraggableImage extends JLabel {
+    @Getter
     private final BufferedImage image;
     private Point initialClick;
     private final JPanel parentPanel;
@@ -49,10 +52,6 @@ public class DraggableImage extends JLabel {
                 setLocation(X, Y);
             }
         });
-    }
-
-    public BufferedImage getImage() {
-        return image;
     }
 
     public void updateImage(BufferedImage newImage) {

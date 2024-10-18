@@ -1,4 +1,6 @@
-package org.example;
+package org.example.histogram;
+
+import org.example.ImageService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +29,7 @@ public class HistogramPanel extends JPanel {
             return;
         }
 
-        int[][] histogram = imageService.generateHistogram(image);
+        int[][] histogram = imageService.getHistogram(image);
         drawHistogram(g, histogram);
     }
 

@@ -5,7 +5,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 public class ImageLoader {
-    public BufferedImage loadImageFromFile(File file) {
+    public BufferedImage loadImage(File file) {
         try {
             return ImageIO.read(file);
         } catch (Exception e) {
