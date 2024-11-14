@@ -5,10 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageScaler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramDataGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramDrawer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/LUTGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/LinearStretchProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearstreach/LinearStretchProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/MultiImageApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramGenerator.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/MultiImageApp.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +34,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
@@ -45,6 +61,7 @@
     "Maven.ImageApp [clean].executor": "Run",
     "Maven.ImageApp [install].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "extract.method.default.visibility": "private",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/krostof/Desktop/apo/apoz",
@@ -62,6 +79,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.example.histogram" />
       <recent name="org.example" />
     </key>
   </component>
@@ -134,6 +152,10 @@
       <workItem from="1729110386697" duration="9000" />
       <workItem from="1729260522556" duration="303000" />
       <workItem from="1729261493372" duration="9499000" />
+      <workItem from="1730538098564" duration="5387000" />
+      <workItem from="1730643702067" duration="509000" />
+      <workItem from="1731527840613" duration="1843000" />
+      <workItem from="1731598356924" duration="19087000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />
@@ -162,7 +184,27 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ID_WIDTH">
+                <map>
+                  <entry key="Table.Default.Author.ColumnIdWidth" value="93" />
+                  <entry key="Table.Default.Date.ColumnIdWidth" value="117" />
+                  <entry key="Table.GitHub.CommitStatus.ColumnIdWidth" value="72" />
+                  <entry key="Table.Space.CommitStatus.ColumnIdWidth" value="72" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>

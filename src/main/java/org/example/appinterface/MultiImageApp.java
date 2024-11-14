@@ -1,8 +1,14 @@
-package org.example;
+package org.example.appinterface;
 
-import org.example.histogram.HistogramGenerator;
+
+
+import lombok.Getter;
+import org.example.DraggableImage;
+import org.example.HistogramEqualizer;
 import org.example.histogram.HistogramPanel;
+import org.example.linearstreach.LinearStretchProcessor;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -17,19 +23,11 @@ import java.util.List;
 public class MultiImageApp extends JFrame {
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
-    private final ImageService imageService;
+    @Getter
     private DraggableImage selectedImage;
 
     public MultiImageApp() {
         super("Multi Image Interface");
-
-        HistogramGenerator histogramGenerator = new HistogramGenerator();
-        ImageLoader imageLoader = new ImageLoader();
-        ImageSaver imageSaver = new ImageSaver();
-        ImageDuplicator imageDuplicator = new ImageDuplicator();
-        LinearStretchProcessor linearStretchProcessor = new LinearStretchProcessor();
-
-        imageService = new ImageService(histogramGenerator, imageLoader, imageSaver, imageDuplicator, linearStretchProcessor);
 
         fileChooser = new JFileChooser();
         imagePanel = new JPanel(null);
@@ -66,69 +64,19 @@ public class MultiImageApp extends JFrame {
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu fileMenu = new JMenu("File");
-        JMenuItem openMenuItem = new JMenuItem("Open Image");
-        openMenuItem.addActionListener(e -> openImage());
-        JMenuItem saveMenuItem = new JMenuItem("Save Image");
-        saveMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                saveImage(selectedImage.getImage());
-            }
-        });
-        fileMenu.add(openMenuItem);
-        fileMenu.add(saveMenuItem);
-
-        JMenu operationsMenu = getOperationsMenu();
-
-        menuBar.add(fileMenu);
-        menuBar.add(operationsMenu);
+        // Dodanie menu operacji
+        OperationsMenu operationsMenu = new OperationsMenu(this);
+        menuBar.add(operationsMenu.getMenu());
 
         setJMenuBar(menuBar);
     }
 
-    private JMenu getOperationsMenu() {
-        JMenu operationsMenu = new JMenu("Operations");
-        JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
-        duplicateMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                duplicateImage(selectedImage, selectedImage.getImage());
-            }
-        });
-
-        JMenuItem histogramMenuItem = new JMenuItem("Generate Histogram");
-        histogramMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                generateHistogram(selectedImage.getImage());
-            }
-        });
-
-        JMenuItem stretchMenuItem = new JMenuItem("Apply Linear Stretch");
-        stretchMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                applyLinearStretch(selectedImage, selectedImage.getImage());
-            }
-        });
-
-        operationsMenu.add(duplicateMenuItem);
-        operationsMenu.add(histogramMenuItem);
-        operationsMenu.add(stretchMenuItem);
-        return operationsMenu;
-    }
-
-    private void openImage() {
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            loadImage(file);
-        }
-    }
-
     private void loadImage(File file) {
-        BufferedImage image = imageService.loadImageFromFile(file);
-        if (image != null) {
+        try {
+            BufferedImage image = ImageIO.read(file);
             addImageToPanel(image);
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to load image.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Failed to load image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -151,16 +99,12 @@ public class MultiImageApp extends JFrame {
         System.out.println("Selected image at position: " + draggableImage.getX() + ", " + draggableImage.getY());
     }
 
-    private void saveImage(BufferedImage image) {
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            imageService.saveImageToFile(image, file);
-        }
-    }
+    public void duplicateImage(DraggableImage originalImage, BufferedImage image) {
+        BufferedImage duplicatedImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        Graphics g = duplicatedImage.getGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
 
-    private void duplicateImage(DraggableImage originalImage, BufferedImage image) {
-        BufferedImage duplicatedImage = imageService.duplicateImage(image);
         DraggableImage newImage = new DraggableImage(duplicatedImage, imagePanel, this);
         newImage.setBounds(originalImage.getX() + 20, originalImage.getY() + 20, duplicatedImage.getWidth(), duplicatedImage.getHeight());
         newImage.addMouseListener(new MouseAdapter() {
@@ -174,10 +118,8 @@ public class MultiImageApp extends JFrame {
         imagePanel.repaint();
     }
 
-    private void generateHistogram(BufferedImage image) {
-        HistogramPanel histogramPanel = new HistogramPanel(imageService);
-
-        histogramPanel.setImage(image);
+    public void generateHistogram(BufferedImage image) {
+        HistogramPanel histogramPanel = new HistogramPanel(image);
 
         JFrame histogramFrame = new JFrame("Histogram");
         histogramFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -186,9 +128,18 @@ public class MultiImageApp extends JFrame {
         histogramFrame.setVisible(true);
     }
 
-    private void applyLinearStretch(DraggableImage draggableImage, BufferedImage image) {
-        imageService.applyLinearStretch(image);
+    public void applyLinearStretch(DraggableImage draggableImage, BufferedImage image, boolean withClipping, double clippingPercentage) {
+        LinearStretchProcessor processor = new LinearStretchProcessor();
+        processor.applyLinearStretch(image, withClipping, clippingPercentage);
         draggableImage.updateImage(image);
+        JOptionPane.showMessageDialog(this, "Linear stretch applied successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void applyHistogramEqualization(DraggableImage draggableImage, BufferedImage image) {
+        HistogramEqualizer equalizer = new HistogramEqualizer();
+        equalizer.applyHistogramEqualization(image);
+        draggableImage.updateImage(image);
+        JOptionPane.showMessageDialog(this, "Histogram equalization applied successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {

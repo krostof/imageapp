@@ -1,37 +1,18 @@
 package org.example;
 
-import org.example.histogram.HistogramGenerator;
+import lombok.AllArgsConstructor;
+import org.example.linearstreach.LinearStretchProcessor;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+@AllArgsConstructor
 public class ImageService {
 
-    private final HistogramGenerator histogramGenerator;
     private final ImageLoader imageLoader;
     private final ImageSaver imageSaver;
     private final ImageDuplicator imageDuplicator;
     private final LinearStretchProcessor linearStretchProcessor;
-
-    public ImageService(HistogramGenerator histogramGenerator, ImageLoader imageLoader, ImageSaver imageSaver, ImageDuplicator imageDuplicator, LinearStretchProcessor linearStretchProcessor) {
-        this.histogramGenerator = histogramGenerator;
-        this.imageLoader = imageLoader;
-        this.imageSaver = imageSaver;
-        this.imageDuplicator = imageDuplicator;
-        this.linearStretchProcessor = linearStretchProcessor;
-    }
-
-    public int[][] getHistogram(BufferedImage image) {
-        return histogramGenerator.generateHistogram(image);
-    }
-
-    public int getHistogramPeak(int[][] histogram) {
-        return histogramGenerator.getPeakValue(histogram);
-    }
-
-    public double getHistogramMaximum(int[][] histogram) {
-        return histogramGenerator.getMaximumValue(histogram);
-    }
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -45,7 +26,7 @@ public class ImageService {
         return imageDuplicator.duplicateImage(image);
     }
 
-    public void applyLinearStretch(BufferedImage image) {
-        linearStretchProcessor.applyLinearStretch(image);
+    public void applyLinearStretch(BufferedImage image, boolean withClipping, double clippingPercentage) {
+        linearStretchProcessor.applyLinearStretch(image, withClipping, clippingPercentage);
     }
 }
