@@ -1,6 +1,8 @@
 package org.example.appinterface;
 
 import org.example.*;
+import org.example.grayscale.GrayscaleImageProcessor;
+import org.example.grayscale.GrayscaleImageProcessorService;
 import org.example.histogram.HistogramDataGenerator;
 import org.example.histogram.HistogramDrawer;
 import org.example.histogram.HistogramPanel;
@@ -18,6 +20,7 @@ import java.util.List;
 
 public class MultiImageApp extends JFrame {
 
+    private final GrayscaleImageProcessorService grayscaleImageProcessorService;
     private final JPanel imagePanel;
     private final JFileChooser fileChooser;
     private final ImageService imageService;
@@ -34,6 +37,7 @@ public class MultiImageApp extends JFrame {
                 new HistogramEqualizer(new LUTGenerator())
         );
 
+        this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
         this.fileChooser = new JFileChooser();
         this.imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
@@ -117,11 +121,24 @@ public class MultiImageApp extends JFrame {
             }
         });
 
+        JMenuItem negateMenuItem = new JMenuItem("Negate Image");
+        negateMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    BufferedImage negatedImage = grayscaleImageProcessorService.negateImage(selectedImage.getImage());
+                    selectedImage.updateImage(negatedImage);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, "Image must be in grayscale for negation.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);
         operationsMenu.add(stretchWithClippingMenuItem);
         operationsMenu.add(equalizeHistogramMenuItem);
+        operationsMenu.add(negateMenuItem);
 
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);
