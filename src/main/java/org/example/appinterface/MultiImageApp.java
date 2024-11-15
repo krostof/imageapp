@@ -163,57 +163,6 @@ public class MultiImageApp extends JFrame {
             }
         });
 
-        JMenuItem binarizeMenuItem = new JMenuItem("Binary Thresholding");
-        binarizeMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                try {
-                    String input = JOptionPane.showInputDialog(this, "Enter the threshold value (0-255):",
-                            "Binary Thresholding", JOptionPane.PLAIN_MESSAGE);
-
-                    if (input != null) {
-                        int threshold = Integer.parseInt(input); // Konwersja do liczby
-                        if (threshold < 0 || threshold > 255) {
-                            throw new IllegalArgumentException("Threshold must be between 0 and 255.");
-                        }
-
-                        // Wywołanie metody progowania binarnego w serwisie
-                        BufferedImage binarizedImage = grayscaleImageProcessorService.binarizeImage(selectedImage.getImage(), threshold);
-                        selectedImage.updateImage(binarizedImage);
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number between 0 and 255.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        JMenuItem grayLevelThresholdMenuItem = new JMenuItem("Threshold with Gray Levels");
-        grayLevelThresholdMenuItem.addActionListener(e -> {
-            if (selectedImage != null) {
-                try {
-                    String input = JOptionPane.showInputDialog(this, "Enter the threshold value (0-255):",
-                            "Threshold with Gray Levels", JOptionPane.PLAIN_MESSAGE);
-
-                    if (input != null) {
-                        int threshold = Integer.parseInt(input); // Konwersja do liczby
-                        if (threshold < 0 || threshold > 255) {
-                            throw new IllegalArgumentException("Threshold must be between 0 and 255.");
-                        }
-
-                        // Wywołanie metody progowania w serwisie
-                        BufferedImage thresholdedImage = grayscaleImageProcessorService.thresholdWithGrayLevels(selectedImage.getImage(), threshold);
-                        selectedImage.updateImage(thresholdedImage); // Aktualizacja obrazu
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number between 0 and 255.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
         JMenuItem stretchHistogramMenuItem = new JMenuItem("Stretch Histogram");
         stretchHistogramMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
@@ -249,19 +198,32 @@ public class MultiImageApp extends JFrame {
             }
         });
 
-// Dodanie do menu operacji
-        operationsMenu.add(stretchHistogramMenuItem);
+        JMenuItem thresholdMenuItem = new JMenuItem("Threshold");
+        thresholdMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                ThresholdDialog dialog = new ThresholdDialog(this, selectedImage.getImage(), grayscaleImageProcessorService);
+                dialog.setVisible(true);
 
+                BufferedImage processedImage = dialog.getProcessedImage();
+                if (processedImage != null) {
+                    selectedImage.updateImage(processedImage);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+        operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);
         operationsMenu.add(stretchWithClippingMenuItem);
         operationsMenu.add(equalizeHistogramMenuItem);
-        pointOperationsMenu.add(grayLevelThresholdMenuItem);
-        pointOperationsMenu.add(binarizeMenuItem);
         pointOperationsMenu.add(quantizeMenuItem);
         pointOperationsMenu.add(negateMenuItem);
+        pointOperationsMenu.add(thresholdMenuItem);
 
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);

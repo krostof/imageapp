@@ -80,25 +80,21 @@ public class GrayscaleImageProcessor {
      * @return The binarized image.
      */
     public BufferedImage binarizeImage(BufferedImage image, int threshold) {
-        if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
-            throw new IllegalArgumentException("Input image must be in grayscale.");
-        }
-
         int width = image.getWidth();
         int height = image.getHeight();
         BufferedImage binarizedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRGB(x, y) & 0xFF; // Pobierz wartość szarości
-                int binarizedPixel = pixel > threshold ? 255 : 0; // Progowanie
-                int newPixel = (binarizedPixel << 16) | (binarizedPixel << 8) | binarizedPixel; // Budowa piksela
-                binarizedImage.setRGB(x, y, newPixel);
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
+                int binaryPixel = (pixel > threshold) ? 255 : 0;  // Binarne progowanie
+                binarizedImage.getRaster().setSample(x, y, 0, binaryPixel);
             }
         }
 
         return binarizedImage;
     }
+
 
     /**
      * Applies thresholding with gray levels to a grayscale image.
@@ -108,24 +104,20 @@ public class GrayscaleImageProcessor {
      * @return The thresholded image.
      */
     public BufferedImage thresholdWithGrayLevels(BufferedImage image, int threshold) {
-        if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
-            throw new IllegalArgumentException("Input image must be in grayscale.");
-        }
-
         int width = image.getWidth();
         int height = image.getHeight();
         BufferedImage thresholdedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRGB(x, y) & 0xFF; // Pobierz wartość szarości
-                int newPixelValue = (pixel > threshold) ? pixel : 0; // Zachowaj poziom szarości lub przypisz 0
-                int newPixel = (newPixelValue << 16) | (newPixelValue << 8) | newPixelValue; // Budowa piksela
-                thresholdedImage.setRGB(x, y, newPixel);
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
+                int grayLevelPixel = (pixel > threshold) ? pixel : 0; // Zachowanie poziomów szarości
+                thresholdedImage.getRaster().setSample(x, y, 0, grayLevelPixel);
             }
         }
 
         return thresholdedImage;
     }
+
 
 }

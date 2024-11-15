@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/ThresholdDialog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/grayscale/GrayscaleImageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/grayscale/GrayscaleImageProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,7 +162,7 @@
       <workItem from="1731598356924" duration="19087000" />
       <workItem from="1731628307808" duration="1029000" />
       <workItem from="1731629354418" duration="983000" />
-      <workItem from="1731679728165" duration="16103000" />
+      <workItem from="1731679728165" duration="16895000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />
