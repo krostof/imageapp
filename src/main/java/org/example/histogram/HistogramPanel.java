@@ -1,3 +1,4 @@
+
 package org.example.histogram;
 
 import javax.swing.*;

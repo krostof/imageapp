@@ -29,30 +29,24 @@ public class DraggableImage extends JLabel {
         // Inicjalizacja menu kontekstowego
         popupMenu = new JPopupMenu();
 
-        // Opcja: Dopasuj do okna
         JMenuItem fitToWindowItem = new JMenuItem("Fit to Window");
         fitToWindowItem.addActionListener(e -> scaleImageToWindow());
 
-        // Opcja: Pełny ekran
         JMenuItem fullScreenItem = new JMenuItem("Full Screen");
         fullScreenItem.addActionListener(e -> scaleImageToFullScreen());
 
-        // Opcja: Naturalny rozmiar
         JMenuItem naturalSizeItem = new JMenuItem("Natural Size");
         naturalSizeItem.addActionListener(e -> scaleImageToNaturalSize());
 
-        // Opcja: Zamknij obraz
         JMenuItem closeItem = new JMenuItem("Close");
         closeItem.addActionListener(e -> closeImage());
 
-        // Dodanie opcji do menu kontekstowego
         popupMenu.add(fitToWindowItem);
         popupMenu.add(fullScreenItem);
         popupMenu.add(naturalSizeItem);
         popupMenu.addSeparator();
         popupMenu.add(closeItem);
 
-        // Obsługa zdarzeń myszy
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -62,8 +56,16 @@ public class DraggableImage extends JLabel {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
+
+                // Ustawienie obrazu jako wybranego
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    mainApp.setSelectedImage(DraggableImage.this); // Ustawienie wybranego obrazu w MultiImageApp
+                    System.out.println("Selected image updated. Location: X = " + getX() + ", Y = " + getY());
+                }
             }
         });
+
+
 
         addMouseMotionListener(new MouseAdapter() {
             @Override
@@ -78,6 +80,9 @@ public class DraggableImage extends JLabel {
                 int Y = thisY + yMoved;
 
                 setLocation(X, Y);
+
+                // Log aktualnej pozycji
+                System.out.println("Image moved to: X = " + X + ", Y = " + Y);
             }
         });
     }
@@ -96,20 +101,14 @@ public class DraggableImage extends JLabel {
     private void scaleImageToWindow() {
         currentImage = imageScaler.scaleToWindow(originalImage, parentPanel.getWidth(), parentPanel.getHeight());
         updateImage(currentImage);
-
         setLocation(0, 0);
     }
-
 
     private void scaleImageToFullScreen() {
-        // Wywołanie metody z ImageScaler
         currentImage = imageScaler.scaleToFullScreen(originalImage);
         updateImage(currentImage);
-
-        // Ustaw obraz w lewym górnym rogu
         setLocation(0, 0);
     }
-
 
     private void scaleImageToNaturalSize() {
         currentImage = imageScaler.scaleToNaturalSize(originalImage);
