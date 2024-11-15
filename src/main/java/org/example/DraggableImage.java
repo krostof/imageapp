@@ -9,24 +9,30 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+
 public class DraggableImage extends JLabel {
+    @Override
+    public String toString() {
+        return fileName;
+    }
     @Getter
-    private final BufferedImage originalImage; // Oryginalny obraz
-    private BufferedImage currentImage; // Obraz w aktualnym rozmiarze
+    private final BufferedImage originalImage;
+    private BufferedImage currentImage;
     private Point initialClick;
     private final JPanel parentPanel;
     private final JPopupMenu popupMenu;
     private final ImageScaler imageScaler;
+    private final String fileName;
 
-    public DraggableImage(BufferedImage image, JPanel parentPanel, MultiImageApp mainApp) {
+    public DraggableImage(BufferedImage image, JPanel parentPanel, MultiImageApp mainApp, String fileName) {
         this.originalImage = image;
         this.currentImage = image;
         this.parentPanel = parentPanel;
+        this.fileName = fileName;
         this.imageScaler = new ImageScaler();
         setIcon(new ImageIcon(currentImage));
         setSize(currentImage.getWidth(), currentImage.getHeight());
 
-        // Inicjalizacja menu kontekstowego
         popupMenu = new JPopupMenu();
 
         JMenuItem fitToWindowItem = new JMenuItem("Fit to Window");

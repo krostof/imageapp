@@ -414,19 +414,20 @@ public class MultiImageApp extends JFrame {
     private void loadImage(File file) {
         BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
-            addImageToPanel(image);
+            addImageToPanel(image, file.getName()); // Przekazujemy nazwę pliku
         } else {
             JOptionPane.showMessageDialog(this, "Failed to load image.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void addImageToPanel(BufferedImage image) {
-        DraggableImage draggableImage = new DraggableImage(image, imagePanel, this);
+    private void addImageToPanel(BufferedImage image, String fileName) {
+        DraggableImage draggableImage = new DraggableImage(image, imagePanel, this, fileName);
         draggableImage.setBounds(0, 0, image.getWidth(), image.getHeight());
         imagePanel.add(draggableImage);
         imagePanel.revalidate();
         imagePanel.repaint();
     }
+
 
     private void saveImage(BufferedImage image) {
         int result = fileChooser.showSaveDialog(this);
@@ -438,7 +439,7 @@ public class MultiImageApp extends JFrame {
 
     private void duplicateImage(DraggableImage originalImage, BufferedImage image) {
         BufferedImage duplicatedImage = imageService.duplicateImage(image);
-        DraggableImage newImage = new DraggableImage(duplicatedImage, imagePanel, this);
+        DraggableImage newImage = new DraggableImage(duplicatedImage, imagePanel, this,originalImage.getName());
         newImage.setBounds(originalImage.getX() + 20, originalImage.getY() + 20, duplicatedImage.getWidth(), duplicatedImage.getHeight());
         imagePanel.add(newImage);
         imagePanel.revalidate();
@@ -482,7 +483,7 @@ public class MultiImageApp extends JFrame {
     }
 
     private DraggableImage selectImage(String message) {
-        Object[] images = imagePanel.getComponents(); // Pobieramy wszystkie obrazy w panelu
+        Object[] images = imagePanel.getComponents();
         if (images.length == 0) {
             JOptionPane.showMessageDialog(this, "No images available.", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
@@ -503,6 +504,7 @@ public class MultiImageApp extends JFrame {
                 draggableImages[0]
         );
     }
+
 
     private DraggableImage[] selectTwoImages(String message) {
         Object[] images = imagePanel.getComponents(); // Pobierz wszystkie obrazy w panelu
