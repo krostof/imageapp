@@ -504,6 +504,51 @@ public class MultiImageApp extends JFrame {
         );
     }
 
+    private DraggableImage[] selectTwoImages(String message) {
+        Object[] images = imagePanel.getComponents(); // Pobierz wszystkie obrazy w panelu
+        if (images.length < 2) {
+            JOptionPane.showMessageDialog(this, "At least two images must be loaded.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
+        DraggableImage[] draggableImages = new DraggableImage[images.length];
+        for (int i = 0; i < images.length; i++) {
+            draggableImages[i] = (DraggableImage) images[i];
+        }
+
+        // Okno dialogowe do wyboru obrazów
+        DraggableImage firstImage = (DraggableImage) JOptionPane.showInputDialog(
+                this,
+                "Select the first image (left):",
+                "Select First Image",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                draggableImages,
+                draggableImages[0]
+        );
+
+        if (firstImage == null) return null;
+
+        // Usuń wybrany obraz z opcji wyboru dla drugiego
+        DraggableImage[] remainingImages = java.util.Arrays.stream(draggableImages)
+                .filter(image -> image != firstImage)
+                .toArray(DraggableImage[]::new);
+
+        DraggableImage secondImage = (DraggableImage) JOptionPane.showInputDialog(
+                this,
+                "Select the second image (right):",
+                "Select Second Image",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                remainingImages,
+                remainingImages[0]
+        );
+
+        if (secondImage == null) return null;
+
+        return new DraggableImage[]{firstImage, secondImage};
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MultiImageApp::new);

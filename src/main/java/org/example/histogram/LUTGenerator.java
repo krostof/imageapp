@@ -51,13 +51,4 @@ public class LUTGenerator {
 
         return lut;
     }
-
-
-    // Obliczanie jasności piksela jako średniej wartości R, G, B
-    private int calculateIntensity(int pixel) {
-        int red = (pixel >> 16) & 0xFF;
-        int green = (pixel >> 8) & 0xFF;
-        int blue = pixel & 0xFF;
-        return (red + green + blue) / 3;
-    }
 }
