@@ -8,6 +8,8 @@ import org.example.histogram.HistogramDrawer;
 import org.example.histogram.HistogramPanel;
 import org.example.histogram.LUTGenerator;
 import org.example.linearstreach.LinearStretchProcessor;
+import org.example.mathoperations.LogicalImageProcessor;
+import org.example.mathoperations.MultiArgumentImageProcessor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,6 +28,8 @@ public class MultiImageApp extends JFrame {
     private final ImageService imageService;
     private DraggableImage selectedImage;
     private final HistogramStretching histogramStretching;
+    private final MultiArgumentImageProcessor multiArgumentImageProcessor;
+    private final LogicalImageProcessor logicalImageProcessor;
 
 
     public MultiImageApp() {
@@ -38,9 +42,10 @@ public class MultiImageApp extends JFrame {
                 new LinearStretchProcessor(),
                 new HistogramEqualizer(new LUTGenerator())
         );
-
+        this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
         this.histogramStretching = new HistogramStretching();
+        this.multiArgumentImageProcessor = new MultiArgumentImageProcessor();
         this.fileChooser = new JFileChooser();
         this.imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
@@ -77,6 +82,7 @@ public class MultiImageApp extends JFrame {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu fileMenu = new JMenu("File");
+        JMenu mathMenu = new JMenu("Math");
         JMenuItem openMenuItem = new JMenuItem("Open Image");
         openMenuItem.addActionListener(e -> openImage());
         JMenuItem saveMenuItem = new JMenuItem("Save Image");
@@ -213,8 +219,166 @@ public class MultiImageApp extends JFrame {
             }
         });
 
+        JMenuItem addImagesMenuItem = new JMenuItem("Add Images");
+        addImagesMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                // Wybierz drugi obraz z załadowanych w aplikacji
+                DraggableImage secondImage = selectImage("Select the second image for addition:");
+                if (secondImage != null) {
+                    try {
+                        boolean withSaturation = JOptionPane.showConfirmDialog(
+                                this,
+                                "Apply saturation?",
+                                "Saturation",
+                                JOptionPane.YES_NO_OPTION
+                        ) == JOptionPane.YES_OPTION;
 
-        operationsMenu.add(stretchHistogramMenuItem);
+                        BufferedImage resultImage = multiArgumentImageProcessor.addImages(
+                                selectedImage.getImage(),
+                                secondImage.getImage(),
+                                withSaturation
+                        );
+                        selectedImage.updateImage(resultImage); // Aktualizacja obrazu wybranego
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JMenuItem scalarOperationMenuItem = new JMenuItem("Scalar Operation");
+        scalarOperationMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String[] operations = {"Add", "Multiply", "Divide"};
+                String selectedOperation = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Choose an operation:",
+                        "Scalar Operation",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        operations,
+                        "Add"
+                );
+
+                if (selectedOperation != null) {
+                    String input = JOptionPane.showInputDialog(this, "Enter scalar value:");
+                    try {
+                        int scalar = Integer.parseInt(input);
+                        boolean withSaturation = JOptionPane.showConfirmDialog(
+                                this,
+                                "Apply saturation?",
+                                "Saturation",
+                                JOptionPane.YES_NO_OPTION
+                        ) == JOptionPane.YES_OPTION;
+
+                        BufferedImage resultImage = multiArgumentImageProcessor.applyScalarOperation(
+                                selectedImage.getImage(),
+                                scalar,
+                                selectedOperation.toLowerCase(),
+                                withSaturation
+                        );
+                        selectedImage.updateImage(resultImage);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid scalar value.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JMenuItem absoluteDifferenceMenuItem = new JMenuItem("Absolute Difference");
+        absoluteDifferenceMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                DraggableImage secondImage = selectImage("Select the second image for absolute difference:");
+                if (secondImage != null) {
+                    try {
+                        BufferedImage resultImage = multiArgumentImageProcessor.absoluteDifference(
+                                selectedImage.getImage(),
+                                secondImage.getImage()
+                        );
+                        selectedImage.updateImage(resultImage);
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+
+// NOT
+        JMenuItem notMenuItem = new JMenuItem("NOT Operation");
+        notMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                BufferedImage result = logicalImageProcessor.notOperation(selectedImage.getImage());
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+// AND, OR, XOR
+        String[] logicalOps = {"AND", "OR", "XOR"};
+        for (String op : logicalOps) {
+            JMenuItem menuItem = new JMenuItem(op + " Operation");
+            menuItem.addActionListener(e -> {
+                if (selectedImage != null) {
+                    DraggableImage secondImage = selectImage("Select the second image for " + op + " operation:");
+                    if (secondImage != null) {
+                        try {
+                            BufferedImage result = logicalImageProcessor.logicalOperation(
+                                    selectedImage.getImage(),
+                                    secondImage.getImage(),
+                                    op.toLowerCase()
+                            );
+                            selectedImage.updateImage(result);
+                        } catch (IllegalArgumentException ex) {
+                            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            mathMenu.add(menuItem);
+        }
+
+// Convert to Binary Mask
+        JMenuItem toBinaryMenuItem = new JMenuItem("Convert to Binary Mask");
+        toBinaryMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String input = JOptionPane.showInputDialog(this, "Enter threshold (0-255):");
+                try {
+                    int threshold = Integer.parseInt(input);
+                    BufferedImage binaryImage = logicalImageProcessor.convertToBinaryMask(selectedImage.getImage(), threshold);
+                    selectedImage.updateImage(binaryImage);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid threshold value.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+// Convert to Monochrome Mask
+        JMenuItem toMonochromeMenuItem = new JMenuItem("Convert to Monochrome Mask");
+        toMonochromeMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                BufferedImage monochromeImage = logicalImageProcessor.convertToMonochromeMask(selectedImage.getImage());
+                selectedImage.updateImage(monochromeImage);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+
+
         operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
@@ -224,10 +388,17 @@ public class MultiImageApp extends JFrame {
         pointOperationsMenu.add(quantizeMenuItem);
         pointOperationsMenu.add(negateMenuItem);
         pointOperationsMenu.add(thresholdMenuItem);
+        mathMenu.add(scalarOperationMenuItem);
+        mathMenu.add(addImagesMenuItem);
+        mathMenu.add(absoluteDifferenceMenuItem);
+        mathMenu.add(notMenuItem);
+        mathMenu.add(toBinaryMenuItem);
+        mathMenu.add(toMonochromeMenuItem);
 
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);
         menuBar.add(pointOperationsMenu);
+        menuBar.add(mathMenu);
 
         setJMenuBar(menuBar);
     }
@@ -308,6 +479,29 @@ public class MultiImageApp extends JFrame {
     public void setSelectedImage(DraggableImage selectedImage) {
         this.selectedImage = selectedImage;
         System.out.println("Selected image set: " + selectedImage);
+    }
+
+    private DraggableImage selectImage(String message) {
+        Object[] images = imagePanel.getComponents(); // Pobieramy wszystkie obrazy w panelu
+        if (images.length == 0) {
+            JOptionPane.showMessageDialog(this, "No images available.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
+        DraggableImage[] draggableImages = new DraggableImage[images.length];
+        for (int i = 0; i < images.length; i++) {
+            draggableImages[i] = (DraggableImage) images[i];
+        }
+
+        return (DraggableImage) JOptionPane.showInputDialog(
+                this,
+                message,
+                "Select Image",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                draggableImages,
+                draggableImages[0]
+        );
     }
 
 
