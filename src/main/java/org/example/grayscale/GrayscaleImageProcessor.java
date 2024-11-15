@@ -92,4 +92,32 @@ public class GrayscaleImageProcessor {
         return binarizedImage;
     }
 
+    /**
+     * Applies thresholding with gray levels to a grayscale image.
+     *
+     * @param image The input grayscale image.
+     * @param threshold The threshold value (0-255).
+     * @return The thresholded image.
+     */
+    public BufferedImage thresholdWithGrayLevels(BufferedImage image, int threshold) {
+        if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
+            throw new IllegalArgumentException("Input image must be in grayscale.");
+        }
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage thresholdedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixel = image.getRGB(x, y) & 0xFF; // Pobierz wartość szarości
+                int newPixelValue = (pixel > threshold) ? pixel : 0; // Zachowaj poziom szarości lub przypisz 0
+                int newPixel = (newPixelValue << 16) | (newPixelValue << 8) | newPixelValue; // Budowa piksela
+                thresholdedImage.setRGB(x, y, newPixel);
+            }
+        }
+
+        return thresholdedImage;
+    }
+
 }

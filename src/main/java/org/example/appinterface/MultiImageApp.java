@@ -185,7 +185,33 @@ public class MultiImageApp extends JFrame {
                 }
             }
         });
+        JMenuItem grayLevelThresholdMenuItem = new JMenuItem("Threshold with Gray Levels");
+        grayLevelThresholdMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    String input = JOptionPane.showInputDialog(this, "Enter the threshold value (0-255):",
+                            "Threshold with Gray Levels", JOptionPane.PLAIN_MESSAGE);
 
+                    if (input != null) {
+                        int threshold = Integer.parseInt(input); // Konwersja do liczby
+                        if (threshold < 0 || threshold > 255) {
+                            throw new IllegalArgumentException("Threshold must be between 0 and 255.");
+                        }
+
+                        // Wywołanie metody progowania w serwisie
+                        BufferedImage thresholdedImage = grayscaleImageProcessorService.thresholdWithGrayLevels(selectedImage.getImage(), threshold);
+                        selectedImage.updateImage(thresholdedImage); // Aktualizacja obrazu
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number between 0 and 255.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        operationsMenu.add(grayLevelThresholdMenuItem);
         operationsMenu.add(binarizeMenuItem);
         operationsMenu.add(quantizeMenuItem);
         operationsMenu.add(duplicateMenuItem);
