@@ -132,7 +132,7 @@ public class MultiImageApp extends JFrame {
                 }
             }
         });
-
+        JMenu pointOperationsMenu = new JMenu("Point Operations");
         JMenuItem quantizeMenuItem = new JMenuItem("Reduce Grayscale Levels");
         quantizeMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
@@ -211,18 +211,19 @@ public class MultiImageApp extends JFrame {
             }
         });
 
-        operationsMenu.add(grayLevelThresholdMenuItem);
-        operationsMenu.add(binarizeMenuItem);
-        operationsMenu.add(quantizeMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);
         operationsMenu.add(stretchWithClippingMenuItem);
         operationsMenu.add(equalizeHistogramMenuItem);
-        operationsMenu.add(negateMenuItem);
+        pointOperationsMenu.add(grayLevelThresholdMenuItem);
+        pointOperationsMenu.add(binarizeMenuItem);
+        pointOperationsMenu.add(quantizeMenuItem);
+        pointOperationsMenu.add(negateMenuItem);
 
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);
+        menuBar.add(pointOperationsMenu);
 
         setJMenuBar(menuBar);
     }
