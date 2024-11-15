@@ -5,7 +5,15 @@ import java.awt.image.BufferedImage;
 public class MultiArgumentImageProcessor {
 
     /**
-     * Dodawanie obrazów z opcją wysycenia.
+     * Dodawanie dwóch obrazów z opcją wysycenia.
+     * Algorytm:
+     * - Dla każdego piksela oblicza sumę wartości z dwóch obrazów.
+     * - Jeśli aktywne jest wysycenie, wartości powyżej 255 są obcinane do 255.
+     *
+     * @param image1 Pierwszy obraz wejściowy.
+     * @param image2 Drugi obraz wejściowy.
+     * @param withSaturation Czy stosować wysycenie.
+     * @return Obraz wynikowy.
      */
     public BufferedImage addImages(BufferedImage image1, BufferedImage image2, boolean withSaturation) {
         verifyImageCompatibility(image1, image2);
@@ -16,15 +24,15 @@ public class MultiArgumentImageProcessor {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel1 = image1.getRaster().getSample(x, y, 0);
-                int pixel2 = image2.getRaster().getSample(x, y, 0);
+                int pixel1 = image1.getRaster().getSample(x, y, 0); // Piksel z pierwszego obrazu
+                int pixel2 = image2.getRaster().getSample(x, y, 0); // Piksel z drugiego obrazu
                 int result = pixel1 + pixel2;
 
                 if (withSaturation) {
                     result = Math.min(255, result); // Wysycenie
                 }
 
-                resultImage.getRaster().setSample(x, y, 0, result);
+                resultImage.getRaster().setSample(x, y, 0, result); // Ustawienie nowej wartości
             }
         }
 
@@ -32,7 +40,16 @@ public class MultiArgumentImageProcessor {
     }
 
     /**
-     * Dodawanie, mnożenie i dzielenie obrazu przez liczbę całkowitą z opcją wysycenia.
+     * Dodawanie, mnożenie i dzielenie obrazu przez liczbę całkowitą.
+     * Algorytm:
+     * - Dla każdego piksela stosuje operację (dodawanie, mnożenie, dzielenie).
+     * - Jeśli aktywne jest wysycenie, wartości są obcinane do zakresu 0-255.
+     *
+     * @param image Obraz wejściowy.
+     * @param scalar Liczba do operacji.
+     * @param operation Typ operacji ("add", "multiply", "divide").
+     * @param withSaturation Czy stosować wysycenie.
+     * @return Obraz wynikowy.
      */
     public BufferedImage applyScalarOperation(BufferedImage image, int scalar, String operation, boolean withSaturation) {
         int width = image.getWidth();
@@ -44,6 +61,7 @@ public class MultiArgumentImageProcessor {
                 int pixel = image.getRaster().getSample(x, y, 0);
                 int result;
 
+                // Wybór operacji
                 switch (operation.toLowerCase()) {
                     case "add":
                         result = pixel + scalar;
@@ -71,6 +89,12 @@ public class MultiArgumentImageProcessor {
 
     /**
      * Różnica bezwzględna obrazów.
+     * Algorytm:
+     * - Oblicza moduł różnicy wartości pikseli z dwóch obrazów.
+     *
+     * @param image1 Pierwszy obraz wejściowy.
+     * @param image2 Drugi obraz wejściowy.
+     * @return Obraz wynikowy.
      */
     public BufferedImage absoluteDifference(BufferedImage image1, BufferedImage image2) {
         verifyImageCompatibility(image1, image2);
@@ -81,11 +105,11 @@ public class MultiArgumentImageProcessor {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel1 = image1.getRaster().getSample(x, y, 0);
-                int pixel2 = image2.getRaster().getSample(x, y, 0);
-                int result = Math.abs(pixel1 - pixel2);
+                int pixel1 = image1.getRaster().getSample(x, y, 0); // Piksel z pierwszego obrazu
+                int pixel2 = image2.getRaster().getSample(x, y, 0); // Piksel z drugiego obrazu
+                int result = Math.abs(pixel1 - pixel2); // Różnica bezwzględna
 
-                resultImage.getRaster().setSample(x, y, 0, result);
+                resultImage.getRaster().setSample(x, y, 0, result); // Ustawienie nowej wartości
             }
         }
 
@@ -93,7 +117,10 @@ public class MultiArgumentImageProcessor {
     }
 
     /**
-     * Weryfikacja zgodności obrazów pod kątem typów i rozmiarów.
+     * Sprawdza zgodność typów i rozmiarów obrazów wejściowych.
+     *
+     * @param image1 Pierwszy obraz.
+     * @param image2 Drugi obraz.
      */
     private void verifyImageCompatibility(BufferedImage image1, BufferedImage image2) {
         if (image1.getWidth() != image2.getWidth() || image1.getHeight() != image2.getHeight()) {

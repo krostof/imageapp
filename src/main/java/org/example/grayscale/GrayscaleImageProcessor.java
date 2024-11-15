@@ -6,44 +6,39 @@ import java.awt.image.BufferedImage;
 public class GrayscaleImageProcessor {
 
     /**
-     * Applies negation to a grayscale image.
+     * Neguje obraz w skali szarości.
+     * Algorytm:
+     * - Dla każdego piksela wykonuje operację `255 - wartość piksela`.
      *
-     * @param image The input grayscale image.
-     * @return The negated image.
+     * @param image Obraz wejściowy w skali szarości.
+     * @return Obraz po negacji.
      */
     public BufferedImage negateImage(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
 
-        // Sprawdzenie i konwersja obrazu do odcieni szarości
-        BufferedImage grayscaleImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics g = grayscaleImage.getGraphics();
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
-
         BufferedImage negatedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = grayscaleImage.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
-                int negatedPixel = 255 - pixel;                           // Negacja
-                negatedImage.getRaster().setSample(x, y, 0, negatedPixel); // Zapis wyniku
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
+                int negatedPixel = 255 - pixel; // Negacja
+                negatedImage.getRaster().setSample(x, y, 0, negatedPixel); // Zmiana wartości
             }
         }
 
         return negatedImage;
     }
 
-
-
-
-
     /**
-     * Reduces the number of grayscale levels in the image.
+     * Redukuje liczbę poziomów szarości w obrazie.
+     * Algorytm:
+     * - Dzieli zakres 0-255 na `levels` równych przedziałów.
+     * - Kwantyzuje wartość każdego piksela do odpowiedniego przedziału.
      *
-     * @param image The input grayscale image.
-     * @param levels The number of grayscale levels to reduce to.
-     * @return The quantized image.
+     * @param image Obraz wejściowy w skali szarości.
+     * @param levels Liczba poziomów szarości.
+     * @return Obraz zredukowany do `levels` poziomów.
      */
     public BufferedImage quantizeImage(BufferedImage image, int levels) {
         if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
@@ -58,14 +53,13 @@ public class GrayscaleImageProcessor {
         int height = image.getHeight();
         BufferedImage quantizedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
-        int step = 256 / levels; // Size of each grayscale step
+        int step = 256 / levels; // Rozmiar jednego przedziału
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRGB(x, y) & 0xFF; // Extract grayscale value
-                int quantizedPixel = (pixel / step) * step; // Quantize pixel value
-                int newPixel = (quantizedPixel << 16) | (quantizedPixel << 8) | quantizedPixel; // Rebuild grayscale pixel
-                quantizedImage.setRGB(x, y, newPixel);
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
+                int quantizedPixel = (pixel / step) * step; // Kwantyzacja
+                quantizedImage.getRaster().setSample(x, y, 0, quantizedPixel); // Zmiana wartości
             }
         }
 
@@ -73,11 +67,15 @@ public class GrayscaleImageProcessor {
     }
 
     /**
-     * Binarizes a grayscale image based on a user-defined threshold.
+     * Przeprowadza binarne progowanie obrazu.
+     * Algorytm:
+     * - Dla każdego piksela:
+     *   - Jeśli wartość > próg, ustaw wartość na 255.
+     *   - W przeciwnym razie ustaw wartość na 0.
      *
-     * @param image The input grayscale image.
-     * @param threshold The threshold value (0-255).
-     * @return The binarized image.
+     * @param image Obraz wejściowy w skali szarości.
+     * @param threshold Wartość progu (0-255).
+     * @return Obraz binarny.
      */
     public BufferedImage binarizeImage(BufferedImage image, int threshold) {
         int width = image.getWidth();
@@ -86,22 +84,25 @@ public class GrayscaleImageProcessor {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
-                int binaryPixel = (pixel > threshold) ? 255 : 0;  // Binarne progowanie
-                binarizedImage.getRaster().setSample(x, y, 0, binaryPixel);
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
+                int binaryPixel = (pixel > threshold) ? 255 : 0; // Porównanie z progiem
+                binarizedImage.getRaster().setSample(x, y, 0, binaryPixel); // Zmiana wartości
             }
         }
 
         return binarizedImage;
     }
 
-
     /**
-     * Applies thresholding with gray levels to a grayscale image.
+     * Przeprowadza progowanie obrazu z zachowaniem poziomów szarości.
+     * Algorytm:
+     * - Dla każdego piksela:
+     *   - Jeśli wartość > próg, pozostaw wartość bez zmian.
+     *   - W przeciwnym razie ustaw wartość na 0.
      *
-     * @param image The input grayscale image.
-     * @param threshold The threshold value (0-255).
-     * @return The thresholded image.
+     * @param image Obraz wejściowy w skali szarości.
+     * @param threshold Wartość progu (0-255).
+     * @return Obraz po progowaniu.
      */
     public BufferedImage thresholdWithGrayLevels(BufferedImage image, int threshold) {
         int width = image.getWidth();
@@ -110,14 +111,12 @@ public class GrayscaleImageProcessor {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
                 int grayLevelPixel = (pixel > threshold) ? pixel : 0; // Zachowanie poziomów szarości
-                thresholdedImage.getRaster().setSample(x, y, 0, grayLevelPixel);
+                thresholdedImage.getRaster().setSample(x, y, 0, grayLevelPixel); // Zmiana wartości
             }
         }
 
         return thresholdedImage;
     }
-
-
 }
