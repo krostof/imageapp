@@ -133,6 +133,61 @@ public class MultiImageApp extends JFrame {
             }
         });
 
+        JMenuItem quantizeMenuItem = new JMenuItem("Reduce Grayscale Levels");
+        quantizeMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    // Pobranie liczby poziomów szarości od użytkownika
+                    String input = JOptionPane.showInputDialog(this, "Enter the number of grayscale levels (2-256):",
+                            "Reduce Grayscale Levels", JOptionPane.PLAIN_MESSAGE);
+
+                    if (input != null) {
+                        int levels = Integer.parseInt(input); // Konwersja do liczby
+                        if (levels < 2 || levels > 256) {
+                            throw new IllegalArgumentException("Number of levels must be between 2 and 256.");
+                        }
+
+                        // Wywołanie operacji redukcji poziomów szarości
+                        BufferedImage quantizedImage = grayscaleImageProcessorService.quantizeImage(selectedImage.getImage(), levels);
+                        selectedImage.updateImage(quantizedImage); // Aktualizacja obrazu
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number between 2 and 256.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        JMenuItem binarizeMenuItem = new JMenuItem("Binary Thresholding");
+        binarizeMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    String input = JOptionPane.showInputDialog(this, "Enter the threshold value (0-255):",
+                            "Binary Thresholding", JOptionPane.PLAIN_MESSAGE);
+
+                    if (input != null) {
+                        int threshold = Integer.parseInt(input); // Konwersja do liczby
+                        if (threshold < 0 || threshold > 255) {
+                            throw new IllegalArgumentException("Threshold must be between 0 and 255.");
+                        }
+
+                        // Wywołanie metody progowania binarnego w serwisie
+                        BufferedImage binarizedImage = grayscaleImageProcessorService.binarizeImage(selectedImage.getImage(), threshold);
+                        selectedImage.updateImage(binarizedImage);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number between 0 and 255.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        operationsMenu.add(binarizeMenuItem);
+        operationsMenu.add(quantizeMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);

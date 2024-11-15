@@ -12,13 +12,15 @@ public class GrayscaleImageProcessorService {
 
     private final GrayscaleImageProcessor grayscaleImageProcessor;
 
-    /**
-     * Negates the grayscale image.
-     *
-     * @param image The input grayscale image.
-     * @return The negated image.
-     */
     public BufferedImage negateImage(BufferedImage image) {
         return grayscaleImageProcessor.negateImage(image);
+    }
+
+    public BufferedImage quantizeImage(BufferedImage image, int levels) {
+        return grayscaleImageProcessor.quantizeImage(image, levels);
+    }
+
+    public BufferedImage binarizeImage(BufferedImage image, int threshold) {
+        return grayscaleImageProcessor.binarizeImage(image, threshold);
     }
 }
