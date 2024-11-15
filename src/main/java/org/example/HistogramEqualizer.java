@@ -17,31 +17,23 @@ public class HistogramEqualizer {
     }
 
     public void applyHistogramEqualization(BufferedImage image) {
-        // Generowanie histogramu obrazu
-        int[] histogram = lutGenerator.generateHistogramLUT(image);
-
-        // Obliczenie liczby pikseli w obrazie
+        int[] histogram = lutGenerator.generateHistogramLUT(image); // Generowanie histogramu
         int totalPixels = image.getWidth() * image.getHeight();
 
-        // Generowanie tablicy LUT dla equalizacji
-        int[] equalizationLUT = lutGenerator.generateEqualizationLUT(histogram, totalPixels);
+        int[] equalizationLUT = lutGenerator.generateEqualizationLUT(histogram, totalPixels); // Generowanie LUT
 
-        // Zastosowanie LUT na obrazie
-        applyLUTToImage(image, equalizationLUT);
+        applyLUTToImage(image, equalizationLUT); // Zastosowanie LUT na obrazie
     }
+
 
     private void applyLUTToImage(BufferedImage image, int[] lut) {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                int pixel = image.getRGB(x, y);
-
-                int red = lut[(pixel >> 16) & 0xFF];
-                int green = lut[(pixel >> 8) & 0xFF];
-                int blue = lut[pixel & 0xFF];
-
-                int newPixel = (red << 16) | (green << 8) | blue;
-                image.setRGB(x, y, newPixel);
+                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
+                int newPixel = lut[pixel]; // Zastosowanie LUT
+                image.getRaster().setSample(x, y, 0, newPixel); // Ustawienie nowej wartości
             }
         }
     }
+
 }
