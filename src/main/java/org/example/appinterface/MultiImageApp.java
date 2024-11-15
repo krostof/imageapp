@@ -25,6 +25,8 @@ public class MultiImageApp extends JFrame {
     private final JFileChooser fileChooser;
     private final ImageService imageService;
     private DraggableImage selectedImage;
+    private final HistogramStretching histogramStretching;
+
 
     public MultiImageApp() {
         super("Multi Image Interface");
@@ -38,6 +40,7 @@ public class MultiImageApp extends JFrame {
         );
 
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
+        this.histogramStretching = new HistogramStretching();
         this.fileChooser = new JFileChooser();
         this.imagePanel = new JPanel(null);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
@@ -211,6 +214,45 @@ public class MultiImageApp extends JFrame {
             }
         });
 
+        JMenuItem stretchHistogramMenuItem = new JMenuItem("Stretch Histogram");
+        stretchHistogramMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    // Pobranie zakresów od użytkownika
+                    String p1Input = JOptionPane.showInputDialog(this, "Enter the lower bound of source range (p1):", "Stretch Histogram", JOptionPane.PLAIN_MESSAGE);
+                    String p2Input = JOptionPane.showInputDialog(this, "Enter the upper bound of source range (p2):", "Stretch Histogram", JOptionPane.PLAIN_MESSAGE);
+                    String q3Input = JOptionPane.showInputDialog(this, "Enter the lower bound of target range (q3):", "Stretch Histogram", JOptionPane.PLAIN_MESSAGE);
+                    String q4Input = JOptionPane.showInputDialog(this, "Enter the upper bound of target range (q4):", "Stretch Histogram", JOptionPane.PLAIN_MESSAGE);
+
+                    if (p1Input != null && p2Input != null && q3Input != null && q4Input != null) {
+                        int p1 = Integer.parseInt(p1Input);
+                        int p2 = Integer.parseInt(p2Input);
+                        int q3 = Integer.parseInt(q3Input);
+                        int q4 = Integer.parseInt(q4Input);
+
+                        // Sprawdzenie poprawności zakresów
+                        if (p1 >= p2 || q3 >= q4) {
+                            throw new IllegalArgumentException("Ensure p1 < p2 and q3 < q4.");
+                        }
+
+                        // Wywołanie metody rozciągania histogramu
+                        BufferedImage stretchedImage = histogramStretching.stretchHistogram(selectedImage.getImage(), p1, p2, q3, q4);
+                        selectedImage.updateImage(stretchedImage); // Aktualizacja obrazu
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid input. Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+// Dodanie do menu operacji
+        operationsMenu.add(stretchHistogramMenuItem);
+
+        operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
         operationsMenu.add(stretchMenuItem);
