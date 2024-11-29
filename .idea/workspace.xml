@@ -6,6 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/CannyEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/CannyEdgeDetector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/LaplacianSharpeningProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/LaplacianSharpeningProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/MedianFilterProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/MedianFilterProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/SobelEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/SobelEdgeDetector.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

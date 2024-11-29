@@ -6,36 +6,28 @@ import org.opencv.imgproc.Imgproc;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
-/**
- * Class for detecting edges using the Prewitt operator.
- */
 public class PrewittEdgeDetector {
 
-    /**
-     * Applies Prewitt edge detection using standard Prewitt masks.
-     *
-     * @param inputImage BufferedImage input image
-     * @return BufferedImage with edges detected
-     */
     public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage) {
-        // Convert BufferedImage to Mat
+        // Konwersja BufferedImage do Mat (format OpenCV)
         Mat sourceMat = bufferedImageToMat(inputImage);
 
-        // Convert to grayscale if necessary
+        // Jeśli obraz jest kolorowy, konwertuj go na skalę szarości
         if (sourceMat.channels() > 1) {
             if (sourceMat.channels() == 4) {
-                // If image has alpha channel
+                // Konwersja BGRA do skali szarości (dla obrazów z kanałem alfa)
                 Imgproc.cvtColor(sourceMat, sourceMat, Imgproc.COLOR_BGRA2GRAY);
             } else {
+                // Konwersja BGR do skali szarości
                 Imgproc.cvtColor(sourceMat, sourceMat, Imgproc.COLOR_BGR2GRAY);
             }
         }
 
-        // Convert image to CV_32F for filtering
+        // Konwersja obrazu do formatu CV_32F (32-bitowe liczby zmiennoprzecinkowe)
         Mat sourceMat32F = new Mat();
         sourceMat.convertTo(sourceMat32F, CvType.CV_32F);
 
-        // Define Prewitt horizontal kernel (Gx)
+        // Definicja maski dla filtra poziomego Prewitta (Gx)
         Mat prewittKernelX = new Mat(3, 3, CvType.CV_32F);
         float[] dataX = {
                 -1, 0, 1,
@@ -44,7 +36,7 @@ public class PrewittEdgeDetector {
         };
         prewittKernelX.put(0, 0, dataX);
 
-        // Define Prewitt vertical kernel (Gy)
+        // Definicja maski dla filtra pionowego Prewitta (Gy)
         Mat prewittKernelY = new Mat(3, 3, CvType.CV_32F);
         float[] dataY = {
                 -1, -1, -1,
@@ -53,36 +45,31 @@ public class PrewittEdgeDetector {
         };
         prewittKernelY.put(0, 0, dataY);
 
-        // Apply the horizontal Prewitt filter
+        // Aplikacja poziomego filtra Prewitta
         Mat gradX = new Mat();
         Imgproc.filter2D(sourceMat32F, gradX, CvType.CV_32F, prewittKernelX);
 
-        // Apply the vertical Prewitt filter
+        // Aplikacja pionowego filtra Prewitta
         Mat gradY = new Mat();
         Imgproc.filter2D(sourceMat32F, gradY, CvType.CV_32F, prewittKernelY);
 
-        // Compute the magnitude of the gradient
+        // Obliczenie modułu gradientu (magnitude)
         Mat magnitude = new Mat();
         Core.magnitude(gradX, gradY, magnitude);
 
-        // Normalize the result to the range 0-255
+        // Normalizacja wartości pikseli do zakresu 0-255
         Core.normalize(magnitude, magnitude, 0, 255, Core.NORM_MINMAX);
 
-        // Convert to 8-bit image
+        // Konwersja obrazu na 8-bitowy (CV_8U)
         Mat absMagnitude = new Mat();
         magnitude.convertTo(absMagnitude, CvType.CV_8U);
 
-        // Convert Mat back to BufferedImage
+        // Konwersja Mat z powrotem do BufferedImage
         return matToBufferedImage(absMagnitude);
     }
 
-    /**
-     * Converts a BufferedImage to an OpenCV Mat.
-     *
-     * @param bi BufferedImage
-     * @return Mat
-     */
     private Mat bufferedImageToMat(BufferedImage bi) {
+        // Konwersja BufferedImage do Mat w zależności od typu obrazu
         Mat mat;
         switch (bi.getType()) {
             case BufferedImage.TYPE_BYTE_GRAY:
@@ -98,7 +85,7 @@ public class PrewittEdgeDetector {
             case BufferedImage.TYPE_4BYTE_ABGR:
                 mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC4);
                 byte[] dataABGR = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-                // Convert from ABGR to BGRA
+                // Konwersja ABGR na BGRA
                 byte[] dataBGRA = new byte[dataABGR.length];
                 for (int i = 0; i < dataABGR.length; i += 4) {
                     dataBGRA[i]     = dataABGR[i + 3]; // Blue
@@ -109,7 +96,7 @@ public class PrewittEdgeDetector {
                 mat.put(0, 0, dataBGRA);
                 break;
             default:
-                // Convert to a known format
+                // Konwersja na znany format (domyślnie TYPE_3BYTE_BGR)
                 BufferedImage converted = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
                 converted.getGraphics().drawImage(bi, 0, 0, null);
                 return bufferedImageToMat(converted);
@@ -117,13 +104,8 @@ public class PrewittEdgeDetector {
         return mat;
     }
 
-    /**
-     * Converts an OpenCV Mat to a BufferedImage.
-     *
-     * @param mat Mat
-     * @return BufferedImage
-     */
     private BufferedImage matToBufferedImage(Mat mat) {
+        // Konwersja Mat do BufferedImage w zależności od liczby kanałów
         int type = BufferedImage.TYPE_BYTE_GRAY;
         if (mat.channels() == 3) {
             type = BufferedImage.TYPE_3BYTE_BGR;
@@ -135,7 +117,7 @@ public class PrewittEdgeDetector {
         mat.get(0, 0, data);
 
         if (mat.channels() == 4) {
-            // Convert from BGRA to ABGR
+            // Konwersja z BGRA na ABGR
             byte[] dataABGR = new byte[data.length];
             for (int i = 0; i < data.length; i += 4) {
                 dataABGR[i]     = data[i + 3]; // Alpha

@@ -6,7 +6,6 @@ import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,25 +15,25 @@ import java.util.Map;
 public class SobelEdgeDetector {
 
     public BufferedImage applyDirectionalSobel(BufferedImage inputImage, String direction) {
-        // Konwersja BufferedImage do Mat
+        // Konwersja obrazu BufferedImage na Mat (format OpenCV)
         Mat sourceMat = bufferedImageToMat(inputImage);
 
-        // Sprawdź, czy obraz jest w skali szarości, jeśli nie, konwertuj
+        // Jeśli obraz jest kolorowy, konwertuj go na skalę szarości
         if (sourceMat.channels() == 3) {
             Imgproc.cvtColor(sourceMat, sourceMat, Imgproc.COLOR_BGR2GRAY);
         }
 
-        // Konwersja sourceMat do CV_32F
+        // Konwersja obrazu do formatu CV_32F (32-bitowe liczby zmiennoprzecinkowe)
         Mat sourceMat32F = new Mat();
         sourceMat.convertTo(sourceMat32F, CvType.CV_32F);
 
-        // Mapa kierunkowych masek Sobela
+        // Pobranie masek Sobela dla różnych kierunków
         Map<String, int[]> sobelMasks = getSobelMasks();
 
-        // Pobierz maskę dla wybranego kierunku
+        // Pobranie maski odpowiadającej podanemu kierunkowi (domyślnie "horizontal")
         int[] mask = sobelMasks.getOrDefault(direction, sobelMasks.get("horizontal"));
 
-        // Utwórz kernel dla wybranego kierunku
+        // Tworzenie jądra (kernela) na podstawie wybranej maski
         Mat kernel = new Mat(3, 3, CvType.CV_32F);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -42,72 +41,72 @@ public class SobelEdgeDetector {
             }
         }
 
-        // Aplikacja maski Sobela
+        // Zastosowanie filtra Sobela z wybraną maską
         Mat sobelResult = new Mat();
         Imgproc.filter2D(sourceMat32F, sobelResult, CvType.CV_32F, kernel);
 
-        // Konwersja do wartości bezwzględnych i skala do 8-bitowego obrazu
+        // Konwersja wyniku na wartości bezwzględne i skalowanie do obrazu 8-bitowego
         Mat absSobelResult = new Mat();
         Core.convertScaleAbs(sobelResult, absSobelResult);
 
-        // Konwersja Mat do BufferedImage
+        // Konwersja wyniku z Mat do BufferedImage
         return matToBufferedImage(absSobelResult);
     }
 
-
     private Map<String, int[]> getSobelMasks() {
+        // Tworzenie mapy masek Sobela dla różnych kierunków
         Map<String, int[]> sobelMasks = new HashMap<>();
 
-        // Horizontal mask (0 degrees)
+        // Maska dla poziomego kierunku (0 stopni)
         sobelMasks.put("horizontal", new int[]{
                 -1, 0, 1,
                 -2, 0, 2,
                 -1, 0, 1
         });
 
-        // Vertical mask (90 degrees)
+        // Maska dla pionowego kierunku (90 stopni)
         sobelMasks.put("vertical", new int[]{
                 -1, -2, -1,
                 0, 0, 0,
                 1, 2, 1
         });
 
-        // Diagonal mask (45 degrees, diagonal from bottom-left to top-right)
+        // Maska dla kierunku diagonalnego (45 stopni, z dolnego lewego do górnego prawego)
         sobelMasks.put("diagonal_left", new int[]{
                 0, 1, 2,
                 -1, 0, 1,
                 -2, -1, 0
         });
 
-        // Diagonal mask (135 degrees, diagonal from top-left to bottom-right)
+        // Maska dla kierunku diagonalnego (135 stopni, z górnego lewego do dolnego prawego)
         sobelMasks.put("diagonal_right", new int[]{
                 -2, -1, 0,
                 -1, 0, 1,
                 0, 1, 2
         });
 
-        // Left horizontal mask (270 degrees, reverse horizontal)
+        // Odwrócona maska pozioma (270 stopni)
         sobelMasks.put("reverse_horizontal", new int[]{
                 1, 0, -1,
                 2, 0, -2,
                 1, 0, -1
         });
 
-        // Reverse vertical mask (180 degrees, reverse vertical)
+        // Odwrócona maska pionowa (180 stopni)
         sobelMasks.put("reverse_vertical", new int[]{
                 1, 2, 1,
                 0, 0, 0,
                 -1, -2, -1
         });
 
-        // Reverse diagonal left (225 degrees, reverse diagonal left)
+        // Odwrócona maska diagonalna (225 stopni)
         sobelMasks.put("reverse_diagonal_left", new int[]{
                 2, 1, 0,
                 1, 0, -1,
                 0, -1, -2
         });
 
-        // Reverse diagonal right (315 degrees, reverse diagonal right)
+        // Odwrócona maska diagonalna (315 stopni)
         sobelMasks.put("reverse_diagonal_right", new int[]{
                 0, -1, -2,
                 1, 0, -1,
@@ -117,8 +116,8 @@ public class SobelEdgeDetector {
         return sobelMasks;
     }
 
-
     private Mat bufferedImageToMat(BufferedImage bi) {
+        // Konwersja BufferedImage do Mat za pomocą strumienia bajtów
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             ImageIO.write(bi, "png", baos);
@@ -128,13 +127,14 @@ public class SobelEdgeDetector {
             Mat mat = Imgcodecs.imdecode(new MatOfByte(imageInBytes), Imgcodecs.IMREAD_UNCHANGED);
             return mat;
         } catch (IOException e) {
+            // Obsługa błędów wejścia/wyjścia
             e.printStackTrace();
-            return new Mat();
+            return new Mat(); // Zwrócenie pustego obiektu Mat w przypadku błędu
         }
     }
 
-
     private BufferedImage matToBufferedImage(Mat mat) {
+        // Konwersja Mat do BufferedImage za pomocą strumienia bajtów
         MatOfByte mob = new MatOfByte();
         Imgcodecs.imencode(".png", mat, mob);
         byte[] byteArray = mob.toArray();
@@ -142,9 +142,9 @@ public class SobelEdgeDetector {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(byteArray));
             return image;
         } catch (IOException e) {
+            // Obsługa błędów wejścia/wyjścia
             e.printStackTrace();
-            return null;
+            return null; // Zwrócenie wartości null w przypadku błędu
         }
     }
-
 }
