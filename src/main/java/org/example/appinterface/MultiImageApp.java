@@ -47,7 +47,9 @@ public class MultiImageApp extends JFrame {
                 new LaplacianSharpeningProcessor(),
                 new SobelEdgeDetector(),
                 new PrewittEdgeDetector(),
-                new BorderFillProcessor()
+                new BorderFillProcessor(),
+                new MedianFilterProcessor(),
+                new CannyEdgeDetector()
         );
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
@@ -446,6 +448,88 @@ public class MultiImageApp extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void addMedianFilterMenu(JMenu menu) {
+        JMenuItem medianFilterItem = new JMenuItem("Apply Median Filter");
+        medianFilterItem.addActionListener(e -> {
+            if (selectedImage == null) {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Wybór rozmiaru jądra
+            String[] kernelOptions = {"3x3", "5x5", "7x7", "9x9"};
+            String kernelSizeOption = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select kernel size:",
+                    "Median Filter",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    kernelOptions,
+                    kernelOptions[0]
+            );
+
+            if (kernelSizeOption == null) return;
+
+            int kernelSize = Integer.parseInt(kernelSizeOption.split("x")[0]);
+
+            // Wybór metody uzupełniania marginesów
+            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+            String borderType = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select border type:",
+                    "Border Fill",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    borderOptions,
+                    borderOptions[0]
+            );
+
+            if (borderType == null) return;
+
+            int borderTypeCode;
+            int constantValue = 0;
+
+            switch (borderType.toLowerCase()) {
+                case "constant":
+                    borderTypeCode = Core.BORDER_CONSTANT;
+                    String input = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                    try {
+                        constantValue = Integer.parseInt(input);
+                        if (constantValue < 0 || constantValue > 255) {
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid constant value. Please enter a number between 0 and 255.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    break;
+
+                case "reflect":
+                    borderTypeCode = Core.BORDER_REFLECT;
+                    break;
+
+                case "replicate":
+                    borderTypeCode = Core.BORDER_REPLICATE;
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Invalid border type selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+            }
+
+            // Aplikacja filtra medianowego
+            try {
+                BufferedImage resultImage = imageService.applyMedianFilter(selectedImage.getImage(), kernelSize, borderTypeCode);
+                selectedImage.updateImage(resultImage);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error applying median filter: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        menu.add(medianFilterItem);
+    }
+
+
     private void addPrewittEdgeDetectionMenu(JMenu smoothingMenu) {
         JMenuItem prewittEdgeDetectionItem = new JMenuItem("Prewitt Edge Detection");
         prewittEdgeDetectionItem.addActionListener(e -> {
@@ -485,9 +569,65 @@ public class MultiImageApp extends JFrame {
         smoothingMenu.add(laplacianSharpeningItem);
         addPrewittEdgeDetectionMenu(smoothingMenu);
         addBorderFillMenu(smoothingMenu);
+        addMedianFilterMenu(smoothingMenu);
+        addCannyEdgeDetectionMenu(smoothingMenu);
 
         return smoothingMenu;
     }
+
+    private void addCannyEdgeDetectionMenu(JMenu menu) {
+        JMenuItem cannyEdgeDetectionItem = new JMenuItem("Apply Canny Edge Detection");
+        cannyEdgeDetectionItem.addActionListener(e -> {
+            if (selectedImage == null) {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Pobierz parametry od użytkownika
+            try {
+                String threshold1Input = JOptionPane.showInputDialog(this, "Enter threshold 1 (low threshold):", "100");
+                double threshold1 = Double.parseDouble(threshold1Input);
+
+                String threshold2Input = JOptionPane.showInputDialog(this, "Enter threshold 2 (high threshold):", "200");
+                double threshold2 = Double.parseDouble(threshold2Input);
+
+                String[] apertureOptions = {"3", "5", "7"};
+                String apertureInput = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Select aperture size (odd number):",
+                        "Aperture Size",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        apertureOptions,
+                        "3"
+                );
+
+                if (apertureInput == null) return;
+                int apertureSize = Integer.parseInt(apertureInput);
+
+                int l2GradientOption = JOptionPane.showConfirmDialog(
+                        this,
+                        "Use L2 Gradient?",
+                        "L2 Gradient",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                boolean l2Gradient = l2GradientOption == JOptionPane.YES_OPTION;
+
+                // Aplikacja detekcji krawędzi Canny'ego
+                BufferedImage resultImage = imageService.applyCanny(selectedImage.getImage(), threshold1, threshold2, apertureSize, l2Gradient);
+                selectedImage.updateImage(resultImage);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error applying Canny Edge Detection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        menu.add(cannyEdgeDetectionItem);
+    }
+
 
     private void addBorderFillMenu(JMenu menu) {
         JMenuItem borderFillItem = new JMenuItem("Apply Border Fill");
@@ -814,6 +954,15 @@ public class MultiImageApp extends JFrame {
         if (secondImage == null) return null;
 
         return new DraggableImage[]{firstImage, secondImage};
+    }
+
+    private JMenu createEdgeDetectionMenu() {
+        JMenu edgeDetectionMenu = new JMenu("Edge Detection");
+
+        // Dodaj inne algorytmy, np. Sobel, Prewitt
+        addCannyEdgeDetectionMenu(edgeDetectionMenu);
+
+        return edgeDetectionMenu;
     }
 
 

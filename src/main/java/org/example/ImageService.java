@@ -20,6 +20,8 @@ public class ImageService {
     private final SobelEdgeDetector sobelEdgeDetector;
     private final PrewittEdgeDetector prewittEdgeDetector;
     private final BorderFillProcessor borderFillProcessor;
+    private final MedianFilterProcessor processor;
+    private final CannyEdgeDetector detector;
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -63,6 +65,12 @@ public class ImageService {
     }
     public BufferedImage applyBorderFill(BufferedImage inputImage, int borderTypeCode, int constantValue) {
         return borderFillProcessor.applyBorderFill(inputImage, borderTypeCode, constantValue);
+    }
+    public BufferedImage applyMedianFilter(BufferedImage inputImage, int kernelSize, int borderTypeCode) {
+        return processor.applyMedianFilter(inputImage, kernelSize, borderTypeCode);
+    }
+    public BufferedImage applyCanny(BufferedImage inputImage, double threshold1, double threshold2, int apertureSize, boolean l2Gradient) {
+        return detector.applyCanny(inputImage, threshold1, threshold2, apertureSize, l2Gradient);
     }
 
 
