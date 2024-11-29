@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramGenerator.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/histogram/HistogramPanel.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/DraggableImage.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/ImageDuplicator.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/ImageLoader.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/ImageSaver.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/ImageService.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/LinearStretchProcessor.java;C:/Users/krostof/IdeaProjects/ImageApp/src/main/java/org/example/MultiImageApp.java;C:/Users/krostof/IdeaProjects/ImageApp/pom.xml;C:/Users/krostof/IdeaProjects/ImageApp/README.md" />
+  </component>
+</project>
