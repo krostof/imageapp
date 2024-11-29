@@ -7,6 +7,8 @@ import org.example.histogram.HistogramDataGenerator;
 import org.example.histogram.HistogramDrawer;
 import org.example.histogram.HistogramPanel;
 import org.example.histogram.LUTGenerator;
+import org.example.linearops.ImageSmoothingProcessor;
+import org.example.linearops.LaplacianSharpeningProcessor;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
@@ -40,7 +42,9 @@ public class MultiImageApp extends JFrame {
                 new ImageSaver(),
                 new ImageDuplicator(),
                 new LinearStretchProcessor(),
-                new HistogramEqualizer(new LUTGenerator())
+                new HistogramEqualizer(new LUTGenerator()),
+                new ImageSmoothingProcessor(),
+                new LaplacianSharpeningProcessor()
         );
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
@@ -80,7 +84,8 @@ public class MultiImageApp extends JFrame {
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-
+        JMenu smoothingMenu = createSmoothingMenu();
+        menuBar.add(smoothingMenu);
         JMenu fileMenu = new JMenu("File");
         JMenu mathMenu = new JMenu("Math");
         JMenuItem openMenuItem = new JMenuItem("Open Image");
@@ -378,7 +383,6 @@ public class MultiImageApp extends JFrame {
 
 
 
-
         operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
@@ -394,7 +398,6 @@ public class MultiImageApp extends JFrame {
         mathMenu.add(notMenuItem);
         mathMenu.add(toBinaryMenuItem);
         mathMenu.add(toMonochromeMenuItem);
-
         menuBar.add(fileMenu);
         menuBar.add(operationsMenu);
         menuBar.add(pointOperationsMenu);
@@ -402,6 +405,141 @@ public class MultiImageApp extends JFrame {
 
         setJMenuBar(menuBar);
     }
+
+    private JMenu createSmoothingMenu() {
+        JMenu smoothingMenu = new JMenu("Smoothing");
+
+        JMenuItem averageItem = new JMenuItem("Average Smoothing");
+        averageItem.addActionListener(e -> applySmoothing("average"));
+
+        JMenuItem weightedItem = new JMenuItem("Weighted Average Smoothing");
+        weightedItem.addActionListener(e -> applySmoothing("median"));
+
+        JMenuItem gaussianItem = new JMenuItem("Gaussian Smoothing");
+        gaussianItem.addActionListener(e -> applySmoothing("gaussian"));
+
+        JMenuItem laplacianSharpeningItem = new JMenuItem("Laplacian Sharpening");
+        laplacianSharpeningItem.addActionListener(e -> applyLaplacianSharpening());
+
+        smoothingMenu.add(averageItem);
+        smoothingMenu.add(weightedItem);
+        smoothingMenu.add(gaussianItem);
+        smoothingMenu.add(laplacianSharpeningItem);
+
+        return smoothingMenu;
+    }
+
+    private void applyLaplacianSharpening() {
+        if (selectedImage == null) {
+            JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Przedstawienie masek użytkownikowi
+        String[] masks = {
+                "Mask 1:\n 0 -1 0\n-1 4 -1\n 0 -1 0",
+                "Mask 2:\n-1 -1 -1\n-1 8 -1\n-1 -1 -1",
+                "Mask 3:\n 1 -2 1\n-2 4 -2\n 1 -2 1"
+        };
+
+        String selectedMask = (String) JOptionPane.showInputDialog(
+                this,
+                "Select a Laplacian mask:",
+                "Laplacian Mask Selection",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                masks,
+                masks[0]
+        );
+
+        if (selectedMask != null) {
+            int[][] mask;
+            if (selectedMask.startsWith("Mask 1")) {
+                mask = new int[][]{
+                        {0, -1, 0},
+                        {-1, 4, -1},
+                        {0, -1, 0}
+                };
+            } else if (selectedMask.startsWith("Mask 2")) {
+                mask = new int[][]{
+                        {-1, -1, -1},
+                        {-1, 8, -1},
+                        {-1, -1, -1}
+                };
+            } else if (selectedMask.startsWith("Mask 3")) {
+                mask = new int[][]{
+                        {1, -2, 1},
+                        {-2, 4, -2},
+                        {1, -2, 1}
+                };
+            } else {
+                // Domyślna maska (opcjonalnie)
+                mask = new int[][]{
+                        {0, -1, 0},
+                        {-1, 4, -1},
+                        {0, -1, 0}
+                };
+            }
+
+            // Wywołanie logiki przetwarzania
+            try {
+                BufferedImage sharpenedImage = new LaplacianSharpeningProcessor().applyLaplacianSharpening(selectedImage.getImage(), mask);
+                selectedImage.updateImage(sharpenedImage);
+                // Odświeżenie interfejsu użytkownika, jeśli to konieczne
+                // Jeśli masz komponent GUI odpowiedzialny za wyświetlanie obrazu, odśwież go tutaj
+                // Na przykład: imageLabel.repaint();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error applying Laplacian sharpening: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
+
+
+
+    private void applySmoothing(String method) {
+        if (selectedImage == null) {
+            JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String input = JOptionPane.showInputDialog(this, "Enter kernel size (odd number):", "3");
+        try {
+            int kernelSize = Integer.parseInt(input);
+            if (kernelSize % 2 == 0 || kernelSize < 1) {
+                throw new IllegalArgumentException("Kernel size must be an odd positive number.");
+            }
+
+            BufferedImage smoothedImage;
+            switch (method.toLowerCase()) {
+                case "average":
+                    smoothedImage = imageService.applyAverageSmoothing(selectedImage.getImage(), kernelSize);
+                    break;
+                case "gaussian":
+                    smoothedImage = imageService.applyGaussianSmoothing(selectedImage.getImage(), kernelSize);
+                    break;
+                case "median":
+                    smoothedImage = imageService.applyMedianSmoothing(selectedImage.getImage(), kernelSize);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown smoothing method: " + method);
+            }
+
+            // Aktualizacja obrazu i odświeżenie panelu
+            selectedImage.updateImage(smoothedImage);
+            imagePanel.repaint(); // Odświeżenie panelu
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter an odd positive number.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+
+
 
     private void openImage() {
         int result = fileChooser.showOpenDialog(this);

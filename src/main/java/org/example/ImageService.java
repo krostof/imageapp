@@ -1,6 +1,8 @@
 package org.example;
 
 import lombok.AllArgsConstructor;
+import org.example.linearops.ImageSmoothingProcessor;
+import org.example.linearops.LaplacianSharpeningProcessor;
 import org.example.linearstreach.LinearStretchProcessor;
 
 import java.awt.image.BufferedImage;
@@ -14,6 +16,8 @@ public class ImageService {
     private final ImageDuplicator imageDuplicator;
     private final LinearStretchProcessor linearStretchProcessor;
     private final HistogramEqualizer histogramEqualizer;
+    private final ImageSmoothingProcessor imageSmoothingProcessor;
+    private final LaplacianSharpeningProcessor laplacianProcessor;
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -32,5 +36,21 @@ public class ImageService {
     }
     public void applyHistogramEqualization(BufferedImage image) {
         histogramEqualizer.applyHistogramEqualization(image);
+    }
+
+    public BufferedImage applyAverageSmoothing(BufferedImage image, int kernelSize) {
+        return imageSmoothingProcessor.applyAverageSmoothing(image, kernelSize);
+    }
+
+    public BufferedImage applyGaussianSmoothing(BufferedImage image, int kernelSize) {
+        return imageSmoothingProcessor.applyGaussianSmoothing(image, kernelSize);
+    }
+
+    public BufferedImage applyMedianSmoothing(BufferedImage image, int kernelSize) {
+        return imageSmoothingProcessor.applyMedianSmoothing(image, kernelSize);
+    }
+
+    public BufferedImage applyLaplacianSharpening(BufferedImage image, int[][] mask) {
+        return laplacianProcessor.applyLaplacianSharpening(image, mask);
     }
 }
