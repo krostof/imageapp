@@ -1,12 +1,14 @@
 package org.example.linearops;
 
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,16 +29,20 @@ public class BorderFillProcessor {
         int top = 10, bottom = 10, left = 10, right = 10; // Wielkość ramki
         Scalar borderValue = new Scalar(constantValue); // Stała wartość do wypełnienia (dla BORDER_CONSTANT)
 
+        // Obsługa różnych rodzajów wypełnienia
         switch (borderType) {
             case Core.BORDER_CONSTANT:
+                // Wypełnienie marginesów wartością stałą
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_CONSTANT, borderValue);
                 break;
 
             case Core.BORDER_REFLECT:
+                // Odbicie pikseli na brzegach
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_REFLECT);
                 break;
 
             case Core.BORDER_REPLICATE:
+                // Powielenie pikseli na brzegach
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_REPLICATE);
                 break;
 

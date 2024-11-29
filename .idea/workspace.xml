@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/ImageService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
