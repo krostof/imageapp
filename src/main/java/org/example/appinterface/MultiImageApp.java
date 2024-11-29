@@ -9,6 +9,7 @@ import org.example.histogram.HistogramPanel;
 import org.example.histogram.LUTGenerator;
 import org.example.linearops.ImageSmoothingProcessor;
 import org.example.linearops.LaplacianSharpeningProcessor;
+import org.example.linearops.SobelEdgeDetector;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
@@ -44,7 +45,8 @@ public class MultiImageApp extends JFrame {
                 new LinearStretchProcessor(),
                 new HistogramEqualizer(new LUTGenerator()),
                 new ImageSmoothingProcessor(),
-                new LaplacianSharpeningProcessor()
+                new LaplacianSharpeningProcessor(),
+                new SobelEdgeDetector()
         );
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
@@ -381,8 +383,45 @@ public class MultiImageApp extends JFrame {
             }
         });
 
+        JMenuItem sobelEdgeDetectionItem = new JMenuItem("Directional Sobel Edge Detection");
+        sobelEdgeDetectionItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String[] directions = {
+                        "horizontal",         // 0° - poziomo
+                        "vertical",           // 90° - pionowo
+                        "diagonal_left",      // 45° - od lewego dolnego rogu do prawego górnego
+                        "diagonal_right",     // 135° - od lewego górnego rogu do prawego dolnego
+                        "reverse_horizontal", // 180° - poziomo, odwrócone
+                        "reverse_vertical",   // 270° - pionowo, odwrócone
+                        "reverse_diagonal_left", // 225° - od prawego dolnego rogu do lewego górnego
+                        "reverse_diagonal_right" // 315° - od prawego górnego rogu do lewego dolnego
+                };
+
+                String selectedDirection = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Select a Sobel direction:",
+                        "Sobel Direction",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        directions,
+                        directions[0]
+                );
+
+                if (selectedDirection != null) {
+                    try {
+                        BufferedImage sobelImage = imageService.applyDirectionalSobel(selectedImage.getImage(), selectedDirection);
+                        selectedImage.updateImage(sobelImage);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Error applying Sobel edge detection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
 
+        smoothingMenu.add(sobelEdgeDetectionItem);
         operationsMenu.add(stretchHistogramMenuItem);
         operationsMenu.add(duplicateMenuItem);
         operationsMenu.add(histogramMenuItem);
@@ -494,8 +533,6 @@ public class MultiImageApp extends JFrame {
             }
         }
     }
-
-
 
 
 

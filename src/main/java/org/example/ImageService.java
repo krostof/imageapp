@@ -3,6 +3,7 @@ package org.example;
 import lombok.AllArgsConstructor;
 import org.example.linearops.ImageSmoothingProcessor;
 import org.example.linearops.LaplacianSharpeningProcessor;
+import org.example.linearops.SobelEdgeDetector;
 import org.example.linearstreach.LinearStretchProcessor;
 
 import java.awt.image.BufferedImage;
@@ -18,6 +19,7 @@ public class ImageService {
     private final HistogramEqualizer histogramEqualizer;
     private final ImageSmoothingProcessor imageSmoothingProcessor;
     private final LaplacianSharpeningProcessor laplacianProcessor;
+    private final SobelEdgeDetector sobelEdgeDetector;
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -52,5 +54,8 @@ public class ImageService {
 
     public BufferedImage applyLaplacianSharpening(BufferedImage image, int[][] mask) {
         return laplacianProcessor.applyLaplacianSharpening(image, mask);
+    }
+    public BufferedImage applyDirectionalSobel(BufferedImage image, String direction) {
+        return sobelEdgeDetector.applyDirectionalSobel(image, direction);
     }
 }
