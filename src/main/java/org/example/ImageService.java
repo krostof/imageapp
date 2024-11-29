@@ -1,10 +1,7 @@
 package org.example;
 
 import lombok.AllArgsConstructor;
-import org.example.linearops.ImageSmoothingProcessor;
-import org.example.linearops.LaplacianSharpeningProcessor;
-import org.example.linearops.PrewittEdgeDetector;
-import org.example.linearops.SobelEdgeDetector;
+import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 
 import java.awt.image.BufferedImage;
@@ -22,6 +19,7 @@ public class ImageService {
     private final LaplacianSharpeningProcessor laplacianProcessor;
     private final SobelEdgeDetector sobelEdgeDetector;
     private final PrewittEdgeDetector prewittEdgeDetector;
+    private final BorderFillProcessor borderFillProcessor;
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -63,5 +61,9 @@ public class ImageService {
     public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage) {
         return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage);
     }
+    public BufferedImage applyBorderFill(BufferedImage inputImage, int borderTypeCode, int constantValue) {
+        return borderFillProcessor.applyBorderFill(inputImage, borderTypeCode, constantValue);
+    }
+
 
 }

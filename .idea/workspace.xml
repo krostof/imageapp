@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,7 +164,7 @@
       <workItem from="1731629354418" duration="983000" />
       <workItem from="1731679728165" duration="31101000" />
       <workItem from="1732052418378" duration="605000" />
-      <workItem from="1732894429466" duration="12159000" />
+      <workItem from="1732894429466" duration="13477000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

@@ -7,13 +7,11 @@ import org.example.histogram.HistogramDataGenerator;
 import org.example.histogram.HistogramDrawer;
 import org.example.histogram.HistogramPanel;
 import org.example.histogram.LUTGenerator;
-import org.example.linearops.ImageSmoothingProcessor;
-import org.example.linearops.LaplacianSharpeningProcessor;
-import org.example.linearops.PrewittEdgeDetector;
-import org.example.linearops.SobelEdgeDetector;
+import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
+import org.opencv.core.Core;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +46,8 @@ public class MultiImageApp extends JFrame {
                 new ImageSmoothingProcessor(),
                 new LaplacianSharpeningProcessor(),
                 new SobelEdgeDetector(),
-                new PrewittEdgeDetector()
+                new PrewittEdgeDetector(),
+                new BorderFillProcessor()
         );
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
@@ -485,9 +484,79 @@ public class MultiImageApp extends JFrame {
         smoothingMenu.add(gaussianItem);
         smoothingMenu.add(laplacianSharpeningItem);
         addPrewittEdgeDetectionMenu(smoothingMenu);
+        addBorderFillMenu(smoothingMenu);
 
         return smoothingMenu;
     }
+
+    private void addBorderFillMenu(JMenu menu) {
+        JMenuItem borderFillItem = new JMenuItem("Apply Border Fill");
+        borderFillItem.addActionListener(e -> {
+            if (selectedImage == null) {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Wybór rodzaju wypełniania
+            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+            String borderType = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select border type:",
+                    "Border Fill",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    borderOptions,
+                    borderOptions[0]
+            );
+
+            if (borderType == null) {
+                return;
+            }
+
+            // Inicjalizacja zmiennych
+            int borderTypeCode;
+            int constantValue = 0;
+
+            // Przypisanie kodu brzegów i wczytanie wartości wypełnienia dla BORDER_CONSTANT
+            switch (borderType.toLowerCase()) {
+                case "constant":
+                    borderTypeCode = Core.BORDER_CONSTANT;
+                    String input = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                    try {
+                        constantValue = Integer.parseInt(input);
+                        if (constantValue < 0 || constantValue > 255) {
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid constant value. Please enter a number between 0 and 255.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    break;
+
+                case "reflect":
+                    borderTypeCode = Core.BORDER_REFLECT;
+                    break;
+
+                case "replicate":
+                    borderTypeCode = Core.BORDER_REPLICATE;
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Invalid border type selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+            }
+
+            // Aplikacja wypełnienia marginesów
+            try {
+                BufferedImage resultImage = imageService.applyBorderFill(selectedImage.getImage(), borderTypeCode, constantValue);
+                selectedImage.updateImage(resultImage);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error applying border fill: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        menu.add(borderFillItem);
+    }
+
 
     private void applyLaplacianSharpening() {
         if (selectedImage == null) {
