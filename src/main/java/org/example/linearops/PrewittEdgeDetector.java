@@ -33,14 +33,14 @@ public class PrewittEdgeDetector {
 
         // Define Prewitt horizontal and vertical kernels
         Mat prewittHorizontal = new Mat(3, 3, CvType.CV_32F);
-        prewittHorizontal.put(0, 0, -1, 0, 1);
-        prewittHorizontal.put(1, 0, -1, 0, 1);
-        prewittHorizontal.put(2, 0, -1, 0, 1);
+        prewittHorizontal.put(0, 0, 1, 1, 1);
+        prewittHorizontal.put(1, 0, 0, 0, 0);
+        prewittHorizontal.put(2, 0, -1, -1, -1);
 
         Mat prewittVertical = new Mat(3, 3, CvType.CV_32F);
-        prewittVertical.put(0, 0, -1, -1, -1);
-        prewittVertical.put(1, 0, 0, 0, 0);
-        prewittVertical.put(2, 0, 1, 1, 1);
+        prewittVertical.put(0, 0, 1, 0, -1);
+        prewittVertical.put(1, 0, 1, 0, -1);
+        prewittVertical.put(2, 0, 1, 0, -1);
 
         // Apply the horizontal Prewitt filter
         Mat prewittHorizontalResult = new Mat();

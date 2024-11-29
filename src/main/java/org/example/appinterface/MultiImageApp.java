@@ -9,6 +9,7 @@ import org.example.histogram.HistogramPanel;
 import org.example.histogram.LUTGenerator;
 import org.example.linearops.ImageSmoothingProcessor;
 import org.example.linearops.LaplacianSharpeningProcessor;
+import org.example.linearops.PrewittEdgeDetector;
 import org.example.linearops.SobelEdgeDetector;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
@@ -46,7 +47,8 @@ public class MultiImageApp extends JFrame {
                 new HistogramEqualizer(new LUTGenerator()),
                 new ImageSmoothingProcessor(),
                 new LaplacianSharpeningProcessor(),
-                new SobelEdgeDetector()
+                new SobelEdgeDetector(),
+                new PrewittEdgeDetector()
         );
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
@@ -445,6 +447,24 @@ public class MultiImageApp extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void addPrewittEdgeDetectionMenu(JMenu smoothingMenu) {
+        JMenuItem prewittEdgeDetectionItem = new JMenuItem("Prewitt Edge Detection");
+        prewittEdgeDetectionItem.addActionListener(e -> {
+            if (selectedImage == null) {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                BufferedImage processedImage = imageService.applyPrewittEdgeDetection(selectedImage.getImage());
+                selectedImage.updateImage(processedImage);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error applying Prewitt edge detection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        smoothingMenu.add(prewittEdgeDetectionItem);
+    }
+
+
     private JMenu createSmoothingMenu() {
         JMenu smoothingMenu = new JMenu("Smoothing");
 
@@ -464,6 +484,7 @@ public class MultiImageApp extends JFrame {
         smoothingMenu.add(weightedItem);
         smoothingMenu.add(gaussianItem);
         smoothingMenu.add(laplacianSharpeningItem);
+        addPrewittEdgeDetectionMenu(smoothingMenu);
 
         return smoothingMenu;
     }
