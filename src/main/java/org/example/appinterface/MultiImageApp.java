@@ -551,22 +551,29 @@ public class MultiImageApp extends JFrame {
     private JMenu createSmoothingMenu() {
         JMenu smoothingMenu = new JMenu("Smoothing");
 
+        // Average Smoothing
         JMenuItem averageItem = new JMenuItem("Average Smoothing");
         averageItem.addActionListener(e -> applySmoothing("average"));
 
+        // Weighted Average Smoothing
         JMenuItem weightedItem = new JMenuItem("Weighted Average Smoothing");
-        weightedItem.addActionListener(e -> applySmoothing("median"));
+        weightedItem.addActionListener(e -> applySmoothing("weighted_average"));
 
+        // Gaussian Smoothing
         JMenuItem gaussianItem = new JMenuItem("Gaussian Smoothing");
         gaussianItem.addActionListener(e -> applySmoothing("gaussian"));
 
+        // Laplacian Sharpening
         JMenuItem laplacianSharpeningItem = new JMenuItem("Laplacian Sharpening");
         laplacianSharpeningItem.addActionListener(e -> applyLaplacianSharpening());
 
+        // Adding items to the menu
         smoothingMenu.add(averageItem);
         smoothingMenu.add(weightedItem);
         smoothingMenu.add(gaussianItem);
         smoothingMenu.add(laplacianSharpeningItem);
+
+        // Additional methods (if implemented elsewhere)
         addPrewittEdgeDetectionMenu(smoothingMenu);
         addBorderFillMenu(smoothingMenu);
         addMedianFilterMenu(smoothingMenu);
@@ -574,6 +581,37 @@ public class MultiImageApp extends JFrame {
 
         return smoothingMenu;
     }
+
+    private void applySmoothing(String method) {
+        if (selectedImage == null) {
+            JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int k = 1; // Default value for `k` (only used for weighted_average)
+
+            // Prompt the user for the weight `k` only if the method is "weighted_average"
+            if ("weighted_average".equalsIgnoreCase(method)) {
+                String kInput = JOptionPane.showInputDialog(this, "Enter value for k (positive integer):", "3");
+                k = Integer.parseInt(kInput);
+                if (k <= 0) {
+                    throw new IllegalArgumentException("Value of k must be positive.");
+                }
+            }
+
+            // Apply the selected smoothing method
+            BufferedImage smoothedImage = imageService.applySmoothing(selectedImage.getImage(), method, k);
+            selectedImage.updateImage(smoothedImage);
+            imagePanel.repaint(); // Refresh the panel to display the updated image
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
     private void addCannyEdgeDetectionMenu(JMenu menu) {
         JMenuItem cannyEdgeDetectionItem = new JMenuItem("Apply Canny Edge Detection");
@@ -763,49 +801,6 @@ public class MultiImageApp extends JFrame {
             }
         }
     }
-
-
-
-    private void applySmoothing(String method) {
-        if (selectedImage == null) {
-            JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String input = JOptionPane.showInputDialog(this, "Enter kernel size (odd number):", "3");
-        try {
-            int kernelSize = Integer.parseInt(input);
-            if (kernelSize % 2 == 0 || kernelSize < 1) {
-                throw new IllegalArgumentException("Kernel size must be an odd positive number.");
-            }
-
-            BufferedImage smoothedImage;
-            switch (method.toLowerCase()) {
-                case "average":
-                    smoothedImage = imageService.applyAverageSmoothing(selectedImage.getImage(), kernelSize);
-                    break;
-                case "gaussian":
-                    smoothedImage = imageService.applyGaussianSmoothing(selectedImage.getImage(), kernelSize);
-                    break;
-                case "median":
-                    smoothedImage = imageService.applyMedianSmoothing(selectedImage.getImage(), kernelSize);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown smoothing method: " + method);
-            }
-
-            // Aktualizacja obrazu i odświeżenie panelu
-            selectedImage.updateImage(smoothedImage);
-            imagePanel.repaint(); // Odświeżenie panelu
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter an odd positive number.", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-
 
 
     private void openImage() {

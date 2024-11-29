@@ -42,17 +42,21 @@ public class ImageService {
         histogramEqualizer.applyHistogramEqualization(image);
     }
 
-    public BufferedImage applyAverageSmoothing(BufferedImage image, int kernelSize) {
-        return imageSmoothingProcessor.applyAverageSmoothing(image, kernelSize);
+    public BufferedImage applySmoothing(BufferedImage inputImage, String method, int k) {
+        return imageSmoothingProcessor.applySmoothing(inputImage, method, k);
     }
 
-    public BufferedImage applyGaussianSmoothing(BufferedImage image, int kernelSize) {
-        return imageSmoothingProcessor.applyGaussianSmoothing(image, kernelSize);
-    }
-
-    public BufferedImage applyMedianSmoothing(BufferedImage image, int kernelSize) {
-        return imageSmoothingProcessor.applyMedianSmoothing(image, kernelSize);
-    }
+//    public BufferedImage applyAverageSmoothing(BufferedImage image, int kernelSize) {
+//        return imageSmoothingProcessor.applyAverageSmoothing(image, kernelSize);
+//    }
+//
+//    public BufferedImage applyGaussianSmoothing(BufferedImage image, int kernelSize) {
+//        return imageSmoothingProcessor.applyGaussianSmoothing(image, kernelSize);
+//    }
+//
+//    public BufferedImage applyMedianSmoothing(BufferedImage image, int kernelSize) {
+//        return imageSmoothingProcessor.applyMedianSmoothing(image, kernelSize);
+//    }
 
     public BufferedImage applyLaplacianSharpening(BufferedImage image, int[][] mask) {
         return laplacianProcessor.applyLaplacianSharpening(image, mask);
@@ -72,6 +76,7 @@ public class ImageService {
     public BufferedImage applyCanny(BufferedImage inputImage, double threshold1, double threshold2, int apertureSize, boolean l2Gradient) {
         return detector.applyCanny(inputImage, threshold1, threshold2, apertureSize, l2Gradient);
     }
+
 
 
 }
