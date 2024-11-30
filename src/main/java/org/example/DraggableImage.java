@@ -1,6 +1,7 @@
 package org.example;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.example.appinterface.MultiImageApp;
 
 import javax.swing.*;
@@ -9,7 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-
+@Log4j2
 public class DraggableImage extends JLabel {
     @Override
     public String toString() {
@@ -66,12 +67,10 @@ public class DraggableImage extends JLabel {
                 // Ustawienie obrazu jako wybranego
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     mainApp.setSelectedImage(DraggableImage.this); // Ustawienie wybranego obrazu w MultiImageApp
-                    System.out.println("Selected image updated. Location: X = " + getX() + ", Y = " + getY());
+//                    System.out.println("Selected image updated. Location: X = " + getX() + ", Y = " + getY());
                 }
             }
         });
-
-
 
         addMouseMotionListener(new MouseAdapter() {
             @Override
@@ -87,8 +86,7 @@ public class DraggableImage extends JLabel {
 
                 setLocation(X, Y);
 
-                // Log aktualnej pozycji
-                System.out.println("Image moved to: X = " + X + ", Y = " + Y);
+//                System.out.println("Image moved to: X = " + X + ", Y = " + Y);
             }
         });
     }
@@ -98,6 +96,8 @@ public class DraggableImage extends JLabel {
         setSize(newImage.getWidth(), newImage.getHeight());
         revalidate();
         repaint();
+        String string = newImage.toString();
+        System.out.println("Image updated " + string);
     }
 
     public BufferedImage getImage() {

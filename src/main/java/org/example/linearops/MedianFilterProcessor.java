@@ -13,42 +13,36 @@ import java.io.IOException;
 public class MedianFilterProcessor {
 
     public BufferedImage applyMedianFilter(BufferedImage inputImage, int kernelSize, int borderTypeCode) {
-        // Konwersja obiektu BufferedImage na Mat (format OpenCV)
         Mat sourceMat = bufferedImageToMat(inputImage);
 
-        // Jeśli obraz jest kolorowy, konwertuj go na skalę szarości
+        // do skali szarosci jeśli obraz jest kolorowy
         if (sourceMat.channels() == 3) {
             Imgproc.cvtColor(sourceMat, sourceMat, Imgproc.COLOR_BGR2GRAY);
         }
 
-        // Dodanie marginesów do obrazu w celu zapewnienia poprawnego działania filtra
+        // dodawanie marginesów do obrazu
         Mat paddedMat = new Mat();
         Core.copyMakeBorder(sourceMat, paddedMat, kernelSize / 2, kernelSize / 2, kernelSize / 2, kernelSize / 2, borderTypeCode);
 
-        // Zastosowanie filtra medianowego
+        // filtr medianowy
         Mat resultMat = new Mat();
         Imgproc.medianBlur(paddedMat, resultMat, kernelSize);
 
-        // Konwersja wyniku z Mat na BufferedImage
         return matToBufferedImage(resultMat);
     }
 
     private Mat bufferedImageToMat(BufferedImage bi) {
-        // Konwersja obiektu BufferedImage na Mat
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            // Zapis obrazu do strumienia bajtów w formacie PNG
             ImageIO.write(bi, "png", baos);
             baos.flush();
             byte[] imageInBytes = baos.toByteArray();
             baos.close();
 
-            // Odczyt strumienia bajtów jako obiekt Mat
             return Imgcodecs.imdecode(new MatOfByte(imageInBytes), Imgcodecs.IMREAD_UNCHANGED);
         } catch (IOException e) {
-            // Obsługa błędów wejścia/wyjścia
             e.printStackTrace();
-            return new Mat(); // Zwrócenie pustego obiektu Mat w przypadku błędu
+            return new Mat();
         }
     }
 

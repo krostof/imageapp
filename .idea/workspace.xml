@@ -5,6 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/DraggableImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/grayscale/GrayscaleImageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/grayscale/GrayscaleImageProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/LUTGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/LUTGenerator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/BorderFillProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/CannyEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/CannyEdgeDetector.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" afterDir="false" />
@@ -126,14 +131,6 @@
         <item itemvalue="Application.MultiImageInterface" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9f38398b9061-18abd8497189-intellij.indexing.shared.core-IU-241.14494.240" />
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-IU-241.14494.240" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
