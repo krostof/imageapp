@@ -137,10 +137,13 @@ public class HistogramPanel extends JPanel {
                 int marginLeft = 40;
                 int marginBottom = 30;
                 int marginTop = 20;
-                int binWidth = (width - 80) / histogram.length;
+//                int binWidth = (width - 80) / histogram.length;
+                int binWidth = Math.max(1, (width - 80) / overallHistogram.length);
 
                 Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
 
                 drawer.drawHistogram(g2d, histogram, maxHistogramValue, width, height, binWidth, marginLeft, marginBottom, marginTop, color);
 

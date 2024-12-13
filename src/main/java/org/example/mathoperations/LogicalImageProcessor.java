@@ -5,23 +5,27 @@ import java.awt.image.BufferedImage;
 public class LogicalImageProcessor {
 
     /**
-     * Wykonuje operację NOT na obrazie.
+     * Wykonuje operację NOT na obrazie jednokanałowym (grayscale lub binary).
      * Algorytm:
-     * - Dla każdego piksela stosuje inwersję bitową 255 - wartość piksela.
+     * - Dla każdego piksela stosuje inwersję: result = 255 - pixel.
      *
      * @param image Obraz wejściowy w skali szarości lub binarny.
      * @return Obraz po operacji NOT.
      */
     public BufferedImage notOperation(BufferedImage image) {
+        verifySingleChannelImage(image);
+
         int width = image.getWidth();
         int height = image.getHeight();
+
+        // Wynik również w formacie TYPE_BYTE_GRAY
         BufferedImage resultImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
-                int result = 255 - pixel; // Inwersja bitowa
-                resultImage.getRaster().setSample(x, y, 0, result); // Ustawienie nowej wartości
+                int pixel = image.getRaster().getSample(x, y, 0);
+                int result = 255 - pixel;  // Inwersja
+                resultImage.getRaster().setSample(x, y, 0, result);
             }
         }
 
@@ -29,13 +33,13 @@ public class LogicalImageProcessor {
     }
 
     /**
-     * Wykonuje operacje logiczne AND, OR, XOR na dwóch obrazach.
+     * Wykonuje operacje logiczne AND, OR, XOR na dwóch obrazach jednokanałowych (grayscale).
      * Algorytm:
-     * - Dla każdego piksela pobiera wartości z obu obrazów.
-     * - Stosuje operację logiczną (AND, OR, XOR) na poziomie bitowym.
+     * - Dla każdego piksela pobiera wartości z obu obrazów (pixel1, pixel2).
+     * - Stosuje operację bitową & (AND), | (OR) lub ^ (XOR).
      *
-     * @param image1 Pierwszy obraz wejściowy.
-     * @param image2 Drugi obraz wejściowy.
+     * @param image1 Pierwszy obraz wejściowy (grayscale).
+     * @param image2 Drugi obraz wejściowy (grayscale).
      * @param operation Typ operacji logicznej ("and", "or", "xor").
      * @return Obraz wynikowy po operacji logicznej.
      */
@@ -48,26 +52,25 @@ public class LogicalImageProcessor {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel1 = image1.getRaster().getSample(x, y, 0); // Piksel z pierwszego obrazu
-                int pixel2 = image2.getRaster().getSample(x, y, 0); // Piksel z drugiego obrazu
+                int pixel1 = image1.getRaster().getSample(x, y, 0);
+                int pixel2 = image2.getRaster().getSample(x, y, 0);
                 int result;
 
-                // Wybór operacji logicznej
                 switch (operation.toLowerCase()) {
                     case "and":
-                        result = pixel1 & pixel2; // Operacja AND
+                        result = pixel1 & pixel2;
                         break;
                     case "or":
-                        result = pixel1 | pixel2; // Operacja OR
+                        result = pixel1 | pixel2;
                         break;
                     case "xor":
-                        result = pixel1 ^ pixel2; // Operacja XOR
+                        result = pixel1 ^ pixel2;
                         break;
                     default:
                         throw new IllegalArgumentException("Unsupported logical operation: " + operation);
                 }
 
-                resultImage.getRaster().setSample(x, y, 0, result); // Ustawienie nowej wartości
+                resultImage.getRaster().setSample(x, y, 0, result);
             }
         }
 
@@ -75,25 +78,29 @@ public class LogicalImageProcessor {
     }
 
     /**
-     * Konwertuje obraz do binarnej maski.
+     * Konwertuje obraz jednokanałowy (grayscale) do binarnej maski 0/255 w formacie TYPE_BYTE_GRAY.
      * Algorytm:
-     * - Porównuje wartość każdego piksela z progiem.
+     * - Porównuje wartość każdego piksela z progiem (threshold).
      * - Jeśli wartość > próg, piksel otrzymuje wartość 255, w przeciwnym razie 0.
      *
-     * @param image Obraz wejściowy.
+     * @param image Obraz wejściowy (grayscale).
      * @param threshold Wartość progu (0-255).
-     * @return Obraz binarny.
+     * @return Obraz binarny (w skali 0/255).
      */
     public BufferedImage convertToBinaryMask(BufferedImage image, int threshold) {
+        verifySingleChannelImage(image);
+
         int width = image.getWidth();
         int height = image.getHeight();
-        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        // Dla prostego binarnego maskowania używamy TYPE_BYTE_GRAY zamiast TYPE_BYTE_BINARY
+        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
-                int binaryPixel = (pixel > threshold) ? 255 : 0; // Porównanie z progiem
-                binaryImage.getRaster().setSample(x, y, 0, binaryPixel); // Ustawienie nowej wartości
+                int pixel = image.getRaster().getSample(x, y, 0);
+                int binaryPixel = (pixel > threshold) ? 255 : 0;
+                binaryImage.getRaster().setSample(x, y, 0, binaryPixel);
             }
         }
 
@@ -101,24 +108,26 @@ public class LogicalImageProcessor {
     }
 
     /**
-     * Konwertuje obraz binarny na obraz monochromatyczny (8-bitowy).
+     * Konwertuje obraz binarny (0/255) na obraz monochromatyczny (8-bitowy).
      * Algorytm:
      * - Dla każdego piksela sprawdza, czy wartość > 0.
      * - Jeśli wartość > 0, piksel przyjmuje wartość 255, w przeciwnym razie 0.
      *
-     * @param binaryImage Obraz binarny (1-bitowy).
-     * @return Obraz monochromatyczny (8-bitowy).
+     * @param binaryImage Obraz binarny (jednokanałowy, ale może być TYPE_BYTE_GRAY lub TYPE_BYTE_BINARY).
+     * @return Obraz monochromatyczny (TYPE_BYTE_GRAY).
      */
     public BufferedImage convertToMonochromeMask(BufferedImage binaryImage) {
+        verifySingleChannelImage(binaryImage);
+
         int width = binaryImage.getWidth();
         int height = binaryImage.getHeight();
         BufferedImage monochromeImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = binaryImage.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
-                int grayPixel = (pixel > 0) ? 255 : 0; // Konwersja do 8-bitowej skali szarości
-                monochromeImage.getRaster().setSample(x, y, 0, grayPixel); // Ustawienie nowej wartości
+                int pixel = binaryImage.getRaster().getSample(x, y, 0);
+                int grayPixel = (pixel > 0) ? 255 : 0;
+                monochromeImage.getRaster().setSample(x, y, 0, grayPixel);
             }
         }
 
@@ -126,18 +135,37 @@ public class LogicalImageProcessor {
     }
 
     /**
-     * Sprawdza zgodność typów i rozmiarów obrazów wejściowych.
+     * Sprawdza zgodność dwóch obrazów jednokanałowych:
+     * - Oba obrazy nie mogą być null.
+     * - Muszą mieć te same wymiary.
+     * - Muszą być w typie TYPE_BYTE_GRAY lub TYPE_BYTE_BINARY (choć docelowo działamy na grayscale).
      *
      * @param image1 Pierwszy obraz.
      * @param image2 Drugi obraz.
      */
     private void verifyImageCompatibility(BufferedImage image1, BufferedImage image2) {
+        verifySingleChannelImage(image1);
+        verifySingleChannelImage(image2);
+
         if (image1.getWidth() != image2.getWidth() || image1.getHeight() != image2.getHeight()) {
             throw new IllegalArgumentException("Images must have the same dimensions.");
         }
+    }
 
-        if (image1.getType() != BufferedImage.TYPE_BYTE_GRAY || image2.getType() != BufferedImage.TYPE_BYTE_GRAY) {
-            throw new IllegalArgumentException("Images must be in grayscale (TYPE_BYTE_GRAY).");
+    /**
+     * Sprawdza, czy obraz jest nie-null i czy jest w typie TYPE_BYTE_GRAY lub TYPE_BYTE_BINARY.
+     *
+     * @param image Obraz jednokanałowy do weryfikacji.
+     */
+    private void verifySingleChannelImage(BufferedImage image) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null.");
+        }
+        int type = image.getType();
+        if (type != BufferedImage.TYPE_BYTE_GRAY && type != BufferedImage.TYPE_BYTE_BINARY) {
+            throw new IllegalArgumentException(
+                    "Image must be TYPE_BYTE_GRAY or TYPE_BYTE_BINARY (single-channel)."
+            );
         }
     }
 }

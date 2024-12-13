@@ -814,7 +814,7 @@ public class MultiImageApp extends JFrame {
     private void loadImage(File file) {
         BufferedImage image = imageService.loadImageFromFile(file);
         if (image != null) {
-            addImageToPanel(image, file.getName()); // Przekazujemy nazwę pliku
+            addImageToPanel(image, file.getName());
         } else {
             JOptionPane.showMessageDialog(this, "Failed to load image.", "Error", JOptionPane.ERROR_MESSAGE);
         }

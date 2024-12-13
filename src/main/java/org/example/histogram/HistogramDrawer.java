@@ -27,8 +27,10 @@ public class HistogramDrawer {
 
         // Iteracja po wartościach histogramu i rysowanie słupków
         for (int i = 0; i < histogram.length; i++) {
-            double normalizedValue = (double) histogram[i] / maxHistogramValue; // Normalizacja
-            int barHeight = (int) (normalizedValue * (height - marginBottom - marginTop)); // Wysokość słupka
+//            double normalizedValue = (double) histogram[i] / maxHistogramValue; // Normalizacja
+//            int barHeight = (int) (normalizedValue * (height - marginBottom - marginTop)); // Wysokość słupka
+            double normalizedValue = Math.log(histogram[i] + 1) / Math.log(maxHistogramValue + 1);
+            int barHeight = (int) (normalizedValue * (height - marginBottom - marginTop));
             g2d.fillRect(i * binWidth + marginLeft, height - barHeight - marginBottom, binWidth, barHeight);
         }
 
