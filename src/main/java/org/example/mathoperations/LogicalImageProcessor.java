@@ -1,5 +1,6 @@
 package org.example.mathoperations;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class LogicalImageProcessor {
@@ -117,22 +118,36 @@ public class LogicalImageProcessor {
      * @return Obraz monochromatyczny (TYPE_BYTE_GRAY).
      */
     public BufferedImage convertToMonochromeMask(BufferedImage binaryImage) {
-        verifySingleChannelImage(binaryImage);
+        if (binaryImage == null) {
+            throw new IllegalArgumentException("Image cannot be null.");
+        }
 
-        int width = binaryImage.getWidth();
-        int height = binaryImage.getHeight();
-        BufferedImage monochromeImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        // Krok 1. Konwersja z TYPE_BYTE_BINARY (1-bit / indeksowana paleta) do TYPE_BYTE_GRAY (8-bit)
+        // tworzymy nowy obraz 8-bitowy w odcieniach szarości
+        BufferedImage grayImage = new BufferedImage(binaryImage.getWidth(), binaryImage.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        // Kopiujemy piksele z binaryImage do grayImage (Java automatycznie odwzoruje paletę 1-bit na 0..255)
+        Graphics2D g = grayImage.createGraphics();
+        g.drawImage(binaryImage, 0, 0, null);
+        g.dispose();
+
+        // Krok 2. Tworzymy docelowy obraz (również TYPE_BYTE_GRAY) i
+        // mapujemy piksele: (pixel>0) ? 255 : 0
+        int width = grayImage.getWidth();
+        int height = grayImage.getHeight();
+
+        BufferedImage monochromeMask = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = binaryImage.getRaster().getSample(x, y, 0);
-                int grayPixel = (pixel > 0) ? 255 : 0;
-                monochromeImage.getRaster().setSample(x, y, 0, grayPixel);
+                int pixelValue = grayImage.getRaster().getSample(x, y, 0);
+                int maskValue = (pixelValue > 0) ? 255 : 0;
+                monochromeMask.getRaster().setSample(x, y, 0, maskValue);
             }
         }
 
-        return monochromeImage;
+        return monochromeMask;
     }
+
 
     /**
      * Sprawdza zgodność dwóch obrazów jednokanałowych:

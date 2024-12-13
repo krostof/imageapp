@@ -12,7 +12,9 @@ import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
+import org.example.segmentaionlab5.MorphologyProcessor;
 import org.example.segmentaionlab5.SegmentationProcessor;
+import org.example.segmentaionlab5.SkeletonizationProcessor;
 import org.opencv.core.Core;
 
 import javax.swing.*;
@@ -36,6 +38,8 @@ public class MultiImageApp extends JFrame {
     private final MultiArgumentImageProcessor multiArgumentImageProcessor;
     private final LogicalImageProcessor logicalImageProcessor;
     private final SegmentationProcessor segmentationProcessor;
+    private final MorphologyProcessor morphologyProcessor;
+    private final SkeletonizationProcessor skeletonProcessor;
 
 
     public MultiImageApp() {
@@ -57,6 +61,8 @@ public class MultiImageApp extends JFrame {
         );
         this.segmentationProcessor = new SegmentationProcessor();
         this.logicalImageProcessor = new LogicalImageProcessor();
+        this.morphologyProcessor = new MorphologyProcessor();
+        this.skeletonProcessor = new SkeletonizationProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
         this.histogramStretching = new HistogramStretching();
         this.multiArgumentImageProcessor = new MultiArgumentImageProcessor();
@@ -96,6 +102,7 @@ public class MultiImageApp extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         JMenu smoothingMenu = createSmoothingMenu();
         menuBar.add(smoothingMenu);
+        JMenu morphologyMenu = new JMenu("Morphology");
         JMenu fileMenu = new JMenu("File");
         JMenu mathMenu = new JMenu("Math");
         JMenuItem openMenuItem = new JMenuItem("Open Image");
@@ -489,13 +496,98 @@ public class MultiImageApp extends JFrame {
         });
         segmentationMenu.add(adaptiveItem);
 
-        // Następnie w menuBar dodajemy segmentationMenu
+        JMenuItem erosionItem = new JMenuItem("Erosion");
+        erosionItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String shape = chooseStructElementShape();
+                if (shape == null) return; // user canceled
+                BufferedImage result = morphologyProcessor.erode(selectedImage.getImage(), shape);
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        morphologyMenu.add(erosionItem);
+
+        // Dilation
+        JMenuItem dilationItem = new JMenuItem("Dilation");
+        dilationItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String shape = chooseStructElementShape();
+                if (shape == null) return;
+                BufferedImage result = morphologyProcessor.dilate(selectedImage.getImage(), shape);
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        morphologyMenu.add(dilationItem);
+
+        // Opening
+        JMenuItem openingItem = new JMenuItem("Opening");
+        openingItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String shape = chooseStructElementShape();
+                if (shape == null) return;
+                BufferedImage result = morphologyProcessor.opening(selectedImage.getImage(), shape);
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        morphologyMenu.add(openingItem);
+
+        // Closing
+        JMenuItem closingItem = new JMenuItem("Closing");
+        closingItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String shape = chooseStructElementShape();
+                if (shape == null) return;
+                BufferedImage result = morphologyProcessor.closing(selectedImage.getImage(), shape);
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        morphologyMenu.add(closingItem);
+
+        // Zakładam, że jest w createMenuBar(), obok innych opcji
+        JMenuItem convertTo8BitItem = new JMenuItem("Convert to 8-bit Grayscale");
+        convertTo8BitItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                BufferedImage converted = convertTo8BitGray(selectedImage.getImage());
+                selectedImage.updateImage(converted);
+                JOptionPane.showMessageDialog(this,
+                        "Image converted to 8-bit Grayscale.",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+// Następnie dodajemy convertTo8BitItem do odpowiedniego menu:
+        pointOperationsMenu.add(convertTo8BitItem); // lub operationsMenu.add(convertTo8BitItem);
+
+        JMenuItem skeletonItem = new JMenuItem("Skeletonize");
+        skeletonItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                // Wywołujemy skeletonize z nowej klasy
+                BufferedImage result = skeletonProcessor.skeletonize(selectedImage.getImage());
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        morphologyMenu.add(skeletonItem);
+
+        menuBar.add(morphologyMenu);
+
+        // Dodaj "Morphology" do paska menu
+        menuBar.add(morphologyMenu);
+
         menuBar.add(segmentationMenu);
-
-        // ... reszta createMenuBar (dodawanie fileMenu, operationsMenu, etc.) ...
-
         setJMenuBar(menuBar);
-
 
         smoothingMenu.add(sobelEdgeDetectionItem);
         operationsMenu.add(stretchHistogramMenuItem);
@@ -520,6 +612,7 @@ public class MultiImageApp extends JFrame {
 
         setJMenuBar(menuBar);
     }
+
 
     private void addMedianFilterMenu(JMenu menu) {
         JMenuItem medianFilterItem = new JMenuItem("Apply Median Filter");
@@ -1028,6 +1121,70 @@ public class MultiImageApp extends JFrame {
 
         return edgeDetectionMenu;
     }
+
+    private String chooseStructElementShape() {
+        String[] shapes = {"Rectangle", "Cross"};
+        String shape = (String) JOptionPane.showInputDialog(
+                this,
+                "Select structuring element shape:",
+                "Morphology Element",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                shapes,
+                shapes[0]
+        );
+        if (shape == null) {
+            // user cancelled
+            return null;
+        }
+        return shape.toLowerCase();
+    }
+
+    private BufferedImage convertTo8BitGray(BufferedImage source) {
+        log.info("Converting image to 8-bit grayscale AND applying binary threshold (0/255).");
+
+        // Krok 1: Jeśli obraz ma już TYPE_BYTE_GRAY, zrób kopię
+        // (ale dalej chcemy go zbinaryzować, więc i tak iterujemy piksele)
+        BufferedImage grayImage;
+        if (source.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+            grayImage = deepCopy(source);
+        } else {
+            // Tworzymy nowy obraz w odcieniach szarości
+            grayImage = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            Graphics g = grayImage.getGraphics();
+            g.drawImage(source, 0, 0, null);
+            g.dispose();
+        }
+
+        // Krok 2: Iteracja po pikselach, próg np. 128 (lub parametr)
+        // Zamiast tylko odcieni szarości, wymuszamy 0 lub 255
+        int width = grayImage.getWidth();
+        int height = grayImage.getHeight();
+        BufferedImage binaryImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+        int threshold = 128; // stały próg, ewentualnie zdefiniuj jako parametr
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixelValue = grayImage.getRaster().getSample(x, y, 0);
+                int newPixel = (pixelValue >= threshold) ? 0 : 255;
+                binaryImage.getRaster().setSample(x, y, 0, newPixel);
+            }
+        }
+
+        return binaryImage;
+    }
+
+
+    // Pomocnicza metoda do tworzenia kopii obrazu (opcjonalna)
+    private BufferedImage deepCopy(BufferedImage bi) {
+        BufferedImage copy = new BufferedImage(bi.getWidth(), bi.getHeight(), bi.getType());
+        Graphics g = copy.getGraphics();
+        g.drawImage(bi, 0, 0, null);
+        g.dispose();
+        return copy;
+    }
+
 
 
     public static void main(String[] args) {

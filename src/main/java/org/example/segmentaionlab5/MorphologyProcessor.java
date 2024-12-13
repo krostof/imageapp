@@ -1,4 +1,4 @@
-package org.example.morphology;
+package org.example.segmentaionlab5;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -79,19 +79,17 @@ public class MorphologyProcessor {
      * Tworzy element strukturalny 3x3 w kształcie 'rectangle' (3x3 jedynek) lub 'cross' (3x3 krzyż).
      */
     private Mat createStructuringElement3x3(String shape) {
-        // Domyślnie rectangle 3x3
-        if (shape == null) shape = "rectangle";
+        if (shape == null) shape = "rectangle"; // Domyślnie prostokąt
         shape = shape.toLowerCase();
 
-        // Wersja 1: Skorzystaj z gotowych metod OpenCV, np. getStructuringElement().
-        // Dla rectangle: Imgproc.MORPH_RECT, dla cross: Imgproc.MORPH_CROSS
         if (shape.contains("cross")) {
-            return Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3,3));
+            return Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
         } else {
-            // rectangle
-            return Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
+            return Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
         }
     }
+
+
 
 
     private Mat bufferedImageToMatGray(BufferedImage bi) {
