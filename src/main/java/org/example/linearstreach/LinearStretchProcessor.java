@@ -5,6 +5,14 @@ import org.example.histogram.LUTGenerator;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * Klasa realizująca liniowe rozciąganie histogramu (stretching) z różnymi trybami:
+ * 1) Bez clippingu (auto min/max z histogramu).
+ * 2) Z clippingiem (obcinanie dolnego i górnego procentu pikseli).
+ * 3) W zadanym przez użytkownika przedziale [p1..p2] -> [q3..q4].
+ *
+ * Założenie: obraz jest TYPE_BYTE_GRAY.
+ */
 @Log4j2
 public class LinearStretchProcessor {
 
@@ -15,136 +23,192 @@ public class LinearStretchProcessor {
     }
 
     /**
-     * Przeprowadza liniowe rozciąganie histogramu obrazu z opcjonalnym obcinaniem wartości.
+     * Liniowe rozciąganie histogramu w trybie automatycznym (bez clippingu)
+     * lub z clippingiem. Pozostawione jako wcześniej omawiane metody.
      *
-     * @param image Obraz wejściowy.
-     * @param withClipping Czy stosować obcinanie wartości pikseli.
-     * @param clippingPercentage Procent pikseli do obcięcia (górny i dolny zakres histogramu).
+     * @param image Obraz wejściowy (TYPE_BYTE_GRAY).
+     * @param withClipping true -> z clippingiem, false -> bez clippingu.
+     * @param clippingPercentage procent pikseli do obcięcia (np. 0.01 = 1%).
      */
     public void applyLinearStretch(BufferedImage image, boolean withClipping, double clippingPercentage) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null.");
+        }
+        if (clippingPercentage < 0 || clippingPercentage > 1) {
+            throw new IllegalArgumentException("Clipping percentage must be between 0 and 1.");
+        }
+
         if (withClipping) {
-            log.info("Applying linear stretch with clipping. Clipping percentage: {}%", clippingPercentage * 100);
+            log.info("Applying linear stretch WITH clipping. Clipping = {}%", clippingPercentage * 100);
             applyLinearStretchWithClipping(image, clippingPercentage);
         } else {
-            log.info("Applying linear stretch without clipping.");
+            log.info("Applying linear stretch WITHOUT clipping.");
             applyLinearStretchWithoutClipping(image);
         }
     }
 
     /**
-     * Wykonuje liniowe rozciąganie histogramu bez obcinania wartości.
-     * Algorytm:
-     * - Generuje histogram obrazu.
-     * - Oblicza LUT dla rozciągania histogramu.
-     * - Zastosowuje LUT do obrazu.
+     * Metoda do manualnego rozciągania histogramu w zadanym przez użytkownika zakresie [p1..p2]
+     * do zakresu [q3..q4].
      *
-     * @param image Obraz wejściowy.
-     */
-    private void applyLinearStretchWithoutClipping(BufferedImage image) {
-        int[] histogram = lutGenerator.generateHistogramLUT(image); // Generowanie histogramu
-        int totalPixels = image.getWidth() * image.getHeight();
-        int[] lut = lutGenerator.generateEqualizationLUT(histogram, totalPixels); // Generowanie LUT
-
-        transformImageWithLUT(image, lut); // Zastosowanie LUT
-    }
-
-    /**
-     * Wykonuje liniowe rozciąganie histogramu z obcinaniem wartości.
-     * Algorytm:
-     * - Generuje histogram obrazu.
-     * - Oblicza granice obcinania na podstawie procentu pikseli.
-     * - Generuje LUT dla rozciągania z obcinaniem.
-     * - Zastosowuje LUT do obrazu.
+     * np. p1=50, p2=150, q3=0, q4=255 -> wartości [50..150] w obrazie wejściowym
+     * zostaną rozciągnięte do [0..255].
+     * Wartości < p1 -> q3, a > p2 -> q4.
      *
-     * @param image Obraz wejściowy.
-     * @param clippingPercentage Procent pikseli do obcięcia.
+     * @param image Obraz wejściowy (TYPE_BYTE_GRAY).
+     * @param p1 Dolna granica intensywności w obrazie wejściowym.
+     * @param p2 Górna granica intensywności w obrazie wejściowym.
+     * @param q3 Dolna granica docelowa w obrazie wynikowym.
+     * @param q4 Górna granica docelowa w obrazie wynikowym.
      */
-    private void applyLinearStretchWithClipping(BufferedImage image, double clippingPercentage) {
-        int[] histogram = lutGenerator.generateHistogramLUT(image); // Generowanie histogramu
-        int totalPixels = image.getWidth() * image.getHeight();
+    public void applyManualRangeStretch(BufferedImage image, int p1, int p2, int q3, int q4) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null.");
+        }
+        // Kontrola poprawności zakresów
+        if (p1 < 0 || p2 > 255 || p1 >= p2) {
+            throw new IllegalArgumentException("Invalid source range [p1..p2]. Must be within [0..255], p1 < p2.");
+        }
+        if (q3 < 0 || q4 > 255 || q3 >= q4) {
+            throw new IllegalArgumentException("Invalid target range [q3..q4]. Must be within [0..255], q3 < q4.");
+        }
 
-        int clipPixels = (int) (totalPixels * clippingPercentage); // Liczba pikseli do obcięcia
-        int lowerBound = findClippingBound(histogram, clipPixels, true); // Dolna granica
-        int upperBound = findClippingBound(histogram, clipPixels, false); // Górna granica
+        log.info("Applying manual range stretch: src=[{}..{}], dst=[{}..{}]", p1, p2, q3, q4);
 
-        int[] lut = generateClippedLUT(lowerBound, upperBound); // Generowanie LUT dla obcinania
-
-        transformImageWithLUT(image, lut); // Zastosowanie LUT
-    }
-
-    /**
-     * Znajduje granicę obcinania na podstawie liczby pikseli do obcięcia.
-     *
-     * @param histogram Histogram obrazu.
-     * @param clipPixels Liczba pikseli do obcięcia.
-     * @param isLower Czy szukać dolnej granicy.
-     * @return Wartość granicy (0-255).
-     */
-    private int findClippingBound(int[] histogram, int clipPixels, boolean isLower) {
-        int sum = 0;
-
-        if (isLower) {
-            for (int i = 0; i < histogram.length; i++) {
-                sum += histogram[i];
-                if (sum >= clipPixels) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i = histogram.length - 1; i >= 0; i--) {
-                sum += histogram[i];
-                if (sum >= clipPixels) {
-                    return i;
-                }
+        // Budujemy LUT: [p1..p2] -> [q3..q4]
+        int[] lut = new int[256];
+        for (int i = 0; i < 256; i++) {
+            if (i <= p1) {
+                lut[i] = q3;
+            } else if (i >= p2) {
+                lut[i] = q4;
+            } else {
+                double fraction = (double)(i - p1) / (p2 - p1);
+                lut[i] = (int)(q3 + fraction * (q4 - q3));
             }
         }
 
-        return isLower ? 0 : 255;
+        // Zastosowanie LUT do obrazu (kanał 0)
+        transformImageWithLUT(image, lut);
     }
 
     /**
-     * Generuje LUT dla rozciągania histogramu z obcinaniem wartości.
-     * Algorytm:
-     * - Piksele poniżej dolnej granicy otrzymują wartość 0.
-     * - Piksele powyżej górnej granicy otrzymują wartość 255.
-     * - Piksele w zakresie dolnej i górnej granicy są rozciągane liniowo.
-     *
-     * @param lowerBound Dolna granica zakresu.
-     * @param upperBound Górna granica zakresu.
-     * @return Tablica LUT.
+     * Liniowe rozciąganie histogramu bez obcinania wartości (auto [min..max] -> [0..255]).
      */
+    private void applyLinearStretchWithoutClipping(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int[] histogram = lutGenerator.generateHistogramLUT(image);
+
+        // Znalezienie minIntensity i maxIntensity
+        int minIntensity = 0;
+        while (minIntensity < 256 && histogram[minIntensity] == 0) {
+            minIntensity++;
+        }
+        int maxIntensity = 255;
+        while (maxIntensity >= 0 && histogram[maxIntensity] == 0) {
+            maxIntensity--;
+        }
+
+        log.info("Linear stretch WITHOUT clipping -> minIntensity={}, maxIntensity={}", minIntensity, maxIntensity);
+
+        if (minIntensity >= maxIntensity) {
+            log.warn("Cannot stretch - minIntensity >= maxIntensity. Possibly uniform image?");
+            return;
+        }
+
+        // Generowanie LUT [min..max] -> [0..255]
+        int[] lut = new int[256];
+        for (int i = 0; i < 256; i++) {
+            if (i <= minIntensity) {
+                lut[i] = 0;
+            } else if (i >= maxIntensity) {
+                lut[i] = 255;
+            } else {
+                lut[i] = (int) (((i - minIntensity) * 255.0) / (maxIntensity - minIntensity));
+            }
+        }
+
+        transformImageWithLUT(image, lut);
+    }
+
+    /**
+     * Liniowe rozciąganie histogramu z obcinaniem (auto find lowerBound, upperBound).
+     */
+    private void applyLinearStretchWithClipping(BufferedImage image, double clippingPercentage) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int totalPixels = width * height;
+
+        int[] histogram = lutGenerator.generateHistogramLUT(image);
+
+        // Ile pikseli obcinamy z dołu i z góry
+        int clipPixels = (int) (totalPixels * clippingPercentage);
+
+        int lowerBound = findClippingBound(histogram, clipPixels, true);
+        int upperBound = findClippingBound(histogram, clipPixels, false);
+
+        log.info("Linear stretch WITH clipping -> lowerBound={}, upperBound={}", lowerBound, upperBound);
+
+        if (lowerBound >= upperBound) {
+            log.warn("Invalid clipping bounds, nothing done. (lowerBound >= upperBound)");
+            return;
+        }
+
+        int[] lut = generateClippedLUT(lowerBound, upperBound);
+        transformImageWithLUT(image, lut);
+    }
+
+    private int findClippingBound(int[] histogram, int clipPixels, boolean isLower) {
+        int sum = 0;
+        if (isLower) {
+            for (int i = 0; i < 256; i++) {
+                sum += histogram[i];
+                if (sum >= clipPixels) {
+                    return i;
+                }
+            }
+            return 0;
+        } else {
+            for (int i = 255; i >= 0; i--) {
+                sum += histogram[i];
+                if (sum >= clipPixels) {
+                    return i;
+                }
+            }
+            return 255;
+        }
+    }
+
     private int[] generateClippedLUT(int lowerBound, int upperBound) {
         int[] lut = new int[256];
-
         for (int i = 0; i < 256; i++) {
             if (i < lowerBound) {
                 lut[i] = 0;
             } else if (i > upperBound) {
                 lut[i] = 255;
             } else {
-                lut[i] = (int) (((i - lowerBound) * 255.0) / (upperBound - lowerBound)); // Rozciąganie liniowe
+                lut[i] = (int) (((i - lowerBound) * 255.0) / (upperBound - lowerBound));
             }
         }
-
         return lut;
     }
 
     /**
-     * Zastosowuje LUT do obrazu.
-     * Algorytm:
-     * - Dla każdego piksela w obrazie pobiera wartość LUT.
-     * - Ustawia nową wartość piksela na podstawie LUT.
-     *
-     * @param image Obraz wejściowy.
-     * @param lut Tablica LUT.
+     * Zastosowanie LUT do obrazu (TYPE_BYTE_GRAY).
      */
     private void transformImageWithLUT(BufferedImage image, int[] lut) {
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości piksela
-                int newPixel = lut[pixel]; // Zastosowanie LUT
-                image.getRaster().setSample(x, y, 0, newPixel); // Ustawienie nowej wartości
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixel = image.getRaster().getSample(x, y, 0);
+                int newPixel = lut[pixel];
+                image.getRaster().setSample(x, y, 0, newPixel);
             }
         }
+        log.info("LUT transform applied. (width={}, height={})", width, height);
     }
 }

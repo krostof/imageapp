@@ -12,6 +12,7 @@ import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
+import org.example.segmentaionlab5.SegmentationProcessor;
 import org.opencv.core.Core;
 
 import javax.swing.*;
@@ -34,6 +35,7 @@ public class MultiImageApp extends JFrame {
     private final HistogramStretching histogramStretching;
     private final MultiArgumentImageProcessor multiArgumentImageProcessor;
     private final LogicalImageProcessor logicalImageProcessor;
+    private final SegmentationProcessor segmentationProcessor;
 
 
     public MultiImageApp() {
@@ -53,6 +55,7 @@ public class MultiImageApp extends JFrame {
                 new MedianFilterProcessor(),
                 new CannyEdgeDetector()
         );
+        this.segmentationProcessor = new SegmentationProcessor();
         this.logicalImageProcessor = new LogicalImageProcessor();
         this.grayscaleImageProcessorService = new GrayscaleImageProcessorService(new GrayscaleImageProcessor());
         this.histogramStretching = new HistogramStretching();
@@ -424,6 +427,74 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        // Tworzymy nowe menu "Segmentation"
+        JMenu segmentationMenu = new JMenu("Segmentation");
+
+        // 1. Double Threshold
+        JMenuItem doubleThresholdItem = new JMenuItem("Double Threshold");
+        doubleThresholdItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                // Pytamy użytkownika o p1, p2
+                String p1Input = JOptionPane.showInputDialog(this, "Enter lower threshold p1:");
+                String p2Input = JOptionPane.showInputDialog(this, "Enter upper threshold p2:");
+                if (p1Input != null && p2Input != null) {
+                    try {
+                        int p1 = Integer.parseInt(p1Input);
+                        int p2 = Integer.parseInt(p2Input);
+                        // Wywołujemy SegmentationProcessor
+                        BufferedImage result = segmentationProcessor.doubleThreshold(selectedImage.getImage(), p1, p2);
+                        selectedImage.updateImage(result);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid threshold values.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        segmentationMenu.add(doubleThresholdItem);
+
+        // 2. Otsu Threshold
+        JMenuItem otsuItem = new JMenuItem("Otsu Threshold");
+        otsuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                BufferedImage result = segmentationProcessor.otsuThreshold(selectedImage.getImage());
+                selectedImage.updateImage(result);
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        segmentationMenu.add(otsuItem);
+
+        // 3. Adaptive Threshold
+        JMenuItem adaptiveItem = new JMenuItem("Adaptive Threshold");
+        adaptiveItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                String blockSizeStr = JOptionPane.showInputDialog(this, "Enter block size (odd number, e.g. 11):", "11");
+                String cStr = JOptionPane.showInputDialog(this, "Enter constant C (e.g. 2):", "2");
+                if (blockSizeStr != null && cStr != null) {
+                    try {
+                        int blockSize = Integer.parseInt(blockSizeStr);
+                        int C = Integer.parseInt(cStr);
+                        BufferedImage result = segmentationProcessor.adaptiveThreshold(selectedImage.getImage(), blockSize, C);
+                        selectedImage.updateImage(result);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid blockSize/C.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        segmentationMenu.add(adaptiveItem);
+
+        // Następnie w menuBar dodajemy segmentationMenu
+        menuBar.add(segmentationMenu);
+
+        // ... reszta createMenuBar (dodawanie fileMenu, operationsMenu, etc.) ...
+
+        setJMenuBar(menuBar);
 
 
         smoothingMenu.add(sobelEdgeDetectionItem);

@@ -5,47 +5,61 @@ import java.awt.image.BufferedImage;
 public class HistogramStretching {
 
     /**
-     * Applies histogram stretching to an image in the given source range [p1, p2]
-     * to the target range [q3, q4].
+     * Applies manual histogram stretching:
+     * Source range [p1..p2] -> Target range [q3..q4].
      *
-     * @param image The input grayscale image.
+     * @param image The input grayscale image (TYPE_BYTE_GRAY).
      * @param p1    The lower bound of the source range.
      * @param p2    The upper bound of the source range.
      * @param q3    The lower bound of the target range.
      * @param q4    The upper bound of the target range.
-     * @return The stretched image.
+     * @return A new BufferedImage with stretched histogram.
      */
     public BufferedImage stretchHistogram(BufferedImage image, int p1, int p2, int q3, int q4) {
-        if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
-            throw new IllegalArgumentException("Input image must be in grayscale.");
+        if (image == null) {
+            throw new IllegalArgumentException("Input image cannot be null.");
         }
-        if (p1 >= p2 || q3 >= q4) {
-            throw new IllegalArgumentException("Invalid range values. Ensure p1 < p2 and q3 < q4.");
+        if (image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
+            throw new IllegalArgumentException("Input image must be TYPE_BYTE_GRAY.");
+        }
+        // Sprawdzenie poprawności zakresów
+        if (p1 < 0 || p2 > 255 || p1 >= p2) {
+            throw new IllegalArgumentException("Invalid source range [p1..p2]. Must be within [0..255], p1 < p2.");
+        }
+        if (q3 < 0 || q4 > 255 || q3 >= q4) {
+            throw new IllegalArgumentException("Invalid target range [q3..q4]. Must be within [0..255], q3 < q4.");
         }
 
         int width = image.getWidth();
         int height = image.getHeight();
+
+        // Tworzymy LUT (256 elementów) mapującą [p1..p2] -> [q3..q4]
+        int[] lut = new int[256];
+        for (int i = 0; i < 256; i++) {
+            if (i <= p1) {
+                lut[i] = q3;
+            } else if (i >= p2) {
+                lut[i] = q4;
+            } else {
+                // Liniowe skalowanie:
+                // fraction = (i - p1) / (p2 - p1)
+                double fraction = (double)(i - p1) / (p2 - p1);
+                lut[i] = (int)(q3 + fraction * (q4 - q3));
+            }
+        }
+
+        // Tworzymy nowy obraz wynikowy (TYPE_BYTE_GRAY)
         BufferedImage stretchedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
+        // Zastosowanie LUT do każdego piksela
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int pixel = image.getRGB(x, y) & 0xFF; // Extract grayscale value
-                int newPixelValue;
+                // Odczyt piksela jako grayscale (0..255)
+                int oldPixel = image.getRaster().getSample(x, y, 0);
+                int newPixelValue = lut[oldPixel];
 
-                if (pixel < p1) {
-                    newPixelValue = q3;
-                } else if (pixel > p2) {
-                    newPixelValue = q4;
-                } else {
-                    newPixelValue = q3 + ((pixel - p1) * (q4 - q3)) / (p2 - p1);
-                }
-
-                // Clamp the new pixel value to the target range
-                newPixelValue = Math.max(q3, Math.min(q4, newPixelValue));
-
-                // Build the new grayscale pixel
-                int newPixel = (newPixelValue << 16) | (newPixelValue << 8) | newPixelValue;
-                stretchedImage.setRGB(x, y, newPixel);
+                // Ustawienie nowej wartości piksela w obrazie wynikowym
+                stretchedImage.getRaster().setSample(x, y, 0, newPixelValue);
             }
         }
 
