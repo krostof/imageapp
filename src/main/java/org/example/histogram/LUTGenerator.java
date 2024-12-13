@@ -14,12 +14,11 @@ public class LUTGenerator {
      * @return Tablica histogramu.
      */
     public int[] generateHistogramLUT(BufferedImage image) {
-        int[] histogram = new int[256]; // Tablica dla poziomów szarości
+        int[] histogram = new int[256];
 
-        // Iteracja po pikselach i zliczanie wartości
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                int pixel = image.getRaster().getSample(x, y, 0); // Pobranie wartości szarości
+                int pixel = image.getRaster().getSample(x, y, 0);
                 histogram[pixel]++;
             }
         }
@@ -36,14 +35,12 @@ public class LUTGenerator {
      * @return Tablica histogramów dla kanałów R, G, B.
      */
     public int[][] generateColorHistogramsLUT(BufferedImage image) {
-        int[][] colorHistograms = new int[3][256]; // Histogramy dla kanałów R, G, B
+        int[][] colorHistograms = new int[3][256];
 
-        // Iteracja przez piksele obrazu
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int pixel = image.getRGB(x, y);
 
-                // Wyodrębnianie wartości kanałów
                 int red = (pixel >> 16) & 0xFF;
                 int green = (pixel >> 8) & 0xFF;
                 int blue = pixel & 0xFF;
@@ -71,10 +68,9 @@ public class LUTGenerator {
         int[] lut = new int[256];
         int cumulative = 0;
 
-        // Obliczenie skumulowanej dystrybucji
         for (int i = 0; i < histogram.length; i++) {
             cumulative += histogram[i];
-            lut[i] = (int) ((cumulative * 255.0) / totalPixels); // Normalizacja do zakresu 0-255
+            lut[i] = (int) ((cumulative * 255.0) / totalPixels);
         }
 
         return lut;

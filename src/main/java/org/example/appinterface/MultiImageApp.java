@@ -1,5 +1,6 @@
 package org.example.appinterface;
 
+import lombok.extern.log4j.Log4j2;
 import org.example.*;
 import org.example.grayscale.GrayscaleImageProcessor;
 import org.example.grayscale.GrayscaleImageProcessorService;
@@ -22,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
+@Log4j2
 public class MultiImageApp extends JFrame {
 
     private final GrayscaleImageProcessorService grayscaleImageProcessorService;
@@ -390,14 +392,14 @@ public class MultiImageApp extends JFrame {
         sobelEdgeDetectionItem.addActionListener(e -> {
             if (selectedImage != null) {
                 String[] directions = {
-                        "horizontal",         // 0° - poziomo
-                        "vertical",           // 90° - pionowo
-                        "diagonal_left",      // 45° - od lewego dolnego rogu do prawego górnego
-                        "diagonal_right",     // 135° - od lewego górnego rogu do prawego dolnego
-                        "reverse_horizontal", // 180° - poziomo, odwrócone
-                        "reverse_vertical",   // 270° - pionowo, odwrócone
-                        "reverse_diagonal_left", // 225° - od prawego dolnego rogu do lewego górnego
-                        "reverse_diagonal_right" // 315° - od prawego górnego rogu do lewego dolnego
+                        "East",         // 0° - poziomo
+                        "South",           // 90° - pionowo
+                        "North East",      // 45° - od lewego dolnego rogu do prawego górnego
+                        "South East",     // 135° - od lewego górnego rogu do prawego dolnego
+                        "North", // 180° - poziomo, odwrócone
+                        "West",   // 270° - pionowo, odwrócone
+                        "North West", // 225° - od prawego dolnego rogu do lewego górnego
+                        "South West" // 315° - od prawego górnego rogu do lewego dolnego
                 };
 
                 String selectedDirection = (String) JOptionPane.showInputDialog(
@@ -621,7 +623,6 @@ public class MultiImageApp extends JFrame {
                 return;
             }
 
-            // Pobierz parametry od użytkownika
             try {
                 String threshold1Input = JOptionPane.showInputDialog(this, "Enter threshold 1 (low threshold):", "100");
                 double threshold1 = Double.parseDouble(threshold1Input);
@@ -652,7 +653,6 @@ public class MultiImageApp extends JFrame {
 
                 boolean l2Gradient = l2GradientOption == JOptionPane.YES_OPTION;
 
-                // Aplikacja detekcji krawędzi Canny'ego
                 BufferedImage resultImage = imageService.applyCanny(selectedImage.getImage(), threshold1, threshold2, apertureSize, l2Gradient);
                 selectedImage.updateImage(resultImage);
 
@@ -675,7 +675,6 @@ public class MultiImageApp extends JFrame {
                 return;
             }
 
-            // Wybór rodzaju wypełniania
             String[] borderOptions = {"Constant", "Reflect", "Replicate"};
             String borderType = (String) JOptionPane.showInputDialog(
                     this,
@@ -691,11 +690,9 @@ public class MultiImageApp extends JFrame {
                 return;
             }
 
-            // Inicjalizacja zmiennych
             int borderTypeCode;
             int constantValue = 0;
 
-            // Przypisanie kodu brzegów i wczytanie wartości wypełnienia dla BORDER_CONSTANT
             switch (borderType.toLowerCase()) {
                 case "constant":
                     borderTypeCode = Core.BORDER_CONSTANT;
@@ -869,6 +866,7 @@ public class MultiImageApp extends JFrame {
 
     private void applyLinearStretch(DraggableImage draggableImage, BufferedImage image, boolean withClipping, double clippingPercentage) {
         imageService.applyLinearStretch(image, withClipping, clippingPercentage);
+        log.info("Appling linear stretch");
         draggableImage.updateImage(image);
     }
 

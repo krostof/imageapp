@@ -26,7 +26,8 @@ public class GrayscaleImageProcessor {
                 negatedImage.getRaster().setSample(x, y, 0, negatedPixel); // Zmiana wartości
             }
         }
-
+        String string = image.toString();
+        System.out.println("Image negation: " + string);
         return negatedImage;
     }
 
