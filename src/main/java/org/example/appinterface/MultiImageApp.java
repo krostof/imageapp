@@ -27,7 +27,9 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 public class MultiImageApp extends JFrame {
@@ -59,7 +61,7 @@ public class MultiImageApp extends JFrame {
                 new ImageSmoothingProcessor(new BorderFillProcessor()),
                 new LaplacianSharpeningProcessor(),
                 new SobelEdgeDetector(new BorderFillProcessor()),
-                new PrewittEdgeDetector(new BorderFillProcessor() ),
+                new PrewittEdgeDetector(),
                 new BorderFillProcessor(),
                 new MedianFilterProcessor(),
                 new CannyEdgeDetector(),
@@ -1148,11 +1150,22 @@ public class MultiImageApp extends JFrame {
         }
 
         // Przedstawienie masek użytkownikowi
-        String[] masks = {
-                "Mask 1:\n 0 -1 0\n-1 4 -1\n 0 -1 0",
-                "Mask 2:\n-1 -1 -1\n-1 8 -1\n-1 -1 -1",
-                "Mask 3:\n 1 -2 1\n-2 4 -2\n 1 -2 1"
-        };
+        Map<String, int[][]> maskMap = new HashMap<>();
+        maskMap.put("Mask 1:\n 0 -1 0\n-1 4 -1\n 0 -1 0", new int[][]{
+                {0, -1, 0},
+                {-1, 4, -1},
+                {0, -1, 0}
+        });
+        maskMap.put("Mask 2:\n-1 -1 -1\n-1 8 -1\n-1 -1 -1", new int[][]{
+                {-1, -1, -1},
+                {-1, 8, -1},
+                {-1, -1, -1}
+        });
+        maskMap.put("Mask 3:\n 1 -2 1\n-2 4 -2\n 1 -2 1", new int[][]{
+                {1, -2, 1},
+                {-2, 4, -2},
+                {1, -2, 1}
+        });
 
         String selectedMask = (String) JOptionPane.showInputDialog(
                 this,
@@ -1160,97 +1173,78 @@ public class MultiImageApp extends JFrame {
                 "Laplacian Mask Selection",
                 JOptionPane.PLAIN_MESSAGE,
                 null,
-                masks,
-                masks[0]
+                maskMap.keySet().toArray(),
+                "Mask 1"
         );
 
-        if (selectedMask != null) {
-            int[][] mask;
-            if (selectedMask.startsWith("Mask 1")) {
-                mask = new int[][]{
-                        {0, -1, 0},
-                        {-1, 4, -1},
-                        {0, -1, 0}
-                };
-            } else if (selectedMask.startsWith("Mask 2")) {
-                mask = new int[][]{
-                        {-1, -1, -1},
-                        {-1, 8, -1},
-                        {-1, -1, -1}
-                };
-            } else if (selectedMask.startsWith("Mask 3")) {
-                mask = new int[][]{
-                        {1, -2, 1},
-                        {-2, 4, -2},
-                        {1, -2, 1}
-                };
-            } else {
-                mask = new int[][]{
-                        {0, -1, 0},
-                        {-1, 4, -1},
-                        {0, -1, 0}
-                };
+        if (selectedMask == null) {
+            JOptionPane.showMessageDialog(this, "Operation cancelled.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int[][] mask = maskMap.get(selectedMask);
+
+        // Wybór rodzaju uzupełnienia marginesów
+        String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+        String selectedBorder = (String) JOptionPane.showInputDialog(
+                this,
+                "Select border type:",
+                "Border Type",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                borderOptions,
+                "Constant"
+        );
+
+        if (selectedBorder == null) {
+            JOptionPane.showMessageDialog(this, "Operation cancelled.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int borderType;
+        int constantValue = 0;
+
+        try {
+            switch (selectedBorder.toLowerCase()) {
+                case "constant":
+                    borderType = Core.BORDER_CONSTANT;
+                    String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                    constantValue = Integer.parseInt(constantValueInput);
+                    if (constantValue < 0 || constantValue > 255) {
+                        throw new IllegalArgumentException("Constant value must be between 0 and 255.");
+                    }
+                    break;
+                case "reflect":
+                    borderType = Core.BORDER_REFLECT;
+                    break;
+                case "replicate":
+                    borderType = Core.BORDER_REPLICATE;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid border type selected.");
             }
 
-            // Wybór rodzaju uzupełnienia marginesów
-            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
-            String selectedBorder = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Select border type:",
-                    "Border Type",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    borderOptions,
-                    "Constant"
+            // Wywołanie logiki przetwarzania
+            BufferedImage sharpenedImage = new LaplacianSharpeningProcessor().applyLaplacianSharpening(
+                    selectedImage.getImage(),
+                    mask,
+                    borderType,
+                    constantValue
             );
 
-            if (selectedBorder == null) {
-                return; // Anulowanie operacji
-            }
+            selectedImage.updateImage(sharpenedImage);
+            imagePanel.repaint(); // Odśwież panel obrazu
 
-            int borderType;
-            int constantValue = 0;
-
-            try {
-                switch (selectedBorder.toLowerCase()) {
-                    case "constant":
-                        borderType = Core.BORDER_CONSTANT;
-                        String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
-                        constantValue = Integer.parseInt(constantValueInput);
-                        if (constantValue < 0 || constantValue > 255) {
-                            throw new IllegalArgumentException("Constant value must be between 0 and 255.");
-                        }
-                        break;
-                    case "reflect":
-                        borderType = Core.BORDER_REFLECT;
-                        break;
-                    case "replicate":
-                        borderType = Core.BORDER_REPLICATE;
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid border type selected.");
-                }
-
-                // Wywołanie logiki przetwarzania
-                BufferedImage sharpenedImage = new LaplacianSharpeningProcessor().applyLaplacianSharpening(
-                        selectedImage.getImage(),
-                        mask,
-                        borderType,
-                        constantValue
-                );
-
-                selectedImage.updateImage(sharpenedImage);
-                imagePanel.repaint(); // Odśwież panel obrazu
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error applying Laplacian sharpening: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error applying Laplacian sharpening: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
+
 
 
 
