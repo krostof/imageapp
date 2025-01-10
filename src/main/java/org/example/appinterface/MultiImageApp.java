@@ -16,6 +16,9 @@ import org.example.segmentaionlab5.MorphologyProcessor;
 import org.example.segmentaionlab5.SegmentationProcessor;
 import org.example.segmentaionlab5.SkeletonizationProcessor;
 import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
 
 import javax.swing.*;
 import java.awt.*;
@@ -619,6 +622,58 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        JMenuItem grabCutMenuItem = new JMenuItem("Apply GrabCut Segmentation");
+        grabCutMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    // Wczytanie obrazu i inicjalizacja domyślnego prostokąta
+                    Mat inputMat = OpenCVUtils.bufferedImageToMat(selectedImage.getImage());
+                    int x = inputMat.cols() / 4;
+                    int y = inputMat.rows() / 4;
+                    int width = inputMat.cols() / 2;
+                    int height = inputMat.rows() / 2;
+                    Rect rect = new Rect(x, y, width, height);
+
+                    // Domyślna liczba iteracji
+                    int iterCount = 5;
+
+                    // Zastosowanie GrabCut
+                    GrabCutProcessor grabCutProcessor = new GrabCutProcessor();
+                    Mat binaryMask = grabCutProcessor.applyGrabCut(inputMat, rect, iterCount);
+                    Mat foreground = grabCutProcessor.extractForeground(inputMat, binaryMask);
+
+                    // Konwersja wyniku na BufferedImage
+                    BufferedImage segmentedImage = OpenCVUtils.matToBufferedImage(foreground);
+                    selectedImage.updateImage(segmentedImage);
+
+                    // Informacja o sukcesie
+                    JOptionPane.showMessageDialog(this, "GrabCut applied successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error applying GrabCut: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+// Dodanie do menu "Operations"
+        operationsMenu.add(grabCutMenuItem);
+
+
+
+
+// Dodanie do menu "Operations"
+        operationsMenu.add(grabCutMenuItem);
+
+
+// Dodanie do menu "Operations"
+        operationsMenu.add(grabCutMenuItem);
+
+
+// Dodanie do menu "Operations"
+        operationsMenu.add(grabCutMenuItem);
+
 
 
 
