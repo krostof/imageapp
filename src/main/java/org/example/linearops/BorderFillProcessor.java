@@ -1,9 +1,6 @@
 package org.example.linearops;
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -15,9 +12,30 @@ import java.io.IOException;
 
 public class BorderFillProcessor {
 
-    // różne rodzaje wypełnienia marginesów do obrazu
+    // Stosowanie wypełnienia marginesów i filtracji
+    public Mat applyFilterWithBorder(Mat inputMat, Mat kernel, int borderType, int constantValue) {
+        Mat extendedMat = new Mat();
+
+        // Dodanie marginesów do obrazu
+        if (borderType == Core.BORDER_CONSTANT) {
+            Scalar borderValue = new Scalar(constantValue);
+            Core.copyMakeBorder(inputMat, extendedMat, 1, 1, 1, 1, Core.BORDER_CONSTANT, borderValue);
+        } else {
+            Core.copyMakeBorder(inputMat, extendedMat, 1, 1, 1, 1, borderType);
+        }
+
+        // Zastosowanie filtra na obrazie z marginesami
+        Mat outputMat = new Mat();
+        Imgproc.filter2D(extendedMat, outputMat, -1, kernel);
+
+        // Przycięcie obrazu do oryginalnych wymiarów (usunięcie marginesów)
+        Rect roi = new Rect(1, 1, inputMat.cols(), inputMat.rows());
+        return new Mat(outputMat, roi);
+    }
+
+
+    // Użycie wypełnienia marginesów bez filtra (zastosowanie oryginalnej logiki)
     public BufferedImage applyBorderFill(BufferedImage inputImage, int borderType, int constantValue) {
-        // BufferedImage do formatu Mat (używanego przez OpenCV)
         Mat sourceMat = bufferedImageToMat(inputImage);
 
         if (sourceMat.channels() == 3) {
@@ -25,32 +43,24 @@ public class BorderFillProcessor {
         }
 
         Mat resultMat = new Mat();
-
         int top = 10, bottom = 10, left = 10, right = 10;
 
         Scalar borderValue = new Scalar(constantValue);
 
         switch (borderType) {
             case Core.BORDER_CONSTANT:
-                // Wypełnienie stałą wartością
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_CONSTANT, borderValue);
                 break;
-
             case Core.BORDER_REFLECT:
-                // Odbicie pikseli na brzegach
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_REFLECT);
                 break;
-
             case Core.BORDER_REPLICATE:
-                // Powielenie pikseli na brzegach
                 Core.copyMakeBorder(sourceMat, resultMat, top, bottom, left, right, Core.BORDER_REPLICATE);
                 break;
-
             default:
                 throw new IllegalArgumentException("Invalid border type");
         }
 
-        // Konwersja obiektu Mat z powrotem do BufferedImage
         return matToBufferedImage(resultMat);
     }
 

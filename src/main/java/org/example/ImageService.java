@@ -57,9 +57,10 @@ public class ImageService {
         return sobelEdgeDetector.applyDirectionalSobel(image, direction);
     }
 
-    public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage) {
-        return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage);
+    public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage, int borderType, int constantValue) {
+        return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage, borderType, constantValue);
     }
+
 
     public BufferedImage applyBorderFill(BufferedImage inputImage, int borderTypeCode, int constantValue) {
         return borderFillProcessor.applyBorderFill(inputImage, borderTypeCode, constantValue);

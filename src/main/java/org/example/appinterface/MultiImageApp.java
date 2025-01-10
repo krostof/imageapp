@@ -59,7 +59,7 @@ public class MultiImageApp extends JFrame {
                 new ImageSmoothingProcessor(new BorderFillProcessor()),
                 new LaplacianSharpeningProcessor(),
                 new SobelEdgeDetector(),
-                new PrewittEdgeDetector(),
+                new PrewittEdgeDetector(new BorderFillProcessor() ),
                 new BorderFillProcessor(),
                 new MedianFilterProcessor(),
                 new CannyEdgeDetector(),
@@ -807,14 +807,58 @@ public class MultiImageApp extends JFrame {
                 return;
             }
             try {
-                BufferedImage processedImage = imageService.applyPrewittEdgeDetection(selectedImage.getImage());
+                // Prompt the user to select the border type
+                String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+                String selectedBorder = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Select border type:",
+                        "Border Type",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        borderOptions,
+                        "Constant"
+                );
+
+                if (selectedBorder == null) {
+                    return; // User cancelled
+                }
+
+                int borderType;
+                int constantValue = 0;
+
+                switch (selectedBorder.toLowerCase()) {
+                    case "constant":
+                        borderType = Core.BORDER_CONSTANT;
+                        String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                        constantValue = Integer.parseInt(constantValueInput);
+                        if (constantValue < 0 || constantValue > 255) {
+                            throw new IllegalArgumentException("Constant value must be between 0 and 255.");
+                        }
+                        break;
+                    case "reflect":
+                        borderType = Core.BORDER_REFLECT;
+                        break;
+                    case "replicate":
+                        borderType = Core.BORDER_REPLICATE;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid border type selected.");
+                }
+
+                // Apply Prewitt edge detection with the selected border type
+                BufferedImage processedImage = imageService.applyPrewittEdgeDetection(selectedImage.getImage(), borderType, constantValue);
                 selectedImage.updateImage(processedImage);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error applying Prewitt edge detection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                imagePanel.repaint(); // Refresh the panel to display the updated image
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         smoothingMenu.add(prewittEdgeDetectionItem);
     }
+
 
 
     private JMenu createSmoothingMenu() {
