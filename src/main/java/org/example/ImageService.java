@@ -59,8 +59,19 @@ public class ImageService {
     }
 
 
-    public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage, int borderType, int constantValue) {
-        return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage, borderType, constantValue);
+    public BufferedImage applyPrewittEdgeDetection(
+            BufferedImage inputImage,
+            String direction,
+            int borderType,
+            int constantValue
+    ) {
+        PrewittEdgeDetector detector = new PrewittEdgeDetector();
+        return detector.applyPrewittEdgeDetection(
+                inputImage,
+                direction,
+                borderType,
+                constantValue
+        );
     }
 
 

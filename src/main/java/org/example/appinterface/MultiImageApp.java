@@ -866,8 +866,30 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
             try {
-                // Prompt the user to select the border type
+                // 1. Wybór kierunku Prewitta (np. "East (E)")
+                String[] directions = {
+                        "East (E)", "South East (SE)", "South (S)", "South West (SW)",
+                        "West (W)", "North West (NW)", "North (N)", "North East (NE)"
+                };
+                String selectedDirectionLabel = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Select direction:",
+                        "Prewitt Direction",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        directions,
+                        "East (E)"
+                );
+                if (selectedDirectionLabel == null) {
+                    return; // user cancelled
+                }
+
+                // Zamieniamy np. "East (E)" -> "E"
+                String directionKey = parseDirectionLabel(selectedDirectionLabel);
+
+                // 2. Wybór typu brzegów
                 String[] borderOptions = {"Constant", "Reflect", "Replicate"};
                 String selectedBorder = (String) JOptionPane.showInputDialog(
                         this,
@@ -878,9 +900,8 @@ public class MultiImageApp extends JFrame {
                         borderOptions,
                         "Constant"
                 );
-
                 if (selectedBorder == null) {
-                    return; // User cancelled
+                    return; // user cancelled
                 }
 
                 int borderType;
@@ -889,7 +910,13 @@ public class MultiImageApp extends JFrame {
                 switch (selectedBorder.toLowerCase()) {
                     case "constant":
                         borderType = Core.BORDER_CONSTANT;
-                        String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                        // pytamy o wartość wypełnienia
+                        String constantValueInput = JOptionPane.showInputDialog(
+                                this,
+                                "Enter constant value (0-255):",
+                                "128"
+                        );
+                        if (constantValueInput == null) return; // user cancelled
                         constantValue = Integer.parseInt(constantValueInput);
                         if (constantValue < 0 || constantValue > 255) {
                             throw new IllegalArgumentException("Constant value must be between 0 and 255.");
@@ -905,19 +932,82 @@ public class MultiImageApp extends JFrame {
                         throw new IllegalArgumentException("Invalid border type selected.");
                 }
 
-                // Apply Prewitt edge detection with the selected border type
-                BufferedImage processedImage = imageService.applyPrewittEdgeDetection(selectedImage.getImage(), borderType, constantValue);
-                selectedImage.updateImage(processedImage);
-                imagePanel.repaint(); // Refresh the panel to display the updated image
+                // 3. Uruchom Prewitt
+                PrewittEdgeDetector detector = new PrewittEdgeDetector();
+                BufferedImage processedImage = detector.applyPrewittEdgeDetection(
+                        selectedImage.getImage(),  // oryginalny obraz
+                        directionKey,             // np. "E", "SE", "S", ...
+                        borderType,               // BORDER_CONSTANT, etc.
+                        constantValue             // wartość wypełnienia
+                );
 
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                // 4. Aktualizacja wyświetlanego obrazu
+                selectedImage.updateImage(processedImage);
+                imagePanel.repaint();
+
+            } catch (NumberFormatException ex1) {
+                JOptionPane.showMessageDialog(this,
+                        "Invalid input. Please enter a valid integer.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            } catch (IllegalArgumentException ex2) {
+                JOptionPane.showMessageDialog(this,
+                        ex2.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         });
         smoothingMenu.add(prewittEdgeDetectionItem);
     }
+
+    /**
+     * Metoda pomocnicza: zamienia np. "East (E)" -> "E", "South (S)" -> "S" itp.
+     */
+    private String parseDirectionLabel(String label) {
+        if (label.contains("(E)")) return "E";
+        if (label.contains("(SE)")) return "SE";
+        if (label.contains("(S)")) return "S";
+        if (label.contains("(SW)")) return "SW";
+        if (label.contains("(W)")) return "W";
+        if (label.contains("(NW)")) return "NW";
+        if (label.contains("(N)")) return "N";
+        if (label.contains("(NE)")) return "NE";
+        return "E";
+    }
+
+
+
+    /**
+     * Mapuje nazwę kierunku na numer maski Prewitta.
+     * @param direction Pełna nazwa kierunku (np. "East (E)").
+     * @return Numer maski odpowiadający kierunkowi.
+     */
+    private int mapDirectionToIndex(String direction) {
+        switch (direction) {
+            case "East (E)":
+                return 0;
+            case "South East (SE)":
+                return 1;
+            case "South (S)":
+                return 2;
+            case "South West (SW)":
+                return 3;
+            case "West (W)":
+                return 4;
+            case "North West (NW)":
+                return 5;
+            case "North (N)":
+                return 6;
+            case "North East (NE)":
+                return 7;
+            default:
+                throw new IllegalArgumentException("Unknown direction: " + direction);
+        }
+    }
+
+
 
 
 
@@ -1151,20 +1241,20 @@ public class MultiImageApp extends JFrame {
 
         // Przedstawienie masek użytkownikowi
         Map<String, int[][]> maskMap = new HashMap<>();
-        maskMap.put("Mask 1:\n 0 -1 0\n-1 4 -1\n 0 -1 0", new int[][]{
-                {0, -1, 0},
-                {-1, 4, -1},
-                {0, -1, 0}
+        maskMap.put("Mask 1:\n 0 1 0\n1 -4 1\n 0 1 0", new int[][]{
+                {0, 1, 0},
+                {1, -4, 1},
+                {0, 1, 0}
         });
         maskMap.put("Mask 2:\n-1 -1 -1\n-1 8 -1\n-1 -1 -1", new int[][]{
                 {-1, -1, -1},
                 {-1, 8, -1},
                 {-1, -1, -1}
         });
-        maskMap.put("Mask 3:\n 1 -2 1\n-2 4 -2\n 1 -2 1", new int[][]{
-                {1, -2, 1},
-                {-2, 4, -2},
-                {1, -2, 1}
+        maskMap.put("Mask 3:\n -1 2 -1\n 2 -4 2\n -1 2 -1", new int[][]{
+                {-1, 2, -1},
+                {2, -4, 2},
+                {-1, 2,-1}
         });
 
         String selectedMask = (String) JOptionPane.showInputDialog(
