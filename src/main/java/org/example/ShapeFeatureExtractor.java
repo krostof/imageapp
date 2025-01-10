@@ -144,10 +144,14 @@ public class ShapeFeatureExtractor {
      */
     public static void saveResultsToFile(String features, String filePath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(features);
-            writer.newLine();
+            String[] featureLines = features.split(", ");
+            for (String line : featureLines) {
+                writer.write(line.replace(": ", ","));
+                writer.newLine();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }

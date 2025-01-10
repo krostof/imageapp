@@ -591,10 +591,7 @@ public class MultiImageApp extends JFrame {
         extractShapeFeaturesMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
                 try {
-                    // Wywołanie funkcji do obliczania cech kształtu
                     String features = imageService.calculateShapeFeatures(selectedImage.getImage());
-
-                    // Wyświetlenie wyników z opcją zapisania do pliku
                     Object[] options = {"Save to File", "Close"};
                     int choice = JOptionPane.showOptionDialog(
                             this,
@@ -607,14 +604,11 @@ public class MultiImageApp extends JFrame {
                             options[0]
                     );
 
-                    // Jeśli użytkownik wybierze "Save to File", zapisz wyniki
                     if (choice == JOptionPane.YES_OPTION) {
-                        // Pobranie ścieżki do folderu Pobrane
                         String userHome = System.getProperty("user.home");
                         File downloadsDir = new File(userHome, "Downloads");
                         File file = new File(downloadsDir, "wynik.txt");
 
-                        // Zapisanie wyników do pliku
                         ShapeFeatureExtractor.saveResultsToFile(features, file.getAbsolutePath());
                         JOptionPane.showMessageDialog(this, "Features saved to " + file.getAbsolutePath(), "Saved", JOptionPane.INFORMATION_MESSAGE);
                     }
@@ -625,6 +619,7 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
 
 
 
