@@ -17,24 +17,32 @@ public class DraggableImage extends JLabel {
     }
 
     @Getter
-    private final BufferedImage originalImage;  // Tylko do ewentualnego resetu
-    private BufferedImage currentImage;         // Aktualny stan obrazu
+    private final BufferedImage originalImage;  // Original image for possible reset
+    private BufferedImage currentImage;         // Current state of the image
 
     private Point initialClick;
     private final JPanel parentPanel;
     private final JPopupMenu popupMenu;
     private final ImageScaler imageScaler;
     private final String fileName;
+    private final JLabel nameLabel; // Label to display the image name
 
     public DraggableImage(BufferedImage image, JPanel parentPanel, MultiImageApp mainApp, String fileName) {
-        this.originalImage = image;    // Zachowujemy oryginał
-        this.currentImage = image;     // Na start = oryginał
+        this.originalImage = image;    // Save the original image
+        this.currentImage = image;     // Initial state = original image
         this.parentPanel = parentPanel;
         this.fileName = fileName;
         this.imageScaler = new ImageScaler();
 
         setIcon(new ImageIcon(currentImage));
         setSize(currentImage.getWidth(), currentImage.getHeight());
+
+        // Initialize the name label
+        this.nameLabel = new JLabel(fileName);
+        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        nameLabel.setSize(getWidth(), 20);
+        nameLabel.setLocation(getX(), getY() + getHeight());
+        parentPanel.add(nameLabel);
 
         popupMenu = new JPopupMenu();
 
@@ -66,7 +74,7 @@ public class DraggableImage extends JLabel {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                // Ustawienie obrazu jako wybranego w MultiImageApp
+                // Set the image as selected in MultiImageApp
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     mainApp.setSelectedImage(DraggableImage.this);
                     System.out.println("Selected image updated. Location: X = " + getX() + ", Y = " + getY());
@@ -88,32 +96,54 @@ public class DraggableImage extends JLabel {
 
                 setLocation(X, Y);
 
-                // Log aktualnej pozycji
+                // Update the position of the name label
+                nameLabel.setLocation(X, Y + getHeight());
+
+                // Log the current position
                 System.out.println("Image moved to: X = " + X + ", Y = " + Y);
             }
         });
     }
 
     /**
-     * Aktualizuje obraz w DraggableImage – ustawia jako currentImage i odświeża etykietę.
+     * Updates the image in DraggableImage - sets it as currentImage and refreshes the label.
      */
     public void updateImage(BufferedImage newImage) {
         this.currentImage = newImage;
         setIcon(new ImageIcon(newImage));
         setSize(newImage.getWidth(), newImage.getHeight());
+        nameLabel.setLocation(getX(), getY() + getHeight()); // Update label position
         revalidate();
         repaint();
     }
 
     /**
-     * Zwraca aktualny stan obrazu (po przekształceniach).
+     * Returns the current state of the image (after transformations).
      */
     public BufferedImage getImage() {
         return currentImage;
     }
 
+    @Override
+    public void setLocation(int x, int y) {
+        super.setLocation(x, y);
+        // Update the position of the name label
+        if (nameLabel != null) {
+            nameLabel.setLocation(x, y + getHeight());
+        }
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(width, height);
+        // Update the width of the name label
+        if (nameLabel != null) {
+            nameLabel.setSize(width, 20);
+        }
+    }
+
     /**
-     * Dopasowanie obrazu do rozmiaru okna rodzica (bazując na bieżącym stanie currentImage).
+     * Scales the image to fit the parent panel's size (based on currentImage).
      */
     private void scaleImageToWindow() {
         currentImage = imageScaler.scaleToWindow(currentImage, parentPanel.getWidth(), parentPanel.getHeight());
@@ -122,7 +152,7 @@ public class DraggableImage extends JLabel {
     }
 
     /**
-     * Skalowanie do pełnego ekranu (bazując na bieżącym stanie currentImage).
+     * Scales the image to full screen (based on currentImage).
      */
     private void scaleImageToFullScreen() {
         currentImage = imageScaler.scaleToFullScreen(currentImage);
@@ -131,11 +161,7 @@ public class DraggableImage extends JLabel {
     }
 
     /**
-     * Przywraca naturalny rozmiar – w tym przypadku proponuję:
-     * - Albo bierzemy oryginalny obraz (originalImage),
-     * - Albo bierzemy aktualny i nic nie zmieniamy.
-     *
-     * Jeśli chcemy powrót do stanu surowego, użyjemy originalImage:
+     * Restores the image to its natural size using the original image.
      */
     private void scaleImageToNaturalSize() {
         currentImage = imageScaler.scaleToNaturalSize(originalImage);
@@ -143,10 +169,11 @@ public class DraggableImage extends JLabel {
     }
 
     /**
-     * Usuwa etykietę z panelu rodzica.
+     * Removes the label and the image from the parent panel.
      */
     private void closeImage() {
         parentPanel.remove(this);
+        parentPanel.remove(nameLabel);
         parentPanel.revalidate();
         parentPanel.repaint();
         System.out.println("Image closed.");

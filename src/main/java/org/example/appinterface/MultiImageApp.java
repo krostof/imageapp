@@ -40,6 +40,8 @@ public class MultiImageApp extends JFrame {
     private final SegmentationProcessor segmentationProcessor;
     private final MorphologyProcessor morphologyProcessor;
     private final SkeletonizationProcessor skeletonProcessor;
+    private final JLabel selectedImageLabel;
+
 
 
     public MultiImageApp() {
@@ -68,6 +70,9 @@ public class MultiImageApp extends JFrame {
         this.multiArgumentImageProcessor = new MultiArgumentImageProcessor();
         this.fileChooser = new JFileChooser();
         this.imagePanel = new JPanel(null);
+        selectedImageLabel = new JLabel("No image selected");
+        selectedImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(selectedImageLabel, BorderLayout.SOUTH);
         JScrollPane scrollPane = new JScrollPane(imagePanel);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -97,6 +102,7 @@ public class MultiImageApp extends JFrame {
             }
         });
     }
+
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -1041,8 +1047,14 @@ public class MultiImageApp extends JFrame {
 
     public void setSelectedImage(DraggableImage selectedImage) {
         this.selectedImage = selectedImage;
+        if (selectedImage != null) {
+            selectedImageLabel.setText("Selected image: " + selectedImage.toString());
+        } else {
+            selectedImageLabel.setText("No image selected");
+        }
         System.out.println("Selected image set: " + selectedImage);
     }
+
 
     private DraggableImage selectImage(String message) {
         Object[] images = imagePanel.getComponents();
