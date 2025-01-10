@@ -593,8 +593,31 @@ public class MultiImageApp extends JFrame {
                 try {
                     // Wywołanie funkcji do obliczania cech kształtu
                     String features = imageService.calculateShapeFeatures(selectedImage.getImage());
-                    // Wyświetlenie wyników w oknie dialogowym
-                    JOptionPane.showMessageDialog(this, features, "Shape Features", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Wyświetlenie wyników z opcją zapisania do pliku
+                    Object[] options = {"Save to File", "Close"};
+                    int choice = JOptionPane.showOptionDialog(
+                            this,
+                            features,
+                            "Shape Features",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE,
+                            null,
+                            options,
+                            options[0]
+                    );
+
+                    // Jeśli użytkownik wybierze "Save to File", zapisz wyniki
+                    if (choice == JOptionPane.YES_OPTION) {
+                        // Pobranie ścieżki do folderu Pobrane
+                        String userHome = System.getProperty("user.home");
+                        File downloadsDir = new File(userHome, "Downloads");
+                        File file = new File(downloadsDir, "wynik.txt");
+
+                        // Zapisanie wyników do pliku
+                        ShapeFeatureExtractor.saveResultsToFile(features, file.getAbsolutePath());
+                        JOptionPane.showMessageDialog(this, "Features saved to " + file.getAbsolutePath(), "Saved", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Error calculating shape features: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -602,6 +625,8 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+
 
 // Dodanie nowego elementu do istniejącego menu
         operationsMenu.add(extractShapeFeaturesMenuItem);
