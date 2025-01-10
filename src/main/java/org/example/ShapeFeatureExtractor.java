@@ -144,14 +144,90 @@ public class ShapeFeatureExtractor {
      */
     public static void saveResultsToFile(String features, String filePath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            String[] featureLines = features.split(", ");
-            for (String line : featureLines) {
-                writer.write(line.replace(": ", ","));
+            // Rozbijamy tekst "features" na linie (po '\n')
+            String[] lines = features.split("\\r?\\n");
+
+            // Przykładowo pierwsza linia zawiera:
+            // "Area: 55.12, Perimeter: 23.45"
+            // Druga: "AspectRatio: 0.95, Extent: 0.74, Solidity: 0.98, EquivalentDiameter: 8.44"
+            // itd.
+
+            // Możemy parse’ować każdą linię i zamieniać "Etykieta: wartość" → "etykieta,wartość"
+            // lub generować bardziej scalony CSV, np. w jednym wierszu.
+
+            // Na początek uproszczone podejście: każda linia -> jeden wiersz CSV
+            // i wartości oddzielamy przecinkami.
+            for (String line : lines) {
+                // line np. "Area: 55.12, Perimeter: 23.45"
+                // Zamieniamy to tak, by było "Area,55.12,Perimeter,23.45"
+
+                // 1. Rozbijamy po przecinku
+                String[] pairs = line.split(",");
+
+                // 2. Dla każdej pary "Nazwa: wartość" -> "Nazwa,wartość"
+                StringBuilder csvRow = new StringBuilder();
+                for (int i = 0; i < pairs.length; i++) {
+                    // np. "Area: 55.12"
+                    String pair = pairs[i].trim(); // usunięcie spacji
+                    // Rozbijamy po dwukropku
+                    String[] parts = pair.split(":");
+                    if (parts.length == 2) {
+                        // parts[0] = "Area"
+                        // parts[1] = " 55.12"
+                        String name = parts[0].trim();
+                        String value = parts[1].trim();
+                        // Dodaj do csvRow w postaci "Area,55.12"
+                        csvRow.append(name).append(",").append(value);
+                    } else {
+                        // W razie dziwnego formatu – zapisujemy oryginał
+                        csvRow.append(pair);
+                    }
+                    // Jeśli to nie jest ostatnia para – dodajemy przecinek
+                    if (i < pairs.length - 1) {
+                        csvRow.append(",");
+                    }
+                }
+                // Zapisujemy wiersz
+                writer.write(csvRow.toString());
+                writer.newLine();
+            }
+
+            // ewentualnie writer.newLine(); jeśli chcemy pusty wiersz na końcu
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void saveResultsToCsvFile(String features, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            // Rozbij linie
+            String[] lines = features.split("\\r?\\n");
+
+            for (String line : lines) {
+                // np. "Area: 55.12, Perimeter: 23.45"
+                String[] pairs = line.split(",");
+
+                StringBuilder csvRow = new StringBuilder();
+                for (int i = 0; i < pairs.length; i++) {
+                    String pair = pairs[i].trim();
+                    String[] parts = pair.split(":");
+                    if (parts.length == 2) {
+                        String name = parts[0].trim();
+                        String value = parts[1].trim();
+                        csvRow.append(name).append(",").append(value);
+                    } else {
+                        csvRow.append(pair);
+                    }
+                    if (i < pairs.length - 1) {
+                        csvRow.append(",");
+                    }
+                }
+                writer.write(csvRow.toString());
                 writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 }

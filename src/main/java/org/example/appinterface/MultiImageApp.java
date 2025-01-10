@@ -654,40 +654,64 @@ public class MultiImageApp extends JFrame {
         extractShapeFeaturesMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
                 try {
+                    // 1. Obliczenie cech kształtu
                     String features = imageService.calculateShapeFeatures(selectedImage.getImage());
-                    Object[] options = {"Save to File", "Close"};
+
+                    // 2. Opcje w oknie dialogowym
+                    Object[] options = {"Save as TXT", "Save as CSV", "Close"};
+                    // Używamy YES_NO_CANCEL_OPTION, aby mieć 3 przyciski
                     int choice = JOptionPane.showOptionDialog(
                             this,
                             features,
                             "Shape Features",
-                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.YES_NO_CANCEL_OPTION,
                             JOptionPane.INFORMATION_MESSAGE,
                             null,
                             options,
                             options[0]
                     );
 
-                    if (choice == JOptionPane.YES_OPTION) {
+                    if (choice == 0) {
                         String userHome = System.getProperty("user.home");
                         File downloadsDir = new File(userHome, "Downloads");
                         File file = new File(downloadsDir, "wynik.txt");
 
                         ShapeFeatureExtractor.saveResultsToFile(features, file.getAbsolutePath());
-                        JOptionPane.showMessageDialog(this, "Features saved to " + file.getAbsolutePath(), "Saved", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(this,
+                                "Features saved to " + file.getAbsolutePath(),
+                                "Saved",
+                                JOptionPane.INFORMATION_MESSAGE);
                     }
+                    else if (choice == 1) {
+                        String userHome = System.getProperty("user.home");
+                        File downloadsDir = new File(userHome, "Downloads");
+                        File file = new File(downloadsDir, "wynik.csv");
+
+                        ShapeFeatureExtractor.saveResultsToCsvFile(features, file.getAbsolutePath());
+                        JOptionPane.showMessageDialog(this,
+                                "Features saved to " + file.getAbsolutePath(),
+                                "Saved",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Error calculating shape features: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Error calculating shape features: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
+
         JMenuItem grabCutMenuItem = new JMenuItem("Apply GrabCut Segmentation");
         grabCutMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
                 try {
-                    // Wczytanie obrazu i inicjalizacja domyślnego prostokąta
                     Mat inputMat = OpenCVUtils.bufferedImageToMat(selectedImage.getImage());
                     int x = inputMat.cols() / 4;
                     int y = inputMat.rows() / 4;
@@ -695,19 +719,15 @@ public class MultiImageApp extends JFrame {
                     int height = inputMat.rows() / 2;
                     Rect rect = new Rect(x, y, width, height);
 
-                    // Domyślna liczba iteracji
                     int iterCount = 5;
 
-                    // Zastosowanie GrabCut
                     GrabCutProcessor grabCutProcessor = new GrabCutProcessor();
                     Mat binaryMask = grabCutProcessor.applyGrabCut(inputMat, rect, iterCount);
                     Mat foreground = grabCutProcessor.extractForeground(inputMat, binaryMask);
 
-                    // Konwersja wyniku na BufferedImage
                     BufferedImage segmentedImage = OpenCVUtils.matToBufferedImage(foreground);
                     selectedImage.updateImage(segmentedImage);
 
-                    // Informacja o sukcesie
                     JOptionPane.showMessageDialog(this, "GrabCut applied successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Error applying GrabCut: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
