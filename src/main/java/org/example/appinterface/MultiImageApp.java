@@ -58,7 +58,7 @@ public class MultiImageApp extends JFrame {
                 new HistogramEqualizer(new LUTGenerator()),
                 new ImageSmoothingProcessor(new BorderFillProcessor()),
                 new LaplacianSharpeningProcessor(),
-                new SobelEdgeDetector(),
+                new SobelEdgeDetector(new BorderFillProcessor()),
                 new PrewittEdgeDetector(new BorderFillProcessor() ),
                 new BorderFillProcessor(),
                 new MedianFilterProcessor(),
@@ -413,13 +413,13 @@ public class MultiImageApp extends JFrame {
             if (selectedImage != null) {
                 String[] directions = {
                         "East",         // 0° - poziomo
-                        "South",           // 90° - pionowo
-                        "North East",      // 45° - od lewego dolnego rogu do prawego górnego
-                        "South East",     // 135° - od lewego górnego rogu do prawego dolnego
-                        "North", // 180° - poziomo, odwrócone
-                        "West",   // 270° - pionowo, odwrócone
-                        "North West", // 225° - od prawego dolnego rogu do lewego górnego
-                        "South West" // 315° - od prawego górnego rogu do lewego dolnego
+                        "South",        // 90° - pionowo
+                        "North East",   // 45° - od lewego dolnego rogu do prawego górnego
+                        "South East",   // 135° - od lewego górnego rogu do prawego dolnego
+                        "North",        // 180° - poziomo, odwrócone
+                        "West",         // 270° - pionowo, odwrócone
+                        "North West",   // 225° - od prawego dolnego rogu do lewego górnego
+                        "South West"    // 315° - od prawego górnego rogu do lewego dolnego
                 };
 
                 String selectedDirection = (String) JOptionPane.showInputDialog(
@@ -434,8 +434,63 @@ public class MultiImageApp extends JFrame {
 
                 if (selectedDirection != null) {
                     try {
-                        BufferedImage sobelImage = imageService.applyDirectionalSobel(selectedImage.getImage(), selectedDirection);
+                        // Prompt the user to select the border type
+                        String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+                        String selectedBorder = (String) JOptionPane.showInputDialog(
+                                this,
+                                "Select border type:",
+                                "Border Type",
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                borderOptions,
+                                "Constant"
+                        );
+
+                        if (selectedBorder == null) {
+                            return; // User cancelled
+                        }
+
+                        int borderType;
+                        int constantValue = 0;
+
+                        switch (selectedBorder.toLowerCase()) {
+                            case "constant":
+                                borderType = Core.BORDER_CONSTANT;
+                                String constantValueInput = JOptionPane.showInputDialog(
+                                        this,
+                                        "Enter constant value (0-255):",
+                                        "128"
+                                );
+                                constantValue = Integer.parseInt(constantValueInput);
+                                if (constantValue < 0 || constantValue > 255) {
+                                    throw new IllegalArgumentException("Constant value must be between 0 and 255.");
+                                }
+                                break;
+                            case "reflect":
+                                borderType = Core.BORDER_REFLECT;
+                                break;
+                            case "replicate":
+                                borderType = Core.BORDER_REPLICATE;
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Invalid border type selected.");
+                        }
+
+                        // Apply the Sobel edge detection
+                        BufferedImage sobelImage = imageService.applyDirectionalSobel(
+                                selectedImage.getImage(),
+                                selectedDirection,
+                                borderType,
+                                constantValue
+                        );
+
                         selectedImage.updateImage(sobelImage);
+                        imagePanel.repaint(); // Refresh the panel to display the updated image
+
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch (IllegalArgumentException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Error applying Sobel edge detection: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -444,6 +499,7 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
 
         // Tworzymy nowe menu "Segmentation"
         JMenu segmentationMenu = new JMenu("Segmentation");

@@ -53,9 +53,10 @@ public class ImageService {
         return laplacianProcessor.applyLaplacianSharpening(image, mask);
     }
 
-    public BufferedImage applyDirectionalSobel(BufferedImage image, String direction) {
-        return sobelEdgeDetector.applyDirectionalSobel(image, direction);
+    public BufferedImage applyDirectionalSobel(BufferedImage image, String direction, int borderType, int constantValue) {
+        return sobelEdgeDetector.applyDirectionalSobel(image, direction, borderType, constantValue);
     }
+
 
     public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage, int borderType, int constantValue) {
         return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage, borderType, constantValue);
