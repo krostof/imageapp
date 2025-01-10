@@ -22,6 +22,7 @@ public class ImageService {
     private final BorderFillProcessor borderFillProcessor;
     private final MedianFilterProcessor processor;
     private final CannyEdgeDetector detector;
+    private final ShapeFeatureExtractor shapeFeatureExtractor;
 
     public BufferedImage loadImageFromFile(File file) {
         return imageLoader.loadImage(file);
@@ -38,6 +39,7 @@ public class ImageService {
     public void applyLinearStretch(BufferedImage image, boolean withClipping, double clippingPercentage) {
         linearStretchProcessor.applyLinearStretch(image, withClipping, clippingPercentage);
     }
+
     public void applyHistogramEqualization(BufferedImage image) {
         histogramEqualizer.applyHistogramEqualization(image);
     }
@@ -46,37 +48,30 @@ public class ImageService {
         return imageSmoothingProcessor.applySmoothing(inputImage, method, k);
     }
 
-//    public BufferedImage applyAverageSmoothing(BufferedImage image, int kernelSize) {
-//        return imageSmoothingProcessor.applyAverageSmoothing(image, kernelSize);
-//    }
-//
-//    public BufferedImage applyGaussianSmoothing(BufferedImage image, int kernelSize) {
-//        return imageSmoothingProcessor.applyGaussianSmoothing(image, kernelSize);
-//    }
-//
-//    public BufferedImage applyMedianSmoothing(BufferedImage image, int kernelSize) {
-//        return imageSmoothingProcessor.applyMedianSmoothing(image, kernelSize);
-//    }
-
     public BufferedImage applyLaplacianSharpening(BufferedImage image, int[][] mask) {
         return laplacianProcessor.applyLaplacianSharpening(image, mask);
     }
+
     public BufferedImage applyDirectionalSobel(BufferedImage image, String direction) {
         return sobelEdgeDetector.applyDirectionalSobel(image, direction);
     }
+
     public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage) {
         return prewittEdgeDetector.applyPrewittEdgeDetection(inputImage);
     }
+
     public BufferedImage applyBorderFill(BufferedImage inputImage, int borderTypeCode, int constantValue) {
         return borderFillProcessor.applyBorderFill(inputImage, borderTypeCode, constantValue);
     }
+
     public BufferedImage applyMedianFilter(BufferedImage inputImage, int kernelSize, int borderTypeCode) {
         return processor.applyMedianFilter(inputImage, kernelSize, borderTypeCode);
     }
+
     public BufferedImage applyCanny(BufferedImage inputImage, double threshold1, double threshold2, int apertureSize, boolean l2Gradient) {
         return detector.applyCanny(inputImage, threshold1, threshold2, apertureSize, l2Gradient);
     }
-
-
-
+    public String calculateShapeFeatures(BufferedImage image) {
+        return shapeFeatureExtractor.calculateFeatures(OpenCVUtils.bufferedImageToMat(image));
+    }
 }

@@ -59,7 +59,8 @@ public class MultiImageApp extends JFrame {
                 new PrewittEdgeDetector(),
                 new BorderFillProcessor(),
                 new MedianFilterProcessor(),
-                new CannyEdgeDetector()
+                new CannyEdgeDetector(),
+                new ShapeFeatureExtractor()
         );
         this.segmentationProcessor = new SegmentationProcessor();
         this.logicalImageProcessor = new LogicalImageProcessor();
@@ -585,6 +586,27 @@ public class MultiImageApp extends JFrame {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        JMenuItem extractShapeFeaturesMenuItem = new JMenuItem("Extract Shape Features");
+        extractShapeFeaturesMenuItem.addActionListener(e -> {
+            if (selectedImage != null) {
+                try {
+                    // Wywołanie funkcji do obliczania cech kształtu
+                    String features = imageService.calculateShapeFeatures(selectedImage.getImage());
+                    // Wyświetlenie wyników w oknie dialogowym
+                    JOptionPane.showMessageDialog(this, features, "Shape Features", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error calculating shape features: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+// Dodanie nowego elementu do istniejącego menu
+        operationsMenu.add(extractShapeFeaturesMenuItem);
+
+
         morphologyMenu.add(skeletonItem);
 
         menuBar.add(morphologyMenu);
@@ -1196,6 +1218,8 @@ public class MultiImageApp extends JFrame {
         g.dispose();
         return copy;
     }
+
+
 
 
 
