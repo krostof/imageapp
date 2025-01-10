@@ -257,6 +257,7 @@ public class MultiImageApp extends JFrame {
                 // Wybierz drugi obraz z załadowanych w aplikacji
                 DraggableImage secondImage = selectImage("Select the second image for addition:");
                 if (secondImage != null) {
+                    log.info("Adding images");
                     try {
                         boolean withSaturation = JOptionPane.showConfirmDialog(
                                 this,
@@ -350,6 +351,7 @@ public class MultiImageApp extends JFrame {
         notMenuItem.addActionListener(e -> {
             if (selectedImage != null) {
                 BufferedImage result = logicalImageProcessor.notOperation(selectedImage.getImage());
+                log.info("NOT operation applied to image");
                 selectedImage.updateImage(result);
             } else {
                 JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1183,7 +1185,6 @@ public class MultiImageApp extends JFrame {
                         {1, -2, 1}
                 };
             } else {
-                // Domyślna maska (opcjonalnie)
                 mask = new int[][]{
                         {0, -1, 0},
                         {-1, 4, -1},
@@ -1191,19 +1192,66 @@ public class MultiImageApp extends JFrame {
                 };
             }
 
-            // Wywołanie logiki przetwarzania
+            // Wybór rodzaju uzupełnienia marginesów
+            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+            String selectedBorder = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select border type:",
+                    "Border Type",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    borderOptions,
+                    "Constant"
+            );
+
+            if (selectedBorder == null) {
+                return; // Anulowanie operacji
+            }
+
+            int borderType;
+            int constantValue = 0;
+
             try {
-                BufferedImage sharpenedImage = new LaplacianSharpeningProcessor().applyLaplacianSharpening(selectedImage.getImage(), mask);
+                switch (selectedBorder.toLowerCase()) {
+                    case "constant":
+                        borderType = Core.BORDER_CONSTANT;
+                        String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                        constantValue = Integer.parseInt(constantValueInput);
+                        if (constantValue < 0 || constantValue > 255) {
+                            throw new IllegalArgumentException("Constant value must be between 0 and 255.");
+                        }
+                        break;
+                    case "reflect":
+                        borderType = Core.BORDER_REFLECT;
+                        break;
+                    case "replicate":
+                        borderType = Core.BORDER_REPLICATE;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid border type selected.");
+                }
+
+                // Wywołanie logiki przetwarzania
+                BufferedImage sharpenedImage = new LaplacianSharpeningProcessor().applyLaplacianSharpening(
+                        selectedImage.getImage(),
+                        mask,
+                        borderType,
+                        constantValue
+                );
+
                 selectedImage.updateImage(sharpenedImage);
-                // Odświeżenie interfejsu użytkownika, jeśli to konieczne
-                // Jeśli masz komponent GUI odpowiedzialny za wyświetlanie obrazu, odśwież go tutaj
-                // Na przykład: imageLabel.repaint();
+                imagePanel.repaint(); // Odśwież panel obrazu
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error applying Laplacian sharpening: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
         }
     }
+
 
 
     private void openImage() {
