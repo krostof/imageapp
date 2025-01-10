@@ -189,11 +189,52 @@ public class HistogramPanel extends JPanel {
         return panel;
     }
 
+//    private void showHistogramData() {
+//        if (overallHistogram == null) {
+//            JOptionPane.showMessageDialog(this, "No histogram data available.", "Error", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+//
+//        int totalPixels = IntStream.of(overallHistogram).sum();
+//        int maxIndex = IntStream.range(0, overallHistogram.length)
+//                .reduce((i, j) -> overallHistogram[i] > overallHistogram[j] ? i : j)
+//                .orElse(0);
+//        int minIndex = IntStream.range(0, overallHistogram.length)
+//                .filter(i -> overallHistogram[i] > 0)
+//                .findFirst()
+//                .orElse(0);
+//
+//        double mean = IntStream.range(0, overallHistogram.length)
+//                .mapToDouble(i -> i * overallHistogram[i])
+//                .sum() / totalPixels;
+//
+//        JFrame dataFrame = new JFrame("Histogram Data");
+//        dataFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//
+//        JTextArea dataTextArea = new JTextArea();
+//        dataTextArea.setEditable(false);
+//
+//        StringBuilder dataText = new StringBuilder();
+//        dataText.append("Total Pixels: ").append(totalPixels).append("\n");
+//        dataText.append("Mean Intensity: ").append(String.format("%.2f", mean)).append("\n");
+//        dataText.append("Min Intensity: ").append(minIndex).append("\n");
+//        dataText.append("Max Intensity: ").append(maxIndex).append("\n");
+//
+//        dataTextArea.setText(dataText.toString());
+//        dataFrame.add(new JScrollPane(dataTextArea));
+//        dataFrame.setSize(300, 200);
+//        dataFrame.setLocationRelativeTo(this);
+//        dataFrame.setVisible(true);
+//    }
+
     private void showHistogramData() {
         if (overallHistogram == null) {
             JOptionPane.showMessageDialog(this, "No histogram data available.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // Oblicz dane statystyczne
+        HistogramDataGenerator.HistogramStatistics stats = dataGenerator.calculateStatistics(image);
 
         int totalPixels = IntStream.of(overallHistogram).sum();
         int maxIndex = IntStream.range(0, overallHistogram.length)
@@ -204,10 +245,6 @@ public class HistogramPanel extends JPanel {
                 .findFirst()
                 .orElse(0);
 
-        double mean = IntStream.range(0, overallHistogram.length)
-                .mapToDouble(i -> i * overallHistogram[i])
-                .sum() / totalPixels;
-
         JFrame dataFrame = new JFrame("Histogram Data");
         dataFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -216,7 +253,9 @@ public class HistogramPanel extends JPanel {
 
         StringBuilder dataText = new StringBuilder();
         dataText.append("Total Pixels: ").append(totalPixels).append("\n");
-        dataText.append("Mean Intensity: ").append(String.format("%.2f", mean)).append("\n");
+        dataText.append("Mean Intensity: ").append(String.format("%.2f", stats.getMean())).append("\n");
+        dataText.append("Standard Deviation: ").append(String.format("%.2f", stats.getStandardDeviation())).append("\n");
+        dataText.append("Median Intensity: ").append(stats.getMedian()).append("\n");
         dataText.append("Min Intensity: ").append(minIndex).append("\n");
         dataText.append("Max Intensity: ").append(maxIndex).append("\n");
 
@@ -226,6 +265,7 @@ public class HistogramPanel extends JPanel {
         dataFrame.setLocationRelativeTo(this);
         dataFrame.setVisible(true);
     }
+
 
     @Override
     protected void paintComponent(Graphics g) {

@@ -6,9 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/HistogramStretching.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/HistogramStretching.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/LaplacianSharpeningProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/LaplacianSharpeningProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramDataGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramDataGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/histogram/HistogramPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/SobelEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/SobelEdgeDetector.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,7 +177,7 @@
       <workItem from="1734780282606" duration="25000" />
       <workItem from="1736182228790" duration="16000" />
       <workItem from="1736453412867" duration="2086000" />
-      <workItem from="1736524906112" duration="12090000" />
+      <workItem from="1736524906112" duration="14722000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />
@@ -234,5 +236,15 @@
     <MESSAGE value="first commit, interface was created, methods duplicate, save and delete were added, histogram creator" />
     <MESSAGE value="drawHistogram changes" />
     <option name="LAST_COMMIT_MESSAGE" value="drawHistogram changes" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.ClassCastException" package="java.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

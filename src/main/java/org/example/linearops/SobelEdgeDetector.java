@@ -63,7 +63,7 @@ public class SobelEdgeDetector {
         sobelMasks.put("West", new int[]{1, 0, -1, 2, 0, -2, 1, 0, -1});
         sobelMasks.put("North", new int[]{1, 2, 1, 0, 0, 0, -1, -2, -1});
         sobelMasks.put("North West", new int[]{2, 1, 0, 1, 0, -1, 0, -1, -2});
-        sobelMasks.put("South West", new int[]{0, -1, -2, 1, 0, -1, 2, 1, 0});
+        sobelMasks.put("South West", new int[]{0, -2, -1, 1, 0, -1, 1, 2, 0});
         return sobelMasks;
     }
 

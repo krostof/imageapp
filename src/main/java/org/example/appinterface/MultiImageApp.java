@@ -1341,17 +1341,31 @@ public class MultiImageApp extends JFrame {
 
 
     private DraggableImage selectImage(String message) {
+        // Pobranie komponentów z panelu
         Object[] images = imagePanel.getComponents();
         if (images.length == 0) {
             JOptionPane.showMessageDialog(this, "No images available.", "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
 
-        DraggableImage[] draggableImages = new DraggableImage[images.length];
-        for (int i = 0; i < images.length; i++) {
-            draggableImages[i] = (DraggableImage) images[i];
+        // Filtrowanie tylko komponentów typu DraggableImage
+        java.util.List<DraggableImage> draggableImagesList = new java.util.ArrayList<>();
+        for (Object image : images) {
+            if (image instanceof DraggableImage) {
+                draggableImagesList.add((DraggableImage) image);
+            }
         }
 
+        // Sprawdzenie, czy są dostępne obrazy
+        if (draggableImagesList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No draggable images available.", "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
+        // Konwersja listy na tablicę
+        DraggableImage[] draggableImages = draggableImagesList.toArray(new DraggableImage[0]);
+
+        // Wyświetlenie okna dialogowego
         return (DraggableImage) JOptionPane.showInputDialog(
                 this,
                 message,
@@ -1362,6 +1376,7 @@ public class MultiImageApp extends JFrame {
                 draggableImages[0]
         );
     }
+
 
 
     private DraggableImage[] selectTwoImages(String message) {
