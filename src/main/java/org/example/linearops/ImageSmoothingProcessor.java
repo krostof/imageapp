@@ -23,14 +23,20 @@ public class ImageSmoothingProcessor {
         Mat dst = new Mat();
 
         // Tworzenie jądra na podstawie wybranej metody
-        Mat kernel = createKernel(method, k);
-
-        // Zastosowanie filtra wygładzającego
-        Imgproc.filter2D(src, dst, -1, kernel);
+        Mat kernel;
+        if ("gaussian".equalsIgnoreCase(method)) {
+            // W przypadku filtra gaussowskiego używamy Imgproc.GaussianBlur zamiast filter2D
+            Imgproc.GaussianBlur(src, dst, new Size(3, 3), 0);
+        } else {
+            kernel = createKernel(method, k);
+            // Zastosowanie filtra wygładzającego
+            Imgproc.filter2D(src, dst, -1, kernel);
+        }
 
         // Konwersja wyniku z powrotem do BufferedImage
         return matToBufferedImage(dst);
     }
+
 
     private Mat createKernel(String method, int k) {
         switch (method.toLowerCase()) {
