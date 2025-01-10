@@ -44,9 +44,10 @@ public class ImageService {
         histogramEqualizer.applyHistogramEqualization(image);
     }
 
-    public BufferedImage applySmoothing(BufferedImage inputImage, String method, int k) {
-        return imageSmoothingProcessor.applySmoothing(inputImage, method, k);
+    public BufferedImage applySmoothing(BufferedImage inputImage, String method, int k, int borderType, int constantValue) {
+        return imageSmoothingProcessor.applySmoothing(inputImage, method, k, borderType, constantValue);
     }
+
 
     public BufferedImage applyLaplacianSharpening(BufferedImage image, int[][] mask) {
         return laplacianProcessor.applyLaplacianSharpening(image, mask);

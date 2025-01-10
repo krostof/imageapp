@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/GrabCutProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/GrabCutProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ImageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/ImageSmoothingProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -174,7 +175,7 @@
       <workItem from="1734780282606" duration="25000" />
       <workItem from="1736182228790" duration="16000" />
       <workItem from="1736453412867" duration="2086000" />
-      <workItem from="1736524906112" duration="7705000" />
+      <workItem from="1736524906112" duration="8702000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

@@ -56,7 +56,7 @@ public class MultiImageApp extends JFrame {
                 new ImageDuplicator(),
                 new LinearStretchProcessor(),
                 new HistogramEqualizer(new LUTGenerator()),
-                new ImageSmoothingProcessor(),
+                new ImageSmoothingProcessor(new BorderFillProcessor()),
                 new LaplacianSharpeningProcessor(),
                 new SobelEdgeDetector(),
                 new PrewittEdgeDetector(),
@@ -869,8 +869,46 @@ public class MultiImageApp extends JFrame {
                 }
             }
 
+            // Prompt the user to select the border type
+            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+            String selectedBorder = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select border type:",
+                    "Border Type",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    borderOptions,
+                    "Constant"
+            );
+
+            if (selectedBorder == null) {
+                return; // User cancelled
+            }
+
+            int borderType;
+            int constantValue = 0;
+
+            switch (selectedBorder.toLowerCase()) {
+                case "constant":
+                    borderType = Core.BORDER_CONSTANT;
+                    String constantValueInput = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+                    constantValue = Integer.parseInt(constantValueInput);
+                    if (constantValue < 0 || constantValue > 255) {
+                        throw new IllegalArgumentException("Constant value must be between 0 and 255.");
+                    }
+                    break;
+                case "reflect":
+                    borderType = Core.BORDER_REFLECT;
+                    break;
+                case "replicate":
+                    borderType = Core.BORDER_REPLICATE;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid border type selected.");
+            }
+
             // Apply the selected smoothing method
-            BufferedImage smoothedImage = imageService.applySmoothing(selectedImage.getImage(), method, k);
+            BufferedImage smoothedImage = imageService.applySmoothing(selectedImage.getImage(), method, k, borderType, constantValue);
             selectedImage.updateImage(smoothedImage);
             imagePanel.repaint(); // Refresh the panel to display the updated image
 
@@ -880,6 +918,7 @@ public class MultiImageApp extends JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
 
     private void addCannyEdgeDetectionMenu(JMenu menu) {
