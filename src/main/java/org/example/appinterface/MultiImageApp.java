@@ -18,7 +18,6 @@ import org.example.segmentaionlab5.SkeletonizationProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
-import org.opencv.imgproc.Imgproc;
 
 import javax.swing.*;
 import java.awt.*;
@@ -1590,8 +1589,6 @@ public class MultiImageApp extends JFrame {
         return binaryImage;
     }
 
-
-    // Pomocnicza metoda do tworzenia kopii obrazu (opcjonalna)
     private BufferedImage deepCopy(BufferedImage bi) {
         BufferedImage copy = new BufferedImage(bi.getWidth(), bi.getHeight(), bi.getType());
         Graphics g = copy.getGraphics();

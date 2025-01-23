@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="ImageApp:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ShapeFeatureExtractor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ShapeFeatureExtractor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -48,18 +54,21 @@
     &quot;Application.MultiImageInterface.executor&quot;: &quot;Run&quot;,
     &quot;Application.org.example.appinterface.MultiImageApp.executor&quot;: &quot;Run&quot;,
     &quot;Maven.ImageApp [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ImageApp [deploy].executor&quot;: &quot;Run&quot;,
     &quot;Maven.ImageApp [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ImageApp [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.ImageApp [verify].executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/krostof/Desktop/openCV/opencv/build/java/x64/opencv_java4100.dll&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/krostof/IdeaProjects/ImageApp/out/artifacts/ImageApp_jar/ImageApp.jar&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
@@ -174,7 +183,13 @@
       <workItem from="1734780282606" duration="25000" />
       <workItem from="1736182228790" duration="16000" />
       <workItem from="1736453412867" duration="2086000" />
-      <workItem from="1736524906112" duration="20343000" />
+      <workItem from="1736524906112" duration="20444000" />
+      <workItem from="1736552700552" duration="381000" />
+      <workItem from="1736553180645" duration="1978000" />
+      <workItem from="1736555192188" duration="1262000" />
+      <workItem from="1736800192787" duration="12000" />
+      <workItem from="1737476746354" duration="219000" />
+      <workItem from="1737666706838" duration="944000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />
