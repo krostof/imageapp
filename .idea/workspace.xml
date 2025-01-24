@@ -10,9 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/VideoPreviewWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -205,7 +203,7 @@
       <workItem from="1736800192787" duration="12000" />
       <workItem from="1737476746354" duration="219000" />
       <workItem from="1737666706838" duration="3595000" />
-      <workItem from="1737712221185" duration="2282000" />
+      <workItem from="1737712221185" duration="2956000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

@@ -13,10 +13,9 @@ public class ImageAverageProcessor {
     public static String processImages(List<File> imageFiles, int windowSize) {
         List<Mat> frames = new ArrayList<>();
         for (File imageFile : imageFiles) {
-            Mat image = Imgcodecs.imread(imageFile.getAbsolutePath());
+            Mat image = loadImage(imageFile.getAbsolutePath());
             frames.add(image);
         }
-
         List<Mat> processedFrames = calculateMovingAverage(frames, windowSize);
         String outputPath = imageFiles.get(0).getParent() + "/output_video.avi";
         createVideo(processedFrames, outputPath);
@@ -70,19 +69,27 @@ public class ImageAverageProcessor {
         return average;
     }
 
+    private static Mat loadImage(String path) {
+        Mat image = Imgcodecs.imread(path);
+        if (image.empty()) {
+            System.err.println("Failed to load image: " + path);
+            throw new IllegalArgumentException("Cannot load image. Unsupported format or incorrect path: " + path);
+        }
+        return image;
+    }
+
     private static void createVideo(List<Mat> frames, String outputPath) {
+        File outputFile = new File(outputPath);
+        if (!outputFile.getParentFile().exists()) {
+            System.err.println("Output directory does not exist: " + outputFile.getParent());
+            return;
+        }
+
         Size frameSize = new Size(frames.get(0).cols(), frames.get(0).rows());
-        // Example uses MJPG with 10 fps; adjust as needed
-        VideoWriter videoWriter = new VideoWriter(
-                outputPath,
-                VideoWriter.fourcc('M', 'J', 'P', 'G'),
-                10,
-                frameSize,
-                true
-        );
+        VideoWriter videoWriter = new VideoWriter(outputPath, VideoWriter.fourcc('M', 'J', 'P', 'G'), 10, frameSize, true);
 
         if (!videoWriter.isOpened()) {
-            System.out.println("Failed to open video writer.");
+            System.err.println("Failed to open video writer.");
             return;
         }
 
@@ -91,6 +98,8 @@ public class ImageAverageProcessor {
         }
 
         videoWriter.release();
-        System.out.println("Video saved at " + outputPath);
+        System.out.println("Video saved at: " + outputPath);
     }
+
+
 }
