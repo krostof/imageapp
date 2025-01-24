@@ -167,7 +167,11 @@ public class MultiImageApp extends JFrame {
         });
 
         JMenuItem openGUIControllerMenuItem = new JMenuItem("Open GUI Controller");
-        openGUIControllerMenuItem.addActionListener(e -> GUIController.createAndShowGUI());
+        openGUIControllerMenuItem.addActionListener(e -> {
+            GUIController controller = new GUIController();
+            controller.createAndShowGUI();
+        });
+
         averageMenu.add(openGUIControllerMenuItem);
 
         JMenuItem negateMenuItem = new JMenuItem("Negate Image");

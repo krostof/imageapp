@@ -10,10 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/VideoPreviewWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/linearops/PrewittEdgeDetector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,34 +47,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ImageInterface.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MultiImageApp.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MultiImageInterface.executor&quot;: &quot;Run&quot;,
-    &quot;Application.org.example.appinterface.MultiImageApp.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ImageApp [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ImageApp [deploy].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ImageApp [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ImageApp [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.ImageApp [verify].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/krostof/Desktop/openCV/opencv/build/java/x64/opencv_java4100.dll&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.GUIController.executor": "Run",
+    "Application.ImageInterface.executor": "Run",
+    "Application.MultiImageApp.executor": "Run",
+    "Application.MultiImageInterface.executor": "Run",
+    "Application.org.example.appinterface.MultiImageApp.executor": "Run",
+    "Maven.ImageApp [clean].executor": "Run",
+    "Maven.ImageApp [deploy].executor": "Run",
+    "Maven.ImageApp [install].executor": "Run",
+    "Maven.ImageApp [package].executor": "Run",
+    "Maven.ImageApp [verify].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "extract.method.default.visibility": "private",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/krostof/Desktop/openCV/opencv/build/java/x64/opencv_java4100.dll",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.example.grayscale" />
@@ -83,6 +84,19 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.org.example.appinterface.MultiImageApp">
+    <configuration name="GUIController" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.projectaverage.GUIController" />
+      <module name="ImageApp" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.projectaverage.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MultiImageApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="17" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -127,6 +141,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.org.example.appinterface.MultiImageApp" />
+        <item itemvalue="Application.GUIController" />
         <item itemvalue="Application.MultiImageApp" />
         <item itemvalue="Application.MultiImageInterface" />
       </list>
@@ -190,7 +205,7 @@
       <workItem from="1736800192787" duration="12000" />
       <workItem from="1737476746354" duration="219000" />
       <workItem from="1737666706838" duration="3595000" />
-      <workItem from="1737712221185" duration="867000" />
+      <workItem from="1737712221185" duration="2282000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

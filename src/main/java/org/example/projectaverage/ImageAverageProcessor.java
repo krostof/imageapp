@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAverageProcessor {
-    public static void processImages(List<File> imageFiles, int windowSize) {
+
+    public static String processImages(List<File> imageFiles, int windowSize) {
         List<Mat> frames = new ArrayList<>();
         for (File imageFile : imageFiles) {
             Mat image = Imgcodecs.imread(imageFile.getAbsolutePath());
@@ -17,7 +18,9 @@ public class ImageAverageProcessor {
         }
 
         List<Mat> processedFrames = calculateMovingAverage(frames, windowSize);
-        createVideo(processedFrames, imageFiles.get(0).getParent() + "/output_video.avi");
+        String outputPath = imageFiles.get(0).getParent() + "/output_video.avi";
+        createVideo(processedFrames, outputPath);
+        return outputPath;
     }
 
     public static String calculateOverallAverage(List<File> imageFiles) {
@@ -38,6 +41,7 @@ public class ImageAverageProcessor {
             Imgcodecs.imwrite(outputPath, average);
             return outputPath;
         }
+
         return "Failed to calculate overall average.";
     }
 
@@ -47,10 +51,13 @@ public class ImageAverageProcessor {
 
         for (int i = 0; i < frames.size(); i++) {
             Core.add(sum, frames.get(i), sum);
+
+            // Once we have 'windowSize' frames summed, create an average frame
             if (i >= windowSize - 1) {
                 Mat average = calculateAverage(sum, windowSize);
                 resultFrames.add(average);
 
+                // Subtract the oldest frame from the sum to move the window forward
                 Core.subtract(sum, frames.get(i - windowSize + 1), sum);
             }
         }
@@ -65,7 +72,14 @@ public class ImageAverageProcessor {
 
     private static void createVideo(List<Mat> frames, String outputPath) {
         Size frameSize = new Size(frames.get(0).cols(), frames.get(0).rows());
-        VideoWriter videoWriter = new VideoWriter(outputPath, VideoWriter.fourcc('M', 'J', 'P', 'G'), 10, frameSize, true);
+        // Example uses MJPG with 10 fps; adjust as needed
+        VideoWriter videoWriter = new VideoWriter(
+                outputPath,
+                VideoWriter.fourcc('M', 'J', 'P', 'G'),
+                10,
+                frameSize,
+                true
+        );
 
         if (!videoWriter.isOpened()) {
             System.out.println("Failed to open video writer.");

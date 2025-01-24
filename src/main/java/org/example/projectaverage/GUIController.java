@@ -7,50 +7,81 @@ import java.util.Collections;
 import java.util.List;
 
 public class GUIController {
-    private static DefaultListModel<File> imageListModel = new DefaultListModel<>();
+
+    private static JFrame frame;
+    private static DefaultListModel<File> imageListModel;
+    private static JList<File> imageList;
+    private static JTextField windowField;
+
+    private static JButton addImagesButton;
+    private static JButton removeImageButton;
+    private static JButton moveUpButton;
+    private static JButton moveDownButton;
+    private static JButton processButton;
+    private static JButton averageButton;
+
+    public GUIController() {
+        imageListModel = new DefaultListModel<>();
+        imageList = new JList<>(imageListModel);
+        windowField = new JTextField("3", 5);
+
+        addImagesButton = new JButton("Add Images");
+        removeImageButton = new JButton("Remove Selected Image");
+        moveUpButton = new JButton("Move Up");
+        moveDownButton = new JButton("Move Down");
+        processButton = new JButton("Process and Create Video");
+        averageButton = new JButton("Calculate Overall Average");
+    }
 
     public static void createAndShowGUI() {
-        JFrame frame = new JFrame("Image Sequence Processor");
+        frame = new JFrame("Image Sequence Processor");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(600, 400);
 
-        JPanel panel = new JPanel(new BorderLayout());
-        JLabel windowLabel = new JLabel("Set Moving Average Window:");
-        JTextField windowField = new JTextField("3", 5);
-        JButton addImagesButton = new JButton("Add Images");
-        JButton removeImageButton = new JButton("Remove Selected Image");
-        JButton moveUpButton = new JButton("Move Up");
-        JButton moveDownButton = new JButton("Move Down");
-        JButton processButton = new JButton("Process and Create Video");
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(createListPanel(), BorderLayout.CENTER);
+        mainPanel.add(createControlsPanel(), BorderLayout.SOUTH);
 
-        JList<File> imageList = new JList<>(imageListModel);
-        JScrollPane imageScrollPane = new JScrollPane(imageList);
-        imageScrollPane.setPreferredSize(new Dimension(400, 200));
-
-        JPanel controlsPanel = new JPanel(new FlowLayout());
-        controlsPanel.add(windowLabel);
-        controlsPanel.add(windowField);
-        controlsPanel.add(addImagesButton);
-        controlsPanel.add(removeImageButton);
-        controlsPanel.add(moveUpButton);
-        controlsPanel.add(moveDownButton);
-        controlsPanel.add(processButton);
-
-        panel.add(imageScrollPane, BorderLayout.CENTER);
-        panel.add(controlsPanel, BorderLayout.SOUTH);
-
-        frame.add(panel);
-
-        addImagesButton.addActionListener(e -> addImages(frame));
-        removeImageButton.addActionListener(e -> removeSelectedImage(imageList));
-        moveUpButton.addActionListener(e -> moveSelectedImageUp(imageList));
-        moveDownButton.addActionListener(e -> moveSelectedImageDown(imageList));
-        processButton.addActionListener(e -> processImages(frame, windowField));
-
+        frame.add(mainPanel);
         frame.setVisible(true);
     }
 
-    private static void addImages(JFrame frame) {
+    private static JPanel createListPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane(imageList);
+        scrollPane.setPreferredSize(new Dimension(400, 200));
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private static JPanel createControlsPanel() {
+        JPanel panel = new JPanel(new FlowLayout());
+
+        JLabel windowLabel = new JLabel("Set Moving Average Window:");
+        panel.add(windowLabel);
+        panel.add(windowField);
+
+        panel.add(addImagesButton);
+        panel.add(removeImageButton);
+        panel.add(moveUpButton);
+        panel.add(moveDownButton);
+        panel.add(processButton);
+        panel.add(averageButton);
+
+        initListeners();
+        return panel;
+    }
+
+    private static void initListeners() {
+        addImagesButton.addActionListener(e -> addImages());
+        removeImageButton.addActionListener(e -> removeSelectedImage());
+        moveUpButton.addActionListener(e -> moveSelectedImageUp());
+        moveDownButton.addActionListener(e -> moveSelectedImageDown());
+        processButton.addActionListener(e -> processImages());
+        averageButton.addActionListener(e -> calculateOverallAverage());
+    }
+
+    private static void addImages() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(true);
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image Files", "jpg", "png"));
@@ -61,14 +92,14 @@ public class GUIController {
         }
     }
 
-    private static void removeSelectedImage(JList<File> imageList) {
+    private static void removeSelectedImage() {
         int selectedIndex = imageList.getSelectedIndex();
         if (selectedIndex != -1) {
             imageListModel.remove(selectedIndex);
         }
     }
 
-    private static void moveSelectedImageUp(JList<File> imageList) {
+    private static void moveSelectedImageUp() {
         int selectedIndex = imageList.getSelectedIndex();
         if (selectedIndex > 0) {
             File selectedFile = imageListModel.get(selectedIndex);
@@ -78,7 +109,7 @@ public class GUIController {
         }
     }
 
-    private static void moveSelectedImageDown(JList<File> imageList) {
+    private static void moveSelectedImageDown() {
         int selectedIndex = imageList.getSelectedIndex();
         if (selectedIndex < imageListModel.size() - 1) {
             File selectedFile = imageListModel.get(selectedIndex);
@@ -88,7 +119,7 @@ public class GUIController {
         }
     }
 
-    private static void processImages(JFrame frame, JTextField windowField) {
+    private static void processImages() {
         if (imageListModel.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "No images selected.");
             return;
@@ -103,7 +134,66 @@ public class GUIController {
         }
 
         List<File> selectedImages = Collections.list(imageListModel.elements());
-        ImageAverageProcessor.processImages(selectedImages, windowSize);
-        JOptionPane.showMessageDialog(frame, "Video Created Successfully!");
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() {
+                return ImageAverageProcessor.processImages(selectedImages, windowSize);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String outputPath = get();
+                    new VideoPreviewWindow(outputPath);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "Error processing images: " + e.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        };
+
+        worker.execute();
+    }
+
+    private static void calculateOverallAverage() {
+        if (imageListModel.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No images selected.");
+            return;
+        }
+
+        List<File> selectedImages = Collections.list(imageListModel.elements());
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() {
+                return ImageAverageProcessor.calculateOverallAverage(selectedImages);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String outputPath = get();
+                    if (outputPath != null) {
+                        JOptionPane.showMessageDialog(frame, "Overall average image saved at: " + outputPath);
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Failed to calculate overall average.");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "Error calculating overall average: " + e.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        };
+
+        worker.execute();
     }
 }
