@@ -17,19 +17,19 @@ public class DraggableImage extends JLabel {
     }
 
     @Getter
-    private final BufferedImage originalImage;  // Original image for possible reset
-    private BufferedImage currentImage;         // Current state of the image
+    private final BufferedImage originalImage;
+    private BufferedImage currentImage;
 
     private Point initialClick;
     private final JPanel parentPanel;
     private final JPopupMenu popupMenu;
     private final ImageScaler imageScaler;
     private final String fileName;
-    private final JLabel nameLabel; // Label to display the image name
+    private final JLabel nameLabel;
 
     public DraggableImage(BufferedImage image, JPanel parentPanel, MultiImageApp mainApp, String fileName) {
-        this.originalImage = image;    // Save the original image
-        this.currentImage = image;     // Initial state = original image
+        this.originalImage = image;
+        this.currentImage = image;
         this.parentPanel = parentPanel;
         this.fileName = fileName;
         this.imageScaler = new ImageScaler();
@@ -37,7 +37,6 @@ public class DraggableImage extends JLabel {
         setIcon(new ImageIcon(currentImage));
         setSize(currentImage.getWidth(), currentImage.getHeight());
 
-        // Initialize the name label
         this.nameLabel = new JLabel(fileName);
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nameLabel.setSize(getWidth(), 20);
@@ -74,7 +73,6 @@ public class DraggableImage extends JLabel {
                     popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
 
-                // Set the image as selected in MultiImageApp
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     mainApp.setSelectedImage(DraggableImage.this);
                     System.out.println("Selected image updated. Location: X = " + getX() + ", Y = " + getY());
@@ -96,18 +94,13 @@ public class DraggableImage extends JLabel {
 
                 setLocation(X, Y);
 
-                // Update the position of the name label
                 nameLabel.setLocation(X, Y + getHeight());
 
-                // Log the current position
                 System.out.println("Image moved to: X = " + X + ", Y = " + Y);
             }
         });
     }
 
-    /**
-     * Updates the image in DraggableImage - sets it as currentImage and refreshes the label.
-     */
     public void updateImage(BufferedImage newImage) {
         this.currentImage = newImage;
         setIcon(new ImageIcon(newImage));
@@ -117,9 +110,6 @@ public class DraggableImage extends JLabel {
         repaint();
     }
 
-    /**
-     * Returns the current state of the image (after transformations).
-     */
     public BufferedImage getImage() {
         return currentImage;
     }
@@ -127,7 +117,6 @@ public class DraggableImage extends JLabel {
     @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
-        // Update the position of the name label
         if (nameLabel != null) {
             nameLabel.setLocation(x, y + getHeight());
         }
@@ -136,41 +125,28 @@ public class DraggableImage extends JLabel {
     @Override
     public void setSize(int width, int height) {
         super.setSize(width, height);
-        // Update the width of the name label
         if (nameLabel != null) {
             nameLabel.setSize(width, 20);
         }
     }
 
-    /**
-     * Scales the image to fit the parent panel's size (based on currentImage).
-     */
     private void scaleImageToWindow() {
         currentImage = imageScaler.scaleToWindow(currentImage, parentPanel.getWidth(), parentPanel.getHeight());
         updateImage(currentImage);
         setLocation(0, 0);
     }
 
-    /**
-     * Scales the image to full screen (based on currentImage).
-     */
     private void scaleImageToFullScreen() {
         currentImage = imageScaler.scaleToFullScreen(currentImage);
         updateImage(currentImage);
         setLocation(0, 0);
     }
 
-    /**
-     * Restores the image to its natural size using the original image.
-     */
     private void scaleImageToNaturalSize() {
         currentImage = imageScaler.scaleToNaturalSize(originalImage);
         updateImage(currentImage);
     }
 
-    /**
-     * Removes the label and the image from the parent panel.
-     */
     private void closeImage() {
         parentPanel.remove(this);
         parentPanel.remove(nameLabel);

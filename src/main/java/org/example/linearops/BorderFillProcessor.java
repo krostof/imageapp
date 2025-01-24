@@ -9,14 +9,20 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+/*
+Proszę zaimplementować wybór sposobu uzupełnienie marginesów/brzegów w operacjach
+sąsiedztwa według zasady wybranej spośród następujących zasad:
+• wypełnienie ramki wybraną wartością stałą n narzuconą przez użytkownika:
+BORDER_CONSTANT
+• wypełnienie wyniku wybraną wartością stałą n narzuconą przez użytkownika
+• wyliczenie ramki według BORDER_REFLECT
+ */
 public class BorderFillProcessor {
 
-    // Stosowanie wypełnienia marginesów i filtracji
+    // Wypełnienia marginesów i filtracji
     public Mat applyFilterWithBorder(Mat inputMat, Mat kernel, int borderType, int constantValue) {
         Mat extendedMat = new Mat();
 
-        // Dodanie marginesów do obrazu
         if (borderType == Core.BORDER_CONSTANT) {
             Scalar borderValue = new Scalar(constantValue);
             Core.copyMakeBorder(inputMat, extendedMat, 1, 1, 1, 1, Core.BORDER_CONSTANT, borderValue);
@@ -24,17 +30,13 @@ public class BorderFillProcessor {
             Core.copyMakeBorder(inputMat, extendedMat, 1, 1, 1, 1, borderType);
         }
 
-        // Zastosowanie filtra na obrazie z marginesami
         Mat outputMat = new Mat();
         Imgproc.filter2D(extendedMat, outputMat, -1, kernel);
 
-        // Przycięcie obrazu do oryginalnych wymiarów (usunięcie marginesów)
         Rect roi = new Rect(1, 1, inputMat.cols(), inputMat.rows());
         return new Mat(outputMat, roi);
     }
 
-
-    // Użycie wypełnienia marginesów bez filtra (zastosowanie oryginalnej logiki)
     public BufferedImage applyBorderFill(BufferedImage inputImage, int borderType, int constantValue) {
         Mat sourceMat = bufferedImageToMat(inputImage);
 

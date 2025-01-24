@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+    * kierunkowej detekcji krawędzi w oparciu o maski 8 kierunkowych masek Sobela
+        (podstawowe 8 kierunków) przestawionych użytkownikowi do wyboru,
+ */
 public class SobelEdgeDetector {
 
     private final BorderFillProcessor borderFillProcessor;
@@ -23,20 +27,16 @@ public class SobelEdgeDetector {
     public BufferedImage applyDirectionalSobel(BufferedImage inputImage, String direction, int borderType, int constantValue) {
         Mat sourceMat = bufferedImageToMat(inputImage);
 
-        // Konwersja do skali szarości, jeśli obraz jest kolorowy
         if (sourceMat.channels() == 3) {
             Imgproc.cvtColor(sourceMat, sourceMat, Imgproc.COLOR_BGR2GRAY);
         }
 
-        // CV_32F (32-bitowe liczby zmiennoprzecinkowe)
         Mat sourceMat32F = new Mat();
         sourceMat.convertTo(sourceMat32F, CvType.CV_32F);
 
-        // Pobranie maski Sobela
         Map<String, int[]> sobelMasks = getSobelMasks();
         int[] mask = sobelMasks.getOrDefault(direction, sobelMasks.get("East"));
 
-        // Utworzenie jądra na podstawie wybranej maski
         Mat kernel = new Mat(3, 3, CvType.CV_32F);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -44,10 +44,8 @@ public class SobelEdgeDetector {
             }
         }
 
-        // Stosowanie wypełnienia marginesów i filtracji
         Mat sobelResult = borderFillProcessor.applyFilterWithBorder(sourceMat32F, kernel, borderType, constantValue);
 
-        // Wynik i skalowanie do obrazu 8-bitowego
         Mat absSobelResult = new Mat();
         Core.convertScaleAbs(sobelResult, absSobelResult);
 

@@ -6,6 +6,12 @@ import org.opencv.imgproc.Imgproc;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
+/**
+ * Klasa do wygładzania obrazów.
+ * wygładzania liniowego oparte na typowych maskach wygładzania (uśrednienie,
+ * uśrednienie z wagami, filtr gaussowski – przedstawione na wykładzie) przestawionych
+ * użytkownikowi jako maski do wyboru,
+ */
 public class ImageSmoothingProcessor {
 
     private final BorderFillProcessor borderFillProcessor;
@@ -15,25 +21,18 @@ public class ImageSmoothingProcessor {
     }
 
     public BufferedImage applySmoothing(BufferedImage inputImage, String method, int k, int borderType, int constantValue) {
-        // Dodanie marginesów przy użyciu BorderFillProcessor
         BufferedImage imageWithBorders = borderFillProcessor.applyBorderFill(inputImage, borderType, constantValue);
 
-        // Konwersja BufferedImage do Mat
         Mat src = bufferedImageToMat(imageWithBorders);
         Mat dst = new Mat();
 
-        // Tworzenie jądra na podstawie wybranej metody
         Mat kernel;
         if ("gaussian".equalsIgnoreCase(method)) {
-            // W przypadku filtra gaussowskiego używamy Imgproc.GaussianBlur zamiast filter2D
             Imgproc.GaussianBlur(src, dst, new Size(3, 3), 0);
         } else {
             kernel = createKernel(method, k);
-            // Zastosowanie filtra wygładzającego
             Imgproc.filter2D(src, dst, -1, kernel);
         }
-
-        // Konwersja wyniku z powrotem do BufferedImage
         return matToBufferedImage(dst);
     }
 

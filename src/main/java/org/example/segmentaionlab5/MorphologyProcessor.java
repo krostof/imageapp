@@ -8,16 +8,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 /**
- * Klasa realizująca podstawowe operacje morfologii matematycznej na obrazach binarnych / grayscale:
- *  - Erosion (erozja)
- *  - Dilation (dylacja)
- *  - Opening (otwarcie)
- *  - Closing (zamknięcie)
- * z dwoma rodzajami elementu strukturalnego 3x3:
- *  - rectangle (prostokąt 3x3)
- *  - cross (krzyż 3x3).
- *
- * Wykorzystuje bibliotekę OpenCV w Javie.
+ Opracować algorytm i uruchomić funkcjonalność wykonywania podstawowych operacji
+ morfologii matematycznej: erozji, dylacji, otwarcia i zamknięcia wykorzystując następujące
+ elementy strukturalne 3x3 (tam gdzie możliwe jest rozróżnienie kształtu oddzielne dla krzyża i
+ prostokąta).
  */
 public class MorphologyProcessor {
 
@@ -27,10 +21,7 @@ public class MorphologyProcessor {
     }
 
     /**
-     * Wykonuje erozję na obrazie wejściowym, używając elementu strukturalnego 3x3.
-     * @param input Obraz wejściowy (BufferedImage).
-     * @param shape "rectangle" lub "cross" (3x3).
-     * @return Nowy obraz po erozji.
+     * erozja na obrazie wejściowym, używając elementu strukturalnego 3x3.
      */
     public BufferedImage erode(BufferedImage input, String shape) {
         Mat src = bufferedImageToMatGray(input);

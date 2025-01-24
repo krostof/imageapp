@@ -10,7 +10,6 @@ import java.util.Map;
 
 /**
  * Detektor krawędzi Prewitta w ośmiu kierunkach (E, SE, S, SW, W, NW, N, NE).
- * Automatycznie dodaje ramkę (1 piksel) i przycina wynik do oryginalnych wymiarów.
  */
 public class PrewittEdgeDetector {
 
@@ -18,7 +17,6 @@ public class PrewittEdgeDetector {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
-    // Mapa: "E" -> kernel, "SE" -> kernel itd.
     private final Map<String, Mat> prewittKernels;
 
     public PrewittEdgeDetector() {
@@ -26,43 +24,32 @@ public class PrewittEdgeDetector {
     }
 
     /**
-     * Główna metoda do uruchomienia detekcji krawędzi Prewitta.
-     * @param inputImage    Obraz wejściowy (BufferedImage).
-     * @param direction     Kierunek Prewitta, np. "E", "SE", "S", ...
-     * @param borderType    Typ brzegów (Core.BORDER_CONSTANT / BORDER_REFLECT / BORDER_REPLICATE itp.).
-     * @param constantValue Wartość brzegów dla BORDER_CONSTANT (0..255).
+     * Metoda do uruchomienia detekcji krawędzi Prewitta.
      */
     public BufferedImage applyPrewittEdgeDetection(BufferedImage inputImage,
                                                    String direction,
                                                    int borderType,
                                                    int constantValue) {
-        // 1. Konwersja do skali szarości (8-bit)
         Mat sourceMat = bufferedImageToMatGray(inputImage);
 
-        // 2. Zamiana na typ float (CV_32F)
         Mat sourceMat32F = new Mat();
         sourceMat.convertTo(sourceMat32F, CvType.CV_32F);
 
-        // 3. Pobranie odpowiedniego kernela z mapy
         Mat kernel = prewittKernels.get(direction.toUpperCase());
         if (kernel == null) {
             throw new IllegalArgumentException("Invalid Prewitt direction: " + direction);
         }
-
-        // 4. Filtr z obsługą brzegów
         Mat result = applyFilterWithBorder(sourceMat32F, kernel, borderType, constantValue);
 
-        // 5. Normalizacja do [0..255]
         Core.normalize(result, result, 0, 255, Core.NORM_MINMAX);
 
-        // 6. Konwersja do CV_8U i BufferedImage
         Mat result8U = new Mat();
         result.convertTo(result8U, CvType.CV_8U);
         return matToBufferedImage(result8U);
     }
 
     /**
-     * Generuje osiem filtrów Prewitta na poszczególne kierunki (E, SE, S, SW, W, NW, N, NE).
+     * Osiem filtrów Prewitta na poszczególne kierunki (E, SE, S, SW, W, NW, N, NE).
      */
     private Map<String, Mat> generatePrewittKernels() {
         Map<String, Mat> kernels = new HashMap<>();
@@ -124,18 +111,12 @@ public class PrewittEdgeDetector {
         return kernel;
     }
 
-    /**
-     * Dodaje ramkę, stosuje filter2D, przycina do oryginalnych wymiarów.
-     */
     private Mat applyFilterWithBorder(Mat source, Mat kernel, int borderType, int constantValue) {
-        // A. Dodajemy ramkę 1-pikselową
         Mat bordered = createBorders(source, borderType, constantValue);
 
-        // B. Filtr
         Mat filtered = new Mat();
         Imgproc.filter2D(bordered, filtered, CvType.CV_32F, kernel);
 
-        // C. Crop do oryginalnych wymiarów
         return cropToOriginalSize(filtered, source.size());
     }
 
@@ -155,9 +136,6 @@ public class PrewittEdgeDetector {
         return new Mat(largeMat, roi);
     }
 
-    /**
-     * Konwertuje dowolny BufferedImage na Mat w skali szarości (CV_8UC1).
-     */
     private Mat bufferedImageToMatGray(BufferedImage bi) {
         if (bi == null) {
             throw new IllegalArgumentException("Input image is null.");
@@ -173,9 +151,6 @@ public class PrewittEdgeDetector {
         return mat;
     }
 
-    /**
-     * Konwertuje Mat (CV_8UC1) do BufferedImage (TYPE_BYTE_GRAY).
-     */
     private BufferedImage matToBufferedImage(Mat mat) {
         BufferedImage image = new BufferedImage(mat.cols(), mat.rows(), BufferedImage.TYPE_BYTE_GRAY);
         byte[] data = new byte[mat.cols() * mat.rows()];

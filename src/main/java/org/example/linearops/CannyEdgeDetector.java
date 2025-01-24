@@ -11,6 +11,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+
+/*
+Implementacji detekcji krawędzi operatorem Cannyego.
+ */
 public class CannyEdgeDetector {
 
     /*

@@ -3,6 +3,12 @@ package org.example;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/*
+Zapewnić możliwość zmiany wielkości wyświetlanego obrazu
+(zminimalizowany do wielkości okna, zajmujący pełny ekran, wyświetlony
+w naturalnej rozdzielczości, itp.)
+ */
+
 public class ImageScaler {
 
     public BufferedImage scaleToWindow(BufferedImage originalImage, int panelWidth, int panelHeight) {
@@ -10,12 +16,10 @@ public class ImageScaler {
     }
 
     public BufferedImage scaleToFullScreen(BufferedImage originalImage) {
-        // Pobierz wymiary pełnego ekranu
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = screenSize.width;
         int screenHeight = screenSize.height;
 
-        // Skaluj obraz dokładnie do rozmiaru ekranu
         return resizeImage(originalImage, screenWidth, screenHeight);
     }
 

@@ -8,12 +8,6 @@ import java.awt.image.DataBufferByte;
 
 public class OpenCVUtils {
 
-    /**
-     * Converts a BufferedImage to an OpenCV Mat.
-     *
-     * @param image The BufferedImage to convert.
-     * @return The corresponding OpenCV Mat.
-     */
     public static Mat bufferedImageToMat(BufferedImage image) {
         int type = image.getType();
         Mat mat;
@@ -30,12 +24,6 @@ public class OpenCVUtils {
         return mat;
     }
 
-    /**
-     * Converts an OpenCV Mat to a BufferedImage.
-     *
-     * @param mat The Mat to convert.
-     * @return The corresponding BufferedImage.
-     */
     public static BufferedImage matToBufferedImage(Mat mat) {
         int type;
         if (mat.channels() == 1) {

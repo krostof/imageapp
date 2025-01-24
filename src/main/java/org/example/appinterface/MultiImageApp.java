@@ -1608,7 +1608,9 @@ public class MultiImageApp extends JFrame {
     }
 
 
-
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    }
 
 
     public static void main(String[] args) {

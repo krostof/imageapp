@@ -8,8 +8,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 /**
- * Klasa realizująca szkieletyzację (thinning) binarnych obiektów w Javie z użyciem OpenCV.
- * Założenie: wejściowy obraz to mapa binarna (0=czarny, 255=biały) w TYPE_BYTE_GRAY.
+ Opracować algorytm i uruchomić funkcjonalność wykonywania szkieletyzacji obiektu na mapie
+ binarnej.
  */
 public class SkeletonizationProcessor {
 
@@ -17,54 +17,36 @@ public class SkeletonizationProcessor {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
-    /**
-     * Szkieletyzacja obrazu binarnego.
-     *
-     * @param binaryImage Obraz wejściowy (binarna mapa obiektów, 0 = czarny, 255 = biały).
-     * @return Obraz zawierający szkielet obiektów.
-     */
     public BufferedImage skeletonize(BufferedImage binaryImage) {
-        // Binaryzacja obrazu (upewniamy się, że obraz jest binarny)
+
         Mat src = bufferedImageToMatGray(binaryImage);
         Imgproc.threshold(src, src, 127, 255, Imgproc.THRESH_BINARY);
 
-        // Inicjalizacja macierzy
         Mat skeleton = Mat.zeros(src.size(), CvType.CV_8UC1);
         Mat temp = new Mat();
         Mat eroded = new Mat();
 
-        // Testowanie różnych elementów strukturalnych
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
-        // Alternatywnie:
-        // Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
-        // Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
 
         boolean done = false;
         while (!done) {
-            // Erozja
+            // erozja
             Imgproc.erode(src, eroded, kernel);
-            // Dylacja erodowanego obrazu
+            // dylacja erodowanego obrazu
             Imgproc.dilate(eroded, temp, kernel);
-            // Różnica między src a temp -> część szkieletu
             Core.subtract(src, temp, temp);
             Core.bitwise_or(skeleton, temp, skeleton);
 
-            // Przekazanie erozji do kolejnej iteracji
+            // przekazanie erozji do kolejnej iteracji
             eroded.copyTo(src);
 
-            // Sprawdzanie zakończenia
+            // sprawdzanie zakończenia - flaga
             done = (Core.countNonZero(src) == 0);
         }
 
         return matToBufferedImage(skeleton);
     }
 
-    /**
-     * Konwersja BufferedImage do Mat w skali szarości.
-     *
-     * @param bi Obraz wejściowy.
-     * @return Obraz w formacie Mat.
-     */
     private Mat bufferedImageToMatGray(BufferedImage bi) {
         if (bi.getType() != BufferedImage.TYPE_BYTE_GRAY) {
             BufferedImage gray = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -80,12 +62,6 @@ public class SkeletonizationProcessor {
         return mat;
     }
 
-    /**
-     * Konwersja Mat do BufferedImage w skali szarości.
-     *
-     * @param mat Obraz wejściowy w formacie Mat.
-     * @return Obraz w formacie BufferedImage.
-     */
     private BufferedImage matToBufferedImage(Mat mat) {
         BufferedImage out = new BufferedImage(mat.width(), mat.height(), BufferedImage.TYPE_BYTE_GRAY);
         byte[] data = new byte[mat.width() * mat.height()];

@@ -9,7 +9,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+/*
+Opracowanie algorytmu i uruchomienie aplikacji realizującej uniwersalną operację medianową
+opartą na otoczeniu  3x3, 5x5, 7x7, 9x9 zadawanym w sposób interaktywny (wybór z list,
+przesuwanie baru). Zastosować powyższych metod uzupełniania brzegowych pikselach obrazu,
+dając użytkownikowi możliwość wyboru, jak w zadaniu 1.
+ */
 public class MedianFilterProcessor {
 
     public BufferedImage applyMedianFilter(BufferedImage inputImage, int kernelSize, int borderTypeCode) {
@@ -47,17 +52,14 @@ public class MedianFilterProcessor {
     }
 
     private BufferedImage matToBufferedImage(Mat mat) {
-        // Konwersja obiektu Mat na BufferedImage
         MatOfByte mob = new MatOfByte();
         Imgcodecs.imencode(".png", mat, mob);
         byte[] byteArray = mob.toArray();
         try {
-            // Odczyt obrazu z tablicy bajtów jako BufferedImage
             return ImageIO.read(new ByteArrayInputStream(byteArray));
         } catch (IOException e) {
-            // Obsługa błędów wejścia/wyjścia
             e.printStackTrace();
-            return null; // Zwrócenie wartości null w przypadku błędu
+            return null;
         }
     }
 }

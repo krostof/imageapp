@@ -6,12 +6,8 @@ import org.example.histogram.LUTGenerator;
 import java.awt.image.BufferedImage;
 
 /**
- * Klasa realizująca liniowe rozciąganie histogramu (stretching) z różnymi trybami:
- * 1) Bez clippingu (auto min/max z histogramu).
- * 2) Z clippingiem (obcinanie dolnego i górnego procentu pikseli).
- * 3) W zadanym przez użytkownika przedziale [p1..p2] -> [q3..q4].
- *
- * Założenie: obraz jest TYPE_BYTE_GRAY.
+ Liniowego rozciąganie histogramu w wersjach z i bez
+ przesycenia (max przesycenie powinno dotyczyć 5% pikseli)
  */
 @Log4j2
 public class LinearStretchProcessor {
@@ -25,10 +21,6 @@ public class LinearStretchProcessor {
     /**
      * Liniowe rozciąganie histogramu w trybie automatycznym (bez clippingu)
      * lub z clippingiem. Pozostawione jako wcześniej omawiane metody.
-     *
-     * @param image Obraz wejściowy (TYPE_BYTE_GRAY).
-     * @param withClipping true -> z clippingiem, false -> bez clippingu.
-     * @param clippingPercentage procent pikseli do obcięcia (np. 0.01 = 1%).
      */
     public void applyLinearStretch(BufferedImage image, boolean withClipping, double clippingPercentage) {
         if (image == null) {
@@ -50,22 +42,11 @@ public class LinearStretchProcessor {
     /**
      * Metoda do manualnego rozciągania histogramu w zadanym przez użytkownika zakresie [p1..p2]
      * do zakresu [q3..q4].
-     *
-     * np. p1=50, p2=150, q3=0, q4=255 -> wartości [50..150] w obrazie wejściowym
-     * zostaną rozciągnięte do [0..255].
-     * Wartości < p1 -> q3, a > p2 -> q4.
-     *
-     * @param image Obraz wejściowy (TYPE_BYTE_GRAY).
-     * @param p1 Dolna granica intensywności w obrazie wejściowym.
-     * @param p2 Górna granica intensywności w obrazie wejściowym.
-     * @param q3 Dolna granica docelowa w obrazie wynikowym.
-     * @param q4 Górna granica docelowa w obrazie wynikowym.
      */
     public void applyManualRangeStretch(BufferedImage image, int p1, int p2, int q3, int q4) {
         if (image == null) {
             throw new IllegalArgumentException("Image cannot be null.");
         }
-        // Kontrola poprawności zakresów
         if (p1 < 0 || p2 > 255 || p1 >= p2) {
             throw new IllegalArgumentException("Invalid source range [p1..p2]. Must be within [0..255], p1 < p2.");
         }
@@ -118,7 +99,6 @@ public class LinearStretchProcessor {
             return;
         }
 
-        // Generowanie LUT [min..max] -> [0..255]
         int[] lut = new int[256];
         for (int i = 0; i < 256; i++) {
             if (i <= minIntensity) {

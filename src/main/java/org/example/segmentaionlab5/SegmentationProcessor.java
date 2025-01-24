@@ -2,30 +2,22 @@ package org.example.segmentaionlab5;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 /**
- * Klasa realizująca segmentację (progowanie) za pomocą OpenCV:
- * - Double threshold (dwa progi)
- * - Otsu threshold
- * - Adaptive threshold
- *
- * Założenie: obraz wejściowy to BufferedImage typu TYPE_BYTE_GRAY (lub TYPE_3BYTE_BGR).
- * Ewentualnie konwertujemy do odcieni szarości, jeśli jest kolorowy.
+ Opracować algorytm i uruchomić funkcjonalność realizującą segmentację obrazów
+ następującymi metodami:
+ – Implementacja progowanie z dwoma progami wyznaczonymi przez użytkownika.
+ – Implementacja progowanie z progiem wyznaczonym metodą Otsu,
+ – Implementacja progowanie adaptacyjnego (adaptive threshold).
  */
 public class SegmentationProcessor {
 
-    static {
-        // Załaduj natywną bibliotekę OpenCV
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-    }
-
     /**
-     * Progowanie z dwoma progami p1, p2 (zwracamy obraz 3-wartościowy: <p1=0, p1..p2=127, >p2=255).
+     * Progowanie z dwoma progami p1, p2
      */
     public BufferedImage doubleThreshold(BufferedImage input, int p1, int p2) {
         Mat src = bufferedImageToMat(input);
@@ -40,7 +32,7 @@ public class SegmentationProcessor {
                 } else if (pixVal > p2) {
                     newVal = 255;
                 } else {
-                    newVal = 127; // lub 255, w zależności od definicji
+                    newVal = 127;
                 }
                 dst.put(y, x, newVal);
             }
@@ -49,20 +41,17 @@ public class SegmentationProcessor {
     }
 
     /**
-     * Progowanie metodą Otsu - OpenCV automatycznie wylicza próg.
-     * Zwracamy obraz binarny (0/255).
+     * Progowanie Otsu (automatyczne wyznaczenie progu).
      */
     public BufferedImage otsuThreshold(BufferedImage input) {
         Mat src = bufferedImageToMat(input);
         Mat dst = new Mat();
-        // threshold z flagą THRESH_OTSU
         Imgproc.threshold(src, dst, 0, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
         return matToBufferedImage(dst);
     }
 
     /**
-     * Progowanie adaptacyjne (np. blockSize=11, C=2).
-     * Zwraca obraz binarny (0/255).
+     * Progowanie adaptacyjne (z wykorzystaniem średniej ważonej).
      */
     public BufferedImage adaptiveThreshold(BufferedImage input, int blockSize, int C) {
         Mat src = bufferedImageToMat(input);
