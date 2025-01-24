@@ -6,12 +6,9 @@ import java.util.Arrays;
 public class LUTGenerator {
 
     /**
-     * Generuje histogram "overall" obrazu, interpretując go jako jasność (luminancję).
-     * Dla obrazu TYPE_BYTE_GRAY pobiera kanał 0 z rastra,
-     * a dla obrazu kolorowego stosuje formułę Y = 0.299R + 0.587G + 0.114B.
-     *
-     * @param image Obraz wejściowy (może być w skali szarości lub kolorowy).
-     * @return 256-elementowa tablica histogramu jasności.
+     * Generuje histogram obrazu, zwraca tablicę 256-elementową.
+     * dla obrazu TYPE_BYTE_GRAY pobiera kanał 0 z rastra,
+     * dla obrazu kolorowego stosuje formułę Y = 0.299R + 0.587G + 0.114B.
      */
     public int[] generateHistogramLUT(BufferedImage image) {
         if (image == null) {
@@ -54,12 +51,9 @@ public class LUTGenerator {
 
     /**
      * Generuje histogramy dla kanałów R, G, B.
-     * Algorytm:
+     * Działąnie:
      * - Iteruje przez piksele obrazu.
      * - Zlicza intensywności dla kanałów R, G i B.
-     *
-     * @param image Obraz wejściowy w kolorze (typowo RGB).
-     * @return Tablica histogramów [3][256] (R, G, B).
      */
     public int[][] generateColorHistogramsLUT(BufferedImage image) {
         if (image == null) {
@@ -88,14 +82,7 @@ public class LUTGenerator {
     }
 
     /**
-     * Generuje tablicę LUT do equalizacji histogramu.
-     * Algorytm:
-     * - Oblicza skumulowaną dystrybucję histogramu.
-     * - Normalizuje wartości do zakresu 0-255.
-     *
-     * @param histogram Histogram obrazu (256 elementów).
-     * @param totalPixels Liczba pikseli w obrazie.
-     * @return Tablica LUT (256-elementowa) do equalizacji.
+     * Tablica LUT do equalizacji histogramu
      */
     public int[] generateEqualizationLUT(int[] histogram, int totalPixels) {
         if (histogram == null || histogram.length != 256) {

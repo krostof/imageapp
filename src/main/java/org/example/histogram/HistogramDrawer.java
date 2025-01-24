@@ -5,23 +5,11 @@ import java.awt.*;
 public class HistogramDrawer {
 
     /**
-     * Rysuje histogram na podstawie dostarczonych danych.
-     * Algorytm:
-     * - Normalizuje wartości histogramu (liniowo lub logarytmicznie) na podstawie maxHistogramValue.
-     * - Rysuje słupki reprezentujące wartości histogramu.
-     * - Dodaje osie i opisy skali.
-     *
-     * @param g2d              Kontekst graficzny do rysowania.
-     * @param histogram        Tablica z wartościami histogramu (0-255).
-     * @param maxHistogramValue Maksymalna wartość histogramu.
-     * @param width            Szerokość obszaru rysowania.
-     * @param height           Wysokość obszaru rysowania.
-     * @param binWidth         Szerokość jednego słupka histogramu.
-     * @param marginLeft       Margines od lewej strony.
-     * @param marginBottom     Margines od dołu.
-     * @param marginTop        Margines od góry.
-     * @param color            Kolor słupków histogramu.
-     * @param useLogScale      Czy używać skali logarytmicznej (opcjonalnie).
+     * Rysowanie histogramu
+     * Działąnie:
+     * - Normalizowanie wartości histogramu na podstawie maxHistogramValue.
+     * - Rysowanie słupków reprezentujących wartości histogramu.
+     * - Dodawanie osi i opisy skali.
      */
     public void drawHistogram(Graphics2D g2d,
                               int[] histogram,

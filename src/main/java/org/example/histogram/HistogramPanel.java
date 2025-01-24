@@ -11,17 +11,15 @@ public class HistogramPanel extends JPanel {
     private final HistogramDataGenerator dataGenerator;
     private final HistogramDrawer drawer;
 
-    private int[][] colorHistograms;   // [3][256] -> R, G, B
-    private int[] overallHistogram;    // [256] -> jasność
+    private int[][] colorHistograms;
+    private int[] overallHistogram;
     private int maxHistogramValue;
     private boolean isColorImage;
 
-    // Marginesy i parametry wizualne
     private static final int MARGIN_LEFT = 40;
     private static final int MARGIN_BOTTOM = 30;
     private static final int MARGIN_TOP = 20;
 
-    // Flaga do przełączania log scale w rysowaniu
     private boolean useLogScale = false;
 
     public HistogramPanel(LUTGenerator lutGenerator, HistogramDataGenerator dataGenerator, HistogramDrawer drawer) {
@@ -43,7 +41,6 @@ public class HistogramPanel extends JPanel {
         showDataButton.addActionListener(e -> showHistogramData());
         buttonPanel.add(showDataButton);
 
-        // Przycisk do przełączania logarytmicznej skali
         JButton toggleLogScale = new JButton("Toggle Log Scale");
         toggleLogScale.addActionListener(e -> {
             useLogScale = !useLogScale;
@@ -65,7 +62,6 @@ public class HistogramPanel extends JPanel {
     private void generateHistograms() {
         isColorImage = isColorImage(image);
 
-        // Overall (grayscale-luminance) histogram
         overallHistogram = dataGenerator.generateOverallHistogram(image);
 
         if (isColorImage) {
@@ -85,8 +81,8 @@ public class HistogramPanel extends JPanel {
     }
 
     /**
-     * Prosta metoda do wykrywania, czy obraz jest "kolorowy".
-     * Sprawdza, czy znajdzie się piksel, w którym R != G lub G != B.
+     * metoda do wykrywania, czy obraz jest "kolorowy".
+     * sprawdza, czy znajdzie się piksel, w którym R != G lub G != B.
      */
     private boolean isColorImage(BufferedImage image) {
         if (image == null) return false;

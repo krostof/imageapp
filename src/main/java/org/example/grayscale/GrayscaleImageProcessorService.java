@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 
 import java.awt.image.BufferedImage;
 
-/**
- * Service for processing grayscale image operations.
- */
 @AllArgsConstructor
 public class GrayscaleImageProcessorService {
 

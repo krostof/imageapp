@@ -16,21 +16,21 @@ public class HistogramDataGenerator {
     }
 
     /**
-     * Generuje histogram "overall" obrazu (jasność), delegując do LUTGenerator.
+     * Generowanie histogramu obrazu
      */
     public int[] generateOverallHistogram(BufferedImage image) {
         return lutGenerator.generateHistogramLUT(image);
     }
 
     /**
-     * Generuje histogramy dla kanałów R, G, B w kolorowym obrazie.
+     * Generowanie histogramu dla kanałów R, G, B w kolorowym obrazie.
      */
     public int[][] generateColorHistograms(BufferedImage image) {
         return lutGenerator.generateColorHistogramsLUT(image);
     }
 
     /**
-     * Generuje LUT do equalizacji histogramu (przydatne np. do wyrównywania kontrastu).
+     * Generowanie LUT do equalizacji histogramu
      */
     public int[] generateEqualizationLUT(BufferedImage image) {
         int[] histogram = generateOverallHistogram(image);
@@ -38,16 +38,10 @@ public class HistogramDataGenerator {
         return lutGenerator.generateEqualizationLUT(histogram, totalPixels);
     }
 
-    /**
-     * Zwraca maksymalną wartość w histogramie.
-     */
     public int getMaxValue(int[] histogram) {
         return Arrays.stream(histogram).max().orElse(0);
     }
 
-    /**
-     * Oblicza średnią jasność na podstawie histogramu.
-     */
     public double calculateMean(int[] histogram) {
         int totalPixels = Arrays.stream(histogram).sum();
         if (totalPixels == 0) return 0.0;
@@ -59,9 +53,6 @@ public class HistogramDataGenerator {
         return sum / totalPixels;
     }
 
-    /**
-     * Oblicza odchylenie standardowe jasności na podstawie histogramu.
-     */
     public double calculateStandardDeviation(int[] histogram, double mean) {
         int totalPixels = Arrays.stream(histogram).sum();
         if (totalPixels == 0) return 0.0;
@@ -73,9 +64,6 @@ public class HistogramDataGenerator {
         return Math.sqrt(varianceSum / totalPixels);
     }
 
-    /**
-     * Oblicza medianę jasności na podstawie histogramu.
-     */
     public int calculateMedian(int[] histogram) {
         int totalPixels = Arrays.stream(histogram).sum();
         if (totalPixels == 0) return 0;
@@ -93,9 +81,6 @@ public class HistogramDataGenerator {
         return medianValue;
     }
 
-    /**
-     * Zwraca dane statystyczne dla histogramu obrazu.
-     */
     public HistogramStatistics calculateStatistics(BufferedImage image) {
         int[] histogram = generateOverallHistogram(image);
         double mean = calculateMean(histogram);
@@ -105,9 +90,6 @@ public class HistogramDataGenerator {
         return new HistogramStatistics(mean, stdDev, median);
     }
 
-    /**
-     * Klasa do przechowywania statystyk histogramu.
-     */
     public static class HistogramStatistics {
         private final double mean;
         private final double standardDeviation;
