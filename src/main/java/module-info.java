@@ -6,6 +6,9 @@ module com.example.imageapp {
     requires opencv;
     requires org.apache.logging.log4j;
     requires static lombok;
+    requires jdk.compiler;
+    requires java.base;
+    exports org.example.appinterface;
 
     exports org.example.projectaverage;
 }

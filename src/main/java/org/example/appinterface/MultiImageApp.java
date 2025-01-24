@@ -1,5 +1,6 @@
 package org.example.appinterface;
 
+import com.sun.tools.javac.Main;
 import lombok.extern.log4j.Log4j2;
 import org.example.*;
 import org.example.grayscale.GrayscaleImageProcessor;
@@ -27,6 +28,9 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1608,9 +1612,49 @@ public class MultiImageApp extends JFrame {
     }
 
 
-    static {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    private static void loadLibrary() {
+        try {
+            String osName = System.getProperty("os.name");
+            String architecture = System.getProperty("sun.arch.data.model");
+
+            String libraryPath = getLibraryPath(osName, architecture);
+            if (libraryPath == null) {
+                throw new UnsupportedOperationException("Unsupported OS or architecture: " + osName + ", " + architecture);
+            }
+
+            InputStream in = Main.class.getResourceAsStream(libraryPath);
+            if (in == null) {
+                throw new RuntimeException("Library not found: " + libraryPath);
+            }
+
+            File tempFile = File.createTempFile("lib", getLibraryExtension(osName));
+            try (OutputStream out = new FileOutputStream(tempFile)) {
+                in.transferTo(out); // Java 9+ feature
+            }
+            System.load(tempFile.getAbsolutePath());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load OpenCV native library", e);
+        }
     }
+
+    private static String getLibraryPath(String osName, String architecture) {
+        if (osName.startsWith("Windows")) {
+            return architecture.equals("64") ? "/opencv/x64/opencv_java245.dll" : "/opencv/x86/opencv_java245.dll";
+        } else if (osName.equals("Mac OS X")) {
+            return "/opencv/mac/libopencv_java245.dylib";
+        }
+        return null;
+    }
+
+    private static String getLibraryExtension(String osName) {
+        if (osName.startsWith("Windows")) {
+            return ".dll";
+        } else if (osName.equals("Mac OS X")) {
+            return ".dylib";
+        }
+        return "";
+    }
+
 
 
     public static void main(String[] args) {
