@@ -29,7 +29,7 @@ public class GUIController {
         removeImageButton = new JButton("Remove Selected Image");
         moveUpButton = new JButton("Move Up");
         moveDownButton = new JButton("Move Down");
-        processButton = new JButton("Process and Create Video");
+        processButton = new JButton("Open New Window");
         averageButton = new JButton("Calculate Overall Average");
     }
 
@@ -77,7 +77,7 @@ public class GUIController {
         removeImageButton.addActionListener(e -> removeSelectedImage());
         moveUpButton.addActionListener(e -> moveSelectedImageUp());
         moveDownButton.addActionListener(e -> moveSelectedImageDown());
-        processButton.addActionListener(e -> processImages());
+        processButton.addActionListener(e -> new VideoPreviewWindow("path/to/your/video"));
         averageButton.addActionListener(e -> calculateOverallAverage());
     }
 
@@ -117,47 +117,6 @@ public class GUIController {
             imageListModel.add(selectedIndex + 1, selectedFile);
             imageList.setSelectedIndex(selectedIndex + 1);
         }
-    }
-
-    private static void processImages() {
-        if (imageListModel.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "No images selected.");
-            return;
-        }
-
-        int windowSize;
-        try {
-            windowSize = Integer.parseInt(windowField.getText());
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "Invalid window size.");
-            return;
-        }
-
-        List<File> selectedImages = Collections.list(imageListModel.elements());
-
-        SwingWorker<String, Void> worker = new SwingWorker<>() {
-            @Override
-            protected String doInBackground() {
-                return ImageAverageProcessor.processImages(selectedImages, windowSize);
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    String outputPath = get();
-                    new VideoPreviewWindow(outputPath);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(
-                            frame,
-                            "Error processing images: " + e.getMessage(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                }
-            }
-        };
-
-        worker.execute();
     }
 
     private static void calculateOverallAverage() {
