@@ -2,7 +2,6 @@ package org.example.projectaverage;
 
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.videoio.VideoWriter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,34 +36,32 @@ public class ImageAverageProcessor {
             throw new IllegalArgumentException("Output path cannot be null or empty.");
         }
 
-        // 1. Wczytanie wszystkich obrazów jako float (CV_32F)
+        // Wczytywanie obrazów
         List<Mat> floatFrames = new ArrayList<>();
         for (File file : imageFiles) {
-            Mat image8U = loadImage(file.getAbsolutePath()); // CV_8U
+            Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
             if (image8U.empty()) {
                 throw new RuntimeException("Could not read image: " + file.getAbsolutePath());
             }
-            // konwersja do float; jeżeli 1 kanał -> CV_32FC1, jeśli 3 kanały -> CV_32FC3
             int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
             Mat image32F = new Mat();
             image8U.convertTo(image32F, floatType);
             floatFrames.add(image32F);
         }
 
-        // 2. Obliczenie uśredniania ruchomego (moving average) w float
+        // Przetwarzanie (moving average)
         List<Mat> processedFloatFrames = calculateMovingAverageFloat(floatFrames, windowSize);
 
-        // 3. Konwersja klatek z float -> 8U (dopiero teraz, po uśrednieniu)
+        // Konwersja klatek do 8-bit
         List<Mat> processed8UFrames = new ArrayList<>();
         for (Mat floatFrame : processedFloatFrames) {
-            // Rzutowanie do 8-bit
             Mat frame8U = new Mat();
             floatFrame.convertTo(frame8U, CvType.CV_8U);
             processed8UFrames.add(frame8U);
         }
 
-        // 4. Tworzymy wideo z klatek 8-bitowych
-        createVideo(processed8UFrames, outputPath);
+        // Tworzenie wideo
+        videoCreator.createVideo(processed8UFrames, outputPath);
 
         return outputPath;
     }
@@ -81,10 +78,10 @@ public class ImageAverageProcessor {
             return "Failed to calculate overall average.";
         }
 
-        Mat sum32F = null; // suma w formacie float
+        Mat sum32F = null;
         int imageCount = 0;
 
-        // Sumujemy obrazy w float (bez saturacji)
+        // sumowanie obrazów
         for (File file : imageFiles) {
             Mat image8U = Imgcodecs.imread(file.getAbsolutePath());
             if (image8U.empty()) {
@@ -92,7 +89,7 @@ public class ImageAverageProcessor {
                 continue;
             }
 
-            // ustalamy, czy CV_32FC1 czy CV_32FC3
+            // ustalanie, czy CV_32FC1 czy CV_32FC3
             int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
             Mat image32F = new Mat();
             image8U.convertTo(image32F, floatType);
@@ -100,7 +97,7 @@ public class ImageAverageProcessor {
             if (sum32F == null) {
                 sum32F = Mat.zeros(image32F.size(), image32F.type());
             } else {
-                // (opcjonalnie) sprawdź, czy rozmiar/typ się zgadza
+                // sprawdźanie, czy rozmiar/typ się zgadzają
                 if (!sum32F.size().equals(image32F.size()) || sum32F.type() != image32F.type()) {
                     return "Failed to calculate overall average. Inconsistent sizes/types.";
                 }
@@ -173,87 +170,5 @@ public class ImageAverageProcessor {
             }
         }
         return resultFrames;
-    }
-
-    /**
-     * Wczytuje obraz w formacie CV_8U (domyślnie BGR).
-     * Zawiera przykład konwersji TIF -> PNG, jeśli to potrzebne.
-     *
-     * @param path  ścieżka do pliku
-     * @return      obiekt Mat w CV_8U
-     */
-    private static Mat loadImage(String path) {
-        Mat image = Imgcodecs.imread(path);
-        if (!image.empty()) {
-            return image;
-        }
-
-        // Przykład konwersji TIF -> PNG
-        if (path.toLowerCase().endsWith(".tif")) {
-            String pngPath = path.replaceAll("(?i)\\.tif$", ".png");
-            File tifFile = new File(path);
-            File pngFile = new File(pngPath);
-
-            if (tifFile.exists() && tifFile.renameTo(pngFile)) {
-                Mat converted = Imgcodecs.imread(pngPath);
-                if (!converted.empty()) {
-                    return converted;
-                }
-            }
-        }
-
-        // Nie udało się wczytać
-        throw new IllegalArgumentException("Cannot load image. Unsupported format or path: " + path);
-    }
-
-    /**
-     * Zapisuje listę klatek 8-bitowych do pliku wideo (AVI).
-     *
-     * @param frames     lista klatek (już w CV_8U)
-     * @param outputPath ścieżka zapisu (np. "C:/video/output.avi")
-     */
-    private static void createVideo(List<Mat> frames, String outputPath) {
-        if (frames.isEmpty()) {
-            System.err.println("No frames to write into video.");
-            return;
-        }
-
-        File outFile = new File(outputPath);
-        File parentDir = outFile.getParentFile();
-        if (parentDir != null && !parentDir.exists()) {
-            parentDir.mkdirs();
-        }
-
-        // Wymiary klatek
-        int width = frames.get(0).cols();
-        int height = frames.get(0).rows();
-        if (width <= 0 || height <= 0) {
-            System.err.println("Invalid frame size: " + width + "x" + height);
-            return;
-        }
-
-        Size frameSize = new Size(width, height);
-
-        // Tworzymy VideoWriter (10 FPS, MJPG)
-        VideoWriter writer = new VideoWriter(
-                outputPath,
-                VideoWriter.fourcc('M','J','P','G'),
-                10,
-                frameSize,
-                true
-        );
-
-        if (!writer.isOpened()) {
-            System.err.println("Failed to open video writer for: " + outputPath);
-            return;
-        }
-
-        // Zapis klatek
-        for (Mat frame : frames) {
-            writer.write(frame);
-        }
-
-        writer.release();
-        System.out.println("Video saved at: " + outputPath);
     }
 }
