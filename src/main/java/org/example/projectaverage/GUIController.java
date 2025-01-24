@@ -19,7 +19,7 @@ public class GUIController {
     private static JButton removeImageButton;
     private static JButton moveUpButton;
     private static JButton moveDownButton;
-    // Zmieniamy nazwę przycisku na „Save video”
+    private static JButton removeAllButton; // Nowy przycisk
     private static JButton saveVideoButton;
     private static JButton averageButton;
 
@@ -32,8 +32,7 @@ public class GUIController {
         removeImageButton = new JButton("Remove Selected Image");
         moveUpButton = new JButton("Move Up");
         moveDownButton = new JButton("Move Down");
-
-        // Przyciski
+        removeAllButton = new JButton("Remove All Images"); // Inicjalizacja przycisku
         saveVideoButton = new JButton("Save video");
         averageButton = new JButton("Calculate Overall Average");
     }
@@ -70,7 +69,7 @@ public class GUIController {
         panel.add(removeImageButton);
         panel.add(moveUpButton);
         panel.add(moveDownButton);
-
+        panel.add(removeAllButton); // Dodanie przycisku
         panel.add(saveVideoButton);
         panel.add(averageButton);
 
@@ -83,17 +82,11 @@ public class GUIController {
         removeImageButton.addActionListener(e -> removeSelectedImage());
         moveUpButton.addActionListener(e -> moveSelectedImageUp());
         moveDownButton.addActionListener(e -> moveSelectedImageDown());
-
-        // Zamiast wyświetlać podgląd wideo, otwieramy okno zapisu
+        removeAllButton.addActionListener(e -> removeAllImages()); // Listener dla nowego przycisku
         saveVideoButton.addActionListener(e -> saveVideo());
-
-        // Obliczanie i wyświetlanie obrazu średniego
         averageButton.addActionListener(e -> calculateOverallAverage());
     }
 
-    /**
-     * Dodajemy obrazy do listy (JFileChooser).
-     */
     private static void addImages() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(true);
@@ -108,9 +101,6 @@ public class GUIController {
         }
     }
 
-    /**
-     * Usuwamy zaznaczony obraz z listy.
-     */
     private static void removeSelectedImage() {
         int selectedIndex = imageList.getSelectedIndex();
         if (selectedIndex != -1) {
@@ -135,6 +125,25 @@ public class GUIController {
             imageListModel.remove(selectedIndex);
             imageListModel.add(selectedIndex + 1, selectedFile);
             imageList.setSelectedIndex(selectedIndex + 1);
+        }
+    }
+
+    private static void removeAllImages() {
+        if (imageListModel.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No images to remove.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                frame,
+                "Are you sure you want to remove all images?",
+                "Confirm Remove All",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            imageListModel.clear();
+            JOptionPane.showMessageDialog(frame, "All images have been removed.");
         }
     }
 
