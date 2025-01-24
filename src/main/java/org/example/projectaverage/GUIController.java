@@ -3,6 +3,8 @@ package org.example.projectaverage;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,7 +19,8 @@ public class GUIController {
     private static JButton removeImageButton;
     private static JButton moveUpButton;
     private static JButton moveDownButton;
-    private static JButton processButton;
+    // Zmieniamy nazwę przycisku na „Save video”
+    private static JButton saveVideoButton;
     private static JButton averageButton;
 
     public GUIController() {
@@ -29,7 +32,9 @@ public class GUIController {
         removeImageButton = new JButton("Remove Selected Image");
         moveUpButton = new JButton("Move Up");
         moveDownButton = new JButton("Move Down");
-        processButton = new JButton("Open New Window");
+
+        // Przyciski
+        saveVideoButton = new JButton("Save video");
         averageButton = new JButton("Calculate Overall Average");
     }
 
@@ -65,7 +70,8 @@ public class GUIController {
         panel.add(removeImageButton);
         panel.add(moveUpButton);
         panel.add(moveDownButton);
-        panel.add(processButton);
+
+        panel.add(saveVideoButton);
         panel.add(averageButton);
 
         initListeners();
@@ -77,14 +83,24 @@ public class GUIController {
         removeImageButton.addActionListener(e -> removeSelectedImage());
         moveUpButton.addActionListener(e -> moveSelectedImageUp());
         moveDownButton.addActionListener(e -> moveSelectedImageDown());
-        processButton.addActionListener(e -> new VideoPreviewWindow("path/to/your/video"));
+
+        // Zamiast wyświetlać podgląd wideo, otwieramy okno zapisu
+        saveVideoButton.addActionListener(e -> saveVideo());
+
+        // Obliczanie i wyświetlanie obrazu średniego
         averageButton.addActionListener(e -> calculateOverallAverage());
     }
 
+    /**
+     * Dodajemy obrazy do listy (JFileChooser).
+     */
     private static void addImages() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(true);
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image Files", "jpg", "png"));
+        fileChooser.setFileFilter(
+                new javax.swing.filechooser.FileNameExtensionFilter("Image Files", "jpg", "png")
+        );
+
         if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
             for (File file : fileChooser.getSelectedFiles()) {
                 imageListModel.addElement(file);
@@ -92,6 +108,9 @@ public class GUIController {
         }
     }
 
+    /**
+     * Usuwamy zaznaczony obraz z listy.
+     */
     private static void removeSelectedImage() {
         int selectedIndex = imageList.getSelectedIndex();
         if (selectedIndex != -1) {
@@ -119,6 +138,73 @@ public class GUIController {
         }
     }
 
+    /**
+     * Zamiast wyświetlać wideo, pytamy o lokalizację do zapisu i tworzymy wideo w tle.
+     */
+    private static void saveVideo() {
+        if (imageListModel.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No images selected.");
+            return;
+        }
+
+        // 1. Pobieramy rozmiar okna uśredniającego
+        int windowSize;
+        try {
+            windowSize = Integer.parseInt(windowField.getText());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame, "Invalid window size.");
+            return;
+        }
+
+        // 2. Wybieramy ścieżkę do zapisu
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File("output_video.avi")); // domyślna nazwa
+        int result = fileChooser.showSaveDialog(frame);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return; // użytkownik zrezygnował
+        }
+        File targetFile = fileChooser.getSelectedFile();
+
+        List<File> selectedImages = Collections.list(imageListModel.elements());
+
+        // 3. Tworzymy wideo w tle (SwingWorker)
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() {
+                // Tutaj musimy mieć metodę w ImageAverageProcessor,
+                // która pozwala określić docelową ścieżkę
+                // np. processImages(List<File>, int, String) albo
+                // processImagesCustomPath(selectedImages, windowSize, targetFile.getAbsolutePath())
+                return ImageAverageProcessor.processImagesToCustomPath(
+                        selectedImages,
+                        windowSize,
+                        targetFile.getAbsolutePath()
+                );
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String outputPath = get();
+                    // Wyświetlamy informację o zapisie
+                    JOptionPane.showMessageDialog(frame,
+                            "Video saved at: " + outputPath);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "Error creating video: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    /**
+     * Obliczanie obrazu średniego i wyświetlanie go w nowym oknie.
+     */
     private static void calculateOverallAverage() {
         if (imageListModel.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "No images selected.");
@@ -137,10 +223,17 @@ public class GUIController {
             protected void done() {
                 try {
                     String outputPath = get();
-                    if (outputPath != null) {
-                        JOptionPane.showMessageDialog(frame, "Overall average image saved at: " + outputPath);
+                    if (outputPath != null && !outputPath.equals("Failed to calculate overall average.")) {
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Overall average image saved at: " + outputPath
+                        );
+                        showAverageImage(outputPath);
                     } else {
-                        JOptionPane.showMessageDialog(frame, "Failed to calculate overall average.");
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                "Failed to calculate overall average."
+                        );
                     }
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(
@@ -152,7 +245,22 @@ public class GUIController {
                 }
             }
         };
-
         worker.execute();
+    }
+
+    /**
+     * Wyświetla wskazany obraz (np. uśredniony) w nowym oknie.
+     */
+    private static void showAverageImage(String imagePath) {
+        JFrame previewFrame = new JFrame("Average Image Preview");
+        previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        ImageIcon icon = new ImageIcon(imagePath);
+        JLabel imageLabel = new JLabel(icon);
+        previewFrame.add(imageLabel, BorderLayout.CENTER);
+
+        previewFrame.pack();
+        previewFrame.setLocationRelativeTo(null);
+        previewFrame.setVisible(true);
     }
 }
