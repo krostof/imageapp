@@ -11,7 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/appinterface/MultiImageApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/GUIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,8 +85,8 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.org.example.appinterface.MultiImageApp">
-    <configuration name="GUIController" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="org.example.projectaverage.GUIController" />
+    <configuration name="ImageAverageInterface" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.projectaverage.ImageAverageInterface" />
       <module name="ImageApp" />
       <extension name="coverage">
         <pattern>
@@ -140,7 +142,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.org.example.appinterface.MultiImageApp" />
-        <item itemvalue="Application.GUIController" />
+        <item itemvalue="Application.ImageAverageInterface" />
         <item itemvalue="Application.MultiImageApp" />
         <item itemvalue="Application.MultiImageInterface" />
       </list>
@@ -204,7 +206,7 @@
       <workItem from="1736800192787" duration="12000" />
       <workItem from="1737476746354" duration="219000" />
       <workItem from="1737666706838" duration="3595000" />
-      <workItem from="1737712221185" duration="11229000" />
+      <workItem from="1737712221185" duration="12786000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />

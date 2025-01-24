@@ -8,21 +8,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Klasa do przetwarzania obrazów przy użyciu OpenCV:
- *  - Tworzenie wideo z ruchomym uśrednianiem (moving average),
- *  - Obliczanie obrazu będącego średnią z podanych plików.
- */
 public class ImageAverageProcessor {
 
+    private static final ImageLoader imageLoader = new ImageLoader();
+    private static final VideoCreator videoCreator = new VideoCreator();
+
     /**
-     * Tworzy wideo z listy plików obrazów przy użyciu uśredniania ruchomego,
-     * zapisując je do wskazanej ścieżki (outputPath).
+     * Przetwarza listę obrazów (moving average), zapisując do określonej ścieżki (AVI).
+     * Uśrednianie klatek odbywa się w formacie float (CV_32F), by uniknąć saturacji.
      *
-     * @param imageFiles  Lista plików obrazów
-     * @param windowSize  Rozmiar okna do uśredniania (moving average)
-     * @param outputPath  Docelowa ścieżka pliku wideo (np. "C:/video/output_video.avi")
-     * @return            Ta sama ścieżka (outputPath), jeżeli zapis się powiedzie
+     * @param imageFiles  lista plików obrazów
+     * @param windowSize  rozmiar okna do ruchomego uśredniania
+     * @param outputPath  docelowa ścieżka pliku wideo (np. "C:/video/output_video.avi")
+     * @return            ścieżka zapisu wideo
      */
     public static String processImagesToCustomPath(
             List<File> imageFiles,
@@ -39,77 +37,94 @@ public class ImageAverageProcessor {
             throw new IllegalArgumentException("Output path cannot be null or empty.");
         }
 
-        // 1. Wczytanie wszystkich klatek (Mat) z plików
-        List<Mat> frames = new ArrayList<>();
+        // 1. Wczytanie wszystkich obrazów jako float (CV_32F)
+        List<Mat> floatFrames = new ArrayList<>();
         for (File file : imageFiles) {
-            Mat image = loadImage(file.getAbsolutePath());
-            if (image.empty()) {
+            Mat image8U = loadImage(file.getAbsolutePath()); // CV_8U
+            if (image8U.empty()) {
                 throw new RuntimeException("Could not read image: " + file.getAbsolutePath());
             }
-            frames.add(image);
+            // konwersja do float; jeżeli 1 kanał -> CV_32FC1, jeśli 3 kanały -> CV_32FC3
+            int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
+            Mat image32F = new Mat();
+            image8U.convertTo(image32F, floatType);
+            floatFrames.add(image32F);
         }
 
-        // 2. Przetwarzanie (uśrednianie ruchome)
-        List<Mat> processedFrames = calculateMovingAverage(frames, windowSize);
+        // 2. Obliczenie uśredniania ruchomego (moving average) w float
+        List<Mat> processedFloatFrames = calculateMovingAverageFloat(floatFrames, windowSize);
 
-        // 3. Utworzenie wideo w docelowej lokalizacji
-        createVideo(processedFrames, outputPath);
+        // 3. Konwersja klatek z float -> 8U (dopiero teraz, po uśrednieniu)
+        List<Mat> processed8UFrames = new ArrayList<>();
+        for (Mat floatFrame : processedFloatFrames) {
+            // Rzutowanie do 8-bit
+            Mat frame8U = new Mat();
+            floatFrame.convertTo(frame8U, CvType.CV_8U);
+            processed8UFrames.add(frame8U);
+        }
 
-        // Zwracamy ścieżkę, aby GUI mogło poinformować użytkownika
+        // 4. Tworzymy wideo z klatek 8-bitowych
+        createVideo(processed8UFrames, outputPath);
+
         return outputPath;
     }
 
     /**
-     * Oblicza obraz będący średnią ze wszystkich podanych plików.
-     * Zwraca ścieżkę do zapisanego obrazu (np. overall_average.jpg).
+     * Oblicza obraz będący średnią ze wszystkich plików, używając formatu float w trakcie sumowania.
+     * Zwraca ścieżkę do zapisanego pliku (np. "overall_average.jpg").
      *
-     * @param imageFiles Lista plików obrazów
-     * @return           Ścieżka do wygenerowanego obrazu,
-     *                   lub napis "Failed to calculate overall average." w razie niepowodzenia
+     * @param imageFiles  lista plików obrazów
+     * @return            ścieżka do zapisanego uśrednionego obrazu albo komunikat o niepowodzeniu
      */
     public static String calculateOverallAverage(List<File> imageFiles) {
         if (imageFiles == null || imageFiles.isEmpty()) {
             return "Failed to calculate overall average.";
         }
 
-        Mat sum = null;
+        Mat sum32F = null; // suma w formacie float
         int imageCount = 0;
 
-        // Sumowanie wszystkich obrazów
+        // Sumujemy obrazy w float (bez saturacji)
         for (File file : imageFiles) {
-            Mat image = Imgcodecs.imread(file.getAbsolutePath());
-            if (image.empty()) {
+            Mat image8U = Imgcodecs.imread(file.getAbsolutePath());
+            if (image8U.empty()) {
                 System.err.println("Cannot read image: " + file.getAbsolutePath());
-                continue; // Możesz też rzucić wyjątek, jeśli wolisz przerwać od razu
+                continue;
             }
 
-            if (sum == null) {
-                // Pierwszy obraz ustala rozmiar i typ
-                sum = Mat.zeros(image.size(), image.type());
+            // ustalamy, czy CV_32FC1 czy CV_32FC3
+            int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
+            Mat image32F = new Mat();
+            image8U.convertTo(image32F, floatType);
+
+            if (sum32F == null) {
+                sum32F = Mat.zeros(image32F.size(), image32F.type());
             } else {
-                // (opcjonalnie) można sprawdzić, czy ma te same wymiary i typ
-                if (!sum.size().equals(image.size()) || sum.type() != image.type()) {
-                    return "Failed to calculate overall average. Inconsistent image sizes/types.";
+                // (opcjonalnie) sprawdź, czy rozmiar/typ się zgadza
+                if (!sum32F.size().equals(image32F.size()) || sum32F.type() != image32F.type()) {
+                    return "Failed to calculate overall average. Inconsistent sizes/types.";
                 }
             }
 
-            Core.add(sum, image, sum);
+            Core.add(sum32F, image32F, sum32F);
             imageCount++;
         }
 
-        if (sum == null || imageCount == 0) {
+        if (sum32F == null || imageCount == 0) {
             return "Failed to calculate overall average. No valid images.";
         }
 
-        // Dzielenie przez liczbę obrazów
-        Mat average = new Mat();
-        Core.divide(sum, Scalar.all(imageCount), average);
+        // Dzielenie float
+        Core.divide(sum32F, Scalar.all(imageCount), sum32F);
 
-        // Zapis do pliku
+        // Konwersja wyniku do 8-bit, aby zapisać normalnie
+        Mat avg8U = new Mat();
+        sum32F.convertTo(avg8U, CvType.CV_8U);
+
+        // Zapis pliku
         File firstFile = imageFiles.get(0);
         File parentDir = firstFile.getParentFile();
         if (parentDir == null) {
-            // jeśli plik jest w bieżącym folderze i getParentFile() zwraca null
             parentDir = new File(".");
         }
         if (!parentDir.exists()) {
@@ -117,37 +132,43 @@ public class ImageAverageProcessor {
         }
 
         String outputPath = new File(parentDir, "overall_average.jpg").getAbsolutePath();
-        boolean success = Imgcodecs.imwrite(outputPath, average);
+        boolean success = Imgcodecs.imwrite(outputPath, avg8U);
         if (!success) {
             return "Failed to calculate overall average. Could not write file.";
         }
+
         return outputPath;
     }
 
     /**
-     * Metoda pomocnicza wykonująca uśrednianie ruchome (moving average) na liście klatek.
+     * Funkcja obliczająca ruchome uśrednianie (moving average) w formacie float.
+     * Zwraca listę klatek float (niesaturujących się).
      *
-     * @param frames      Lista wczytanych klatek (Mat)
-     * @param windowSize  Rozmiar okna
-     * @return            Lista przetworzonych klatek
+     * @param frames      lista klatek w formacie CV_32F
+     * @param windowSize  rozmiar okna
+     * @return            lista nowych klatek float po uśrednieniu
      */
-    private static List<Mat> calculateMovingAverage(List<Mat> frames, int windowSize) {
+    private static List<Mat> calculateMovingAverageFloat(List<Mat> frames, int windowSize) {
         List<Mat> resultFrames = new ArrayList<>();
         if (frames.isEmpty()) {
             return resultFrames;
         }
 
+        // Suma w float
         Mat sum = Mat.zeros(frames.get(0).size(), frames.get(0).type());
 
         for (int i = 0; i < frames.size(); i++) {
             Core.add(sum, frames.get(i), sum);
 
             if (i >= windowSize - 1) {
-                // Wyliczamy średnią dla aktualnego "okna"
-                Mat average = calculateAverage(sum, windowSize);
-                resultFrames.add(average);
+                // Obliczamy średnią w float: sum / windowSize
+                Mat avgFloat = new Mat();
+                Core.divide(sum, Scalar.all(windowSize), avgFloat);
 
-                // Usuwamy "najstarszą" klatkę z sumy
+                // Dodajemy do wyniku klatkę w formacie float (jeszcze nie 8-bit)
+                resultFrames.add(avgFloat);
+
+                // Odejmujemy najstarszą klatkę
                 Core.subtract(sum, frames.get(i - windowSize + 1), sum);
             }
         }
@@ -155,18 +176,11 @@ public class ImageAverageProcessor {
     }
 
     /**
-     * Metoda pomocnicza do wyliczenia średniej z sumy pikseli (sum / windowSize).
-     */
-    private static Mat calculateAverage(Mat sum, int windowSize) {
-        Mat average = new Mat();
-        Core.divide(sum, Scalar.all(windowSize), average);
-        return average;
-    }
-
-    /**
-     * Wczytuje obraz jako Mat z podanej ścieżki.
-     * Zawiera przykładowy workaround dla .TIF -> .png,
-     * jeśli potrzebujesz obsługi plików TIFF.
+     * Wczytuje obraz w formacie CV_8U (domyślnie BGR).
+     * Zawiera przykład konwersji TIF -> PNG, jeśli to potrzebne.
+     *
+     * @param path  ścieżka do pliku
+     * @return      obiekt Mat w CV_8U
      */
     private static Mat loadImage(String path) {
         Mat image = Imgcodecs.imread(path);
@@ -174,7 +188,7 @@ public class ImageAverageProcessor {
             return image;
         }
 
-        // Ewentualna konwersja TIF -> PNG
+        // Przykład konwersji TIF -> PNG
         if (path.toLowerCase().endsWith(".tif")) {
             String pngPath = path.replaceAll("(?i)\\.tif$", ".png");
             File tifFile = new File(path);
@@ -188,15 +202,15 @@ public class ImageAverageProcessor {
             }
         }
 
-        // Jeśli nie udało się wczytać obrazu
+        // Nie udało się wczytać
         throw new IllegalArgumentException("Cannot load image. Unsupported format or path: " + path);
     }
 
     /**
-     * Zapisuje listę klatek do pliku wideo (.avi) w zadanej ścieżce.
+     * Zapisuje listę klatek 8-bitowych do pliku wideo (AVI).
      *
-     * @param frames      Lista klatek (Mat)
-     * @param outputPath  Ścieżka docelowa
+     * @param frames     lista klatek (już w CV_8U)
+     * @param outputPath ścieżka zapisu (np. "C:/video/output.avi")
      */
     private static void createVideo(List<Mat> frames, String outputPath) {
         if (frames.isEmpty()) {
@@ -210,6 +224,7 @@ public class ImageAverageProcessor {
             parentDir.mkdirs();
         }
 
+        // Wymiary klatek
         int width = frames.get(0).cols();
         int height = frames.get(0).rows();
         if (width <= 0 || height <= 0) {
@@ -219,7 +234,7 @@ public class ImageAverageProcessor {
 
         Size frameSize = new Size(width, height);
 
-        // Tworzymy VideoWriter (10 FPS, kodek MJPG)
+        // Tworzymy VideoWriter (10 FPS, MJPG)
         VideoWriter writer = new VideoWriter(
                 outputPath,
                 VideoWriter.fourcc('M','J','P','G'),
@@ -233,6 +248,7 @@ public class ImageAverageProcessor {
             return;
         }
 
+        // Zapis klatek
         for (Mat frame : frames) {
             writer.write(frame);
         }

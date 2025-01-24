@@ -12,7 +12,7 @@ import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
-import org.example.projectaverage.GUIController;
+import org.example.projectaverage.ImageAverageInterface;
 import org.example.segmentaionlab5.MorphologyProcessor;
 import org.example.segmentaionlab5.SegmentationProcessor;
 import org.example.segmentaionlab5.SkeletonizationProcessor;
@@ -168,7 +168,7 @@ public class MultiImageApp extends JFrame {
 
         JMenuItem openGUIControllerMenuItem = new JMenuItem("Open GUI Controller");
         openGUIControllerMenuItem.addActionListener(e -> {
-            GUIController controller = new GUIController();
+            ImageAverageInterface controller = new ImageAverageInterface();
             controller.createAndShowGUI();
         });
 

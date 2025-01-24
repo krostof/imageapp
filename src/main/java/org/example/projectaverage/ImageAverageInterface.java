@@ -3,12 +3,10 @@ package org.example.projectaverage;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
-public class GUIController {
+public class ImageAverageInterface {
 
     private static JFrame frame;
     private static DefaultListModel<File> imageListModel;
@@ -23,7 +21,7 @@ public class GUIController {
     private static JButton saveVideoButton;
     private static JButton averageButton;
 
-    public GUIController() {
+    public ImageAverageInterface() {
         imageListModel = new DefaultListModel<>();
         imageList = new JList<>(imageListModel);
         windowField = new JTextField("3", 5);
