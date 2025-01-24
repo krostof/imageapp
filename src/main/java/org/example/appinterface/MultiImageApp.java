@@ -128,7 +128,7 @@ public class MultiImageApp extends JFrame {
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
 
-        JMenu averageMenu = new JMenu("Average");
+        JMenu averageMenu = new JMenu("Project Average");
 
         JMenu operationsMenu = new JMenu("Operations");
         JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
@@ -166,7 +166,7 @@ public class MultiImageApp extends JFrame {
             }
         });
 
-        JMenuItem openGUIControllerMenuItem = new JMenuItem("Open GUI Controller");
+        JMenuItem openGUIControllerMenuItem = new JMenuItem("Calculate Image Average ");
         openGUIControllerMenuItem.addActionListener(e -> {
             ImageAverageInterface controller = new ImageAverageInterface();
             controller.createAndShowGUI();

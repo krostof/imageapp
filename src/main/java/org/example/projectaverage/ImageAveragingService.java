@@ -18,7 +18,6 @@ public class ImageAveragingService {
             throw new IllegalArgumentException("No frames provided for averaging.");
         }
 
-        // np. CV_32FC3 lub CV_32FC1
         Mat sum = Mat.zeros(frames.get(0).size(), frames.get(0).type());
         for (Mat frame : frames) {
             Core.add(sum, frame, sum);

@@ -17,7 +17,7 @@ public class ImageAverageInterface {
     private static JButton removeImageButton;
     private static JButton moveUpButton;
     private static JButton moveDownButton;
-    private static JButton removeAllButton; // Nowy przycisk
+    private static JButton removeAllButton;
     private static JButton saveVideoButton;
     private static JButton averageButton;
 
@@ -28,9 +28,9 @@ public class ImageAverageInterface {
 
         addImagesButton = new JButton("Add Images");
         removeImageButton = new JButton("Remove Selected Image");
+        removeAllButton = new JButton("Remove All Images");
         moveUpButton = new JButton("Move Up");
         moveDownButton = new JButton("Move Down");
-        removeAllButton = new JButton("Remove All Images"); // Inicjalizacja przycisku
         saveVideoButton = new JButton("Save video");
         averageButton = new JButton("Calculate Overall Average");
     }
@@ -38,7 +38,7 @@ public class ImageAverageInterface {
     public static void createAndShowGUI() {
         frame = new JFrame("Image Sequence Processor");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(1200, 400);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(createListPanel(), BorderLayout.CENTER);
@@ -65,9 +65,9 @@ public class ImageAverageInterface {
 
         panel.add(addImagesButton);
         panel.add(removeImageButton);
+        panel.add(removeAllButton);
         panel.add(moveUpButton);
         panel.add(moveDownButton);
-        panel.add(removeAllButton); // Dodanie przycisku
         panel.add(saveVideoButton);
         panel.add(averageButton);
 
@@ -145,16 +145,12 @@ public class ImageAverageInterface {
         }
     }
 
-    /**
-     * Zamiast wyświetlać wideo, pytamy o lokalizację do zapisu i tworzymy wideo w tle.
-     */
     private static void saveVideo() {
         if (imageListModel.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "No images selected.");
             return;
         }
 
-        // 1. Pobieramy rozmiar okna uśredniającego
         int windowSize;
         try {
             windowSize = Integer.parseInt(windowField.getText());
@@ -163,12 +159,11 @@ public class ImageAverageInterface {
             return;
         }
 
-        // 2. Wybieramy ścieżkę do zapisu
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setSelectedFile(new File("output_video.avi")); // domyślna nazwa
+        fileChooser.setSelectedFile(new File("output_video.avi"));
         int result = fileChooser.showSaveDialog(frame);
         if (result != JFileChooser.APPROVE_OPTION) {
-            return; // użytkownik zrezygnował
+            return;
         }
         File targetFile = fileChooser.getSelectedFile();
 
