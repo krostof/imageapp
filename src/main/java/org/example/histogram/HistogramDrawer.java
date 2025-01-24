@@ -60,16 +60,16 @@ public class HistogramDrawer {
             g2d.fillRect(x, y, binWidth, barHeight);
         }
 
-        // Rysowanie osi X i Y
+        // osie X i Y
         g2d.setColor(Color.BLACK);
         g2d.drawLine(marginLeft, height - marginBottom, width - marginLeft, height - marginBottom); // Oś X
         g2d.drawLine(marginLeft, marginTop, marginLeft, height - marginBottom); // Oś Y
 
-        // Etykiety osi X (0 i 255)
+        // osie X (0 i 255)
         g2d.drawString("0", marginLeft - 10, height - marginBottom + 15);
         g2d.drawString("255", width - marginLeft - 20, height - marginBottom + 15);
 
-        // Etykiety osi Y (0 i maxHistogramValue)
+        // osie Y (0 i maxHistogramValue)
         g2d.drawString("0", marginLeft - 25, height - marginBottom);
         g2d.drawString(String.valueOf(maxHistogramValue), marginLeft - 35, marginTop + 10);
     }

@@ -647,7 +647,7 @@ public class MultiImageApp extends JFrame {
         });
 
 // Następnie dodajemy convertTo8BitItem do odpowiedniego menu:
-        pointOperationsMenu.add(convertTo8BitItem); // lub operationsMenu.add(convertTo8BitItem);
+//        pointOperationsMenu.add(convertTo8BitItem);
 
         JMenuItem skeletonItem = new JMenuItem("Skeletonize");
         skeletonItem.addActionListener(e -> {
@@ -1044,11 +1044,9 @@ public class MultiImageApp extends JFrame {
 
     private JMenu createSmoothingMenu() {
         JMenu smoothingMenu = new JMenu("Smoothing");
-
         // Average Smoothing
-        JMenuItem averageItem = new JMenuItem("Average Smoothing");
-        averageItem.addActionListener(e -> applySmoothing("average"));
-
+//        JMenuItem averageItem = new JMenuItem("Average Smoothing");
+//        averageItem.addActionListener(e -> applySmoothing("average"));
         // Weighted Average Smoothing
         JMenuItem weightedItem = new JMenuItem("Weighted Average Smoothing");
         weightedItem.addActionListener(e -> applySmoothing("weighted_average"));
@@ -1062,14 +1060,14 @@ public class MultiImageApp extends JFrame {
         laplacianSharpeningItem.addActionListener(e -> applyLaplacianSharpening());
 
         // Adding items to the menu
-        smoothingMenu.add(averageItem);
+//        smoothingMenu.add(averageItem);
         smoothingMenu.add(weightedItem);
         smoothingMenu.add(gaussianItem);
         smoothingMenu.add(laplacianSharpeningItem);
 
         // Additional methods (if implemented elsewhere)
         addPrewittEdgeDetectionMenu(smoothingMenu);
-        addBorderFillMenu(smoothingMenu);
+//        addBorderFillMenu(smoothingMenu);
         addMedianFilterMenu(smoothingMenu);
         addCannyEdgeDetectionMenu(smoothingMenu);
 
@@ -1198,70 +1196,70 @@ public class MultiImageApp extends JFrame {
     }
 
 
-    private void addBorderFillMenu(JMenu menu) {
-        JMenuItem borderFillItem = new JMenuItem("Apply Border Fill");
-        borderFillItem.addActionListener(e -> {
-            if (selectedImage == null) {
-                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
-            String borderType = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Select border type:",
-                    "Border Fill",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    borderOptions,
-                    borderOptions[0]
-            );
-
-            if (borderType == null) {
-                return;
-            }
-
-            int borderTypeCode;
-            int constantValue = 0;
-
-            switch (borderType.toLowerCase()) {
-                case "constant":
-                    borderTypeCode = Core.BORDER_CONSTANT;
-                    String input = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
-                    try {
-                        constantValue = Integer.parseInt(input);
-                        if (constantValue < 0 || constantValue > 255) {
-                            throw new NumberFormatException();
-                        }
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(this, "Invalid constant value. Please enter a number between 0 and 255.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    break;
-
-                case "reflect":
-                    borderTypeCode = Core.BORDER_REFLECT;
-                    break;
-
-                case "replicate":
-                    borderTypeCode = Core.BORDER_REPLICATE;
-                    break;
-
-                default:
-                    JOptionPane.showMessageDialog(this, "Invalid border type selected.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-            }
-
-            // Aplikacja wypełnienia marginesów
-            try {
-                BufferedImage resultImage = imageService.applyBorderFill(selectedImage.getImage(), borderTypeCode, constantValue);
-                selectedImage.updateImage(resultImage);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error applying border fill: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        menu.add(borderFillItem);
-    }
+//    private void addBorderFillMenu(JMenu menu) {
+//        JMenuItem borderFillItem = new JMenuItem("Apply Border Fill");
+//        borderFillItem.addActionListener(e -> {
+//            if (selectedImage == null) {
+//                JOptionPane.showMessageDialog(this, "No image selected.", "Error", JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
+//
+//            String[] borderOptions = {"Constant", "Reflect", "Replicate"};
+//            String borderType = (String) JOptionPane.showInputDialog(
+//                    this,
+//                    "Select border type:",
+//                    "Border Fill",
+//                    JOptionPane.PLAIN_MESSAGE,
+//                    null,
+//                    borderOptions,
+//                    borderOptions[0]
+//            );
+//
+//            if (borderType == null) {
+//                return;
+//            }
+//
+//            int borderTypeCode;
+//            int constantValue = 0;
+//
+//            switch (borderType.toLowerCase()) {
+//                case "constant":
+//                    borderTypeCode = Core.BORDER_CONSTANT;
+//                    String input = JOptionPane.showInputDialog(this, "Enter constant value (0-255):", "128");
+//                    try {
+//                        constantValue = Integer.parseInt(input);
+//                        if (constantValue < 0 || constantValue > 255) {
+//                            throw new NumberFormatException();
+//                        }
+//                    } catch (NumberFormatException ex) {
+//                        JOptionPane.showMessageDialog(this, "Invalid constant value. Please enter a number between 0 and 255.", "Error", JOptionPane.ERROR_MESSAGE);
+//                        return;
+//                    }
+//                    break;
+//
+//                case "reflect":
+//                    borderTypeCode = Core.BORDER_REFLECT;
+//                    break;
+//
+//                case "replicate":
+//                    borderTypeCode = Core.BORDER_REPLICATE;
+//                    break;
+//
+//                default:
+//                    JOptionPane.showMessageDialog(this, "Invalid border type selected.", "Error", JOptionPane.ERROR_MESSAGE);
+//                    return;
+//            }
+//
+//            // Aplikacja wypełnienia marginesów
+//            try {
+//                BufferedImage resultImage = imageService.applyBorderFill(selectedImage.getImage(), borderTypeCode, constantValue);
+//                selectedImage.updateImage(resultImage);
+//            } catch (Exception ex) {
+//                JOptionPane.showMessageDialog(this, "Error applying border fill: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//            }
+//        });
+//        menu.add(borderFillItem);
+//    }
 
 
     private void applyLaplacianSharpening() {
