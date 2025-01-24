@@ -15,7 +15,7 @@ import java.util.Map;
 public class PrewittEdgeDetector {
 
     static {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME); // np. "opencv_java4100"
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
     // Mapa: "E" -> kernel, "SE" -> kernel itd.

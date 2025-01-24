@@ -12,6 +12,7 @@ import org.example.linearops.*;
 import org.example.linearstreach.LinearStretchProcessor;
 import org.example.mathoperations.LogicalImageProcessor;
 import org.example.mathoperations.MultiArgumentImageProcessor;
+import org.example.projectaverage.GUIController;
 import org.example.segmentaionlab5.MorphologyProcessor;
 import org.example.segmentaionlab5.SegmentationProcessor;
 import org.example.segmentaionlab5.SkeletonizationProcessor;
@@ -127,6 +128,8 @@ public class MultiImageApp extends JFrame {
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
 
+        JMenu averageMenu = new JMenu("Average");
+
         JMenu operationsMenu = new JMenu("Operations");
         JMenuItem duplicateMenuItem = new JMenuItem("Duplicate Image");
         duplicateMenuItem.addActionListener(e -> {
@@ -162,6 +165,10 @@ public class MultiImageApp extends JFrame {
                 applyHistogramEqualization(selectedImage, selectedImage.getImage());
             }
         });
+
+        JMenuItem openGUIControllerMenuItem = new JMenuItem("Open GUI Controller");
+        openGUIControllerMenuItem.addActionListener(e -> GUIController.createAndShowGUI());
+        averageMenu.add(openGUIControllerMenuItem);
 
         JMenuItem negateMenuItem = new JMenuItem("Negate Image");
         negateMenuItem.addActionListener(e -> {
@@ -791,6 +798,7 @@ public class MultiImageApp extends JFrame {
         menuBar.add(operationsMenu);
         menuBar.add(pointOperationsMenu);
         menuBar.add(mathMenu);
+        menuBar.add(averageMenu);
 
         setJMenuBar(menuBar);
     }
@@ -1603,5 +1611,6 @@ public class MultiImageApp extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(MultiImageApp::new);
+//        javax.swing.SwingUtilities.invokeLater(GUIController::createAndShowGUI);
     }
 }
