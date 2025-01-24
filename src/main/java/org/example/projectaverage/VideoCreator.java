@@ -10,8 +10,7 @@ import java.util.List;
 public class VideoCreator {
 
     /**
-     * Tworzy plik wideo (AVI) z listy klatek w formacie CV_8U.
-     *
+     * Tworzy plik wideo z listy klatek w formacie.
      * @param frames lista klatek wideo
      * @param outputPath ścieżka docelowa pliku wideo
      */
@@ -36,7 +35,6 @@ public class VideoCreator {
 
         Size frameSize = new Size(width, height);
 
-        // Tworzenie VideoWriter (10 FPS, MJPG)
         VideoWriter writer = new VideoWriter(
                 outputPath,
                 VideoWriter.fourcc('M', 'J', 'P', 'G'),

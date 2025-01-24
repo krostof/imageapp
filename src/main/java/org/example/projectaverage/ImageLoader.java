@@ -8,9 +8,7 @@ import java.io.File;
 public class ImageLoader {
 
     /**
-     * Wczytuje obraz w formacie CV_8U (domyślnie BGR).
-     * Obsługuje także konwersję plików TIF -> PNG.
-     *
+     * Wczytuje obraz
      * @param path ścieżka do pliku
      * @return obiekt Mat w formacie CV_8U
      */
@@ -20,7 +18,6 @@ public class ImageLoader {
             return image;
         }
 
-        // Obsługa konwersji TIF -> PNG
         if (path.toLowerCase().endsWith(".tif")) {
             String pngPath = path.replaceAll("(?i)\\.tif$", ".png");
             File tifFile = new File(path);

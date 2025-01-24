@@ -10,8 +10,7 @@ import java.util.List;
 public class ImageAveragingService {
 
     /**
-     * Oblicza średni obraz ze wszystkich dostarczonych *floatowych* obrazów.
-     * Zakładamy, że klatki są w CV_32F (1 lub 3 kanały).
+     * Oblicza średni obraz ze wszystkich dostarczonych obrazów.
      */
     public Mat calculateOverallAverage(List<Mat> frames) {
         if (frames.isEmpty()) {
@@ -25,12 +24,11 @@ public class ImageAveragingService {
 
         Mat average = new Mat();
         Core.divide(sum, Scalar.all(frames.size()), average);
-        return average; // pozostaje w float
+        return average;
     }
 
     /**
-     * Oblicza ruchome uśrednianie (moving average) na liście *floatowych* obrazów.
-     * frames -> CV_32F
+     * Oblicza średnią kroczącą na liście obrazów.
      */
     public List<Mat> calculateMovingAverage(List<Mat> frames, int windowSize) {
         List<Mat> resultFrames = new ArrayList<>();
@@ -38,7 +36,6 @@ public class ImageAveragingService {
             return resultFrames;
         }
 
-        // Tworzymy 'sum' w tym samym formacie float
         Mat sum = Mat.zeros(frames.get(0).size(), frames.get(0).type());
 
         for (int i = 0; i < frames.size(); i++) {

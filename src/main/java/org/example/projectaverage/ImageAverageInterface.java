@@ -215,17 +215,26 @@ public class ImageAverageInterface {
 
         List<File> selectedImages = Collections.list(imageListModel.elements());
 
+        // Okno wyboru lokalizacji zapisu
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File("overall_average.jpg")); // domyślna nazwa pliku
+        int result = fileChooser.showSaveDialog(frame);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return; // Użytkownik anulował wybór
+        }
+        File outputFile = fileChooser.getSelectedFile();
+
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() {
-                return ImageAverageProcessor.calculateOverallAverage(selectedImages);
+                return ImageAverageProcessor.calculateOverallAverage(selectedImages, outputFile.getAbsolutePath());
             }
 
             @Override
             protected void done() {
                 try {
                     String outputPath = get();
-                    if (outputPath != null && !outputPath.equals("Failed to calculate overall average.")) {
+                    if (outputPath != null) {
                         JOptionPane.showMessageDialog(
                                 frame,
                                 "Overall average image saved at: " + outputPath
@@ -247,8 +256,10 @@ public class ImageAverageInterface {
                 }
             }
         };
+
         worker.execute();
     }
+
 
     /**
      * Wyświetla wskazany obraz (np. uśredniony) w nowym oknie.

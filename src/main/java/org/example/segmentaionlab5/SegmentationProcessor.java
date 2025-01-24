@@ -26,7 +26,6 @@ public class SegmentationProcessor {
 
     /**
      * Progowanie z dwoma progami p1, p2 (zwracamy obraz 3-wartościowy: <p1=0, p1..p2=127, >p2=255).
-     * Można zmienić logikę wg potrzeb, np. w [p1..p2] = 255, poza nim = 0.
      */
     public BufferedImage doubleThreshold(BufferedImage input, int p1, int p2) {
         Mat src = bufferedImageToMat(input);

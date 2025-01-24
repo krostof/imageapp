@@ -10,7 +10,6 @@ import java.util.List;
 
 public class ImageAverageProcessor {
 
-    // Te obiekty inicjalizowane są raz (lub w konstruktorze).
     private static ImageLoader imageLoader = new ImageLoader();
     private static VideoCreator videoCreator = new VideoCreator();
     private static ImageAveragingService averagingService = new ImageAveragingService();
@@ -22,9 +21,8 @@ public class ImageAverageProcessor {
     }
 
     /**
-     * Przetwarza listę obrazów (ruchome uśrednianie) i zapisuje do wideo
-     * w lokalizacji wskazanej przez 'outputPath'.
-     * Wszystko w float, by uniknąć saturacji 8-bitowej.
+     * Przetwarza listę obrazów i zapisuje do wideo
+     * w lokalizacji wskazanej przez użytkownika
      */
     public static String processImagesToCustomPath(List<File> imageFiles, int windowSize, String outputPath) {
         if (imageFiles == null || imageFiles.isEmpty()) {
@@ -37,7 +35,6 @@ public class ImageAverageProcessor {
             throw new IllegalArgumentException("Output path cannot be null or empty.");
         }
 
-        // 1. Wczytanie obrazów (8-bit), konwersja do float (CV_32F)
         List<Mat> floatFrames = new ArrayList<>();
         for (File file : imageFiles) {
             Mat image8U = imageLoader.loadImage(file.getAbsolutePath()); // CV_8U
@@ -67,7 +64,7 @@ public class ImageAverageProcessor {
      * Oblicza obraz będący średnią ze wszystkich podanych plików i zapisuje go w
      * folderze pierwszego pliku jako 'overall_average.jpg'.
      */
-    public static String calculateOverallAverage(List<File> imageFiles) {
+    public static String calculateOverallAverage(List<File> imageFiles, String outputPath) {
         if (imageFiles == null || imageFiles.isEmpty()) {
             throw new IllegalArgumentException("No image files provided for averaging.");
         }
@@ -93,8 +90,7 @@ public class ImageAverageProcessor {
         Mat average8U = new Mat();
         averageFloat.convertTo(average8U, CvType.CV_8U);
 
-        // Zakładamy, że zapiszemy w folderze pierwszego obrazu
-        String outputPath = imageFiles.get(0).getParent() + "/overall_average.jpg";
+        // Zapis do wskazanej lokalizacji
         boolean success = Imgcodecs.imwrite(outputPath, average8U);
         if (!success) {
             throw new RuntimeException("Failed to save average image.");
@@ -102,4 +98,5 @@ public class ImageAverageProcessor {
 
         return outputPath;
     }
+
 }
