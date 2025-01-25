@@ -56,7 +56,7 @@ public class ImageAveragingService {
                 // Dodanie wynikowego obrazu do listy wynikowej
                 resultFrames.add(average);
 
-                // Usunięcie najstarszego obraz z sumy, przesuwając okno
+                // Odjęcie najstarszego obraz z sumy, przesunięcie okna
                 Core.subtract(sum, frames.get(i - windowSize + 1), sum);
             }
         }

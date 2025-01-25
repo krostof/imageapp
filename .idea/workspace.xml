@@ -9,11 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes">
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/ImageApp_jar.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/ImageApp_jar2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/projectaverage/ImageAverageProcessor.java" afterDir="false" />
-    </list>
+    <list default="true" id="b2af56d4-2298-4915-9791-d4bb0de3b96e" name="Changes" comment="drawHistogram changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -210,7 +206,7 @@
       <workItem from="1736800192787" duration="12000" />
       <workItem from="1737476746354" duration="219000" />
       <workItem from="1737666706838" duration="3595000" />
-      <workItem from="1737712221185" duration="30663000" />
+      <workItem from="1737712221185" duration="31294000" />
     </task>
     <task id="LOCAL-00001" summary="first commit, interface was created, methods duplicate, save and delete were added, histogram creator">
       <option name="closed" value="true" />
