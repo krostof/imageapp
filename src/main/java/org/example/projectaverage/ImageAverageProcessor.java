@@ -10,99 +10,47 @@ import java.util.List;
 
 public class ImageAverageProcessor {
 
-    private static ImageLoader imageLoader = new ImageLoader();
-    private static VideoCreator videoCreator = new VideoCreator();
-    private static ImageAveragingService averagingService = new ImageAveragingService();
-
-    public ImageAverageProcessor() {
-        this.imageLoader = new ImageLoader();
-        this.videoCreator = new VideoCreator();
-        this.averagingService = new ImageAveragingService();
-    }
+    private static final ImageLoader imageLoader = new ImageLoader();
+    private static final VideoCreator videoCreator = new VideoCreator();
+    private static final ImageAveragingService averagingService = new ImageAveragingService();
 
     /**
      * Przetwarza listę obrazów i zapisuje do wideo
-     * w lokalizacji wskazanej przez użytkownika
+     * w lokalizacji wskazanej przez użytkownika.
      */
     public static String processImagesToCustomPath(List<File> imageFiles, int windowSize, String outputPath) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            throw new IllegalArgumentException("No image files provided for video creation.");
-        }
-        if (windowSize <= 0) {
-            throw new IllegalArgumentException("Window size must be greater than 0.");
-        }
-        if (outputPath == null || outputPath.isEmpty()) {
-            throw new IllegalArgumentException("Output path cannot be null or empty.");
-        }
-        /*
-        Mat to podstawowy obiekt danych w OpenCV,
-        który jest wykorzystywany do przechowywania obrazów,
-        macierzy, oraz innych typów danych numerycznych.
-         */
-        List<Mat> floatFrames = new ArrayList<>();
-        for (File file : imageFiles) {
-            Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
-            Mat image32F = new Mat();
-            int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
-            image8U.convertTo(image32F, floatType);
-            floatFrames.add(image32F);
-        }
+        validateInputs(imageFiles, windowSize, outputPath);
 
-        // Format float (CV_32F) pozwala uniknąć przepełnienia wartości pikseli,
-        // które może wystąpić podczas sumowania obrazów 8-bitowych.
+        // Konwersja obrazów do formatu float
+        List<Mat> floatFrames = convertImagesToFloat(imageFiles);
+
+        // Obliczenie średniej kroczącej
         List<Mat> averagedFramesFloat = averagingService.calculateMovingAverage(floatFrames, windowSize);
 
-        //  Konwersja każdej klatki do 8-bit i zapis do pliku wideo
-        List<Mat> averagedFrames8U = new ArrayList<>();
-        for (Mat floatFrame : averagedFramesFloat) {
-            Mat frame8U = new Mat();
-            floatFrame.convertTo(frame8U, CvType.CV_8U);
-            averagedFrames8U.add(frame8U);
-        }
+        // Konwersja każdej klatki z float do 8-bit
+        List<Mat> averagedFrames8U = convertFramesTo8U(averagedFramesFloat);
 
-        //  Tworzenie wideo
+        // Tworzenie wideo
         videoCreator.createVideo(averagedFrames8U, outputPath);
         return outputPath;
     }
 
     /**
-     * Oblicza obraz będący średnią ze wszystkich podanych plików i zapisuje go w
-     * folderze pierwszego pliku jako 'overall_average.jpg'.
+     * Oblicza obraz będący średnią ze wszystkich podanych plików i umożliwia
+     * zapisanie go w lokalizacji wybranej przez użytkownika.
      */
     public static String calculateOverallAverage(List<File> imageFiles, String outputPath) {
         if (imageFiles == null || imageFiles.isEmpty()) {
             throw new IllegalArgumentException("No image files provided for averaging.");
         }
 
-        //  Wczytanie obrazów, konwersja do float
-        List<Mat> floatFrames = new ArrayList<>();
-        for (File file : imageFiles) {
-            // Wczytanie obrazu
-            Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
-            //Sprawdzenie, czy obraz został poprawnie wczytany
-            if (image8U.empty()) {
-                throw new RuntimeException("Could not read image: " + file.getAbsolutePath());
-            }
-            // Storzenie nowej macierzy image32F, która przechowuje obraz w formacie float (CV_32F)
-            // CV_32FC1: Obraz jednokanałowy
-            // CV_32FC3: Obraz trzykanałowy
-            Mat image32F = new Mat();
-            int floatType;
-            if (image8U.channels() == 1) {
-                floatType = CvType.CV_32FC1;
-            } else {
-                floatType = CvType.CV_32FC3;
-            }
+        // Konwersja obrazów do formatu float
+        List<Mat> floatFrames = convertImagesToFloat(imageFiles);
 
-            // Konwersja obrazu 8-bitowego do float
-            image8U.convertTo(image32F, floatType);
-            floatFrames.add(image32F);
-        }
-
-        //  Wyliczenie uśrednionego obrazu w float
+        // Obliczenie uśrednionego obrazu
         Mat averageFloat = averagingService.calculateOverallAverage(floatFrames);
 
-        //  Rzutowanie do 8-bit i zapis do pliku
+        // Rzutowanie do 8-bit
         Mat average8U = new Mat();
         averageFloat.convertTo(average8U, CvType.CV_8U);
 
@@ -115,4 +63,54 @@ public class ImageAverageProcessor {
         return outputPath;
     }
 
+    /**
+     * Konwertuje listę obrazów do formatu float (CV_32F).
+     */
+    private static List<Mat> convertImagesToFloat(List<File> imageFiles) {
+        List<Mat> floatFrames = new ArrayList<>();
+        for (File file : imageFiles) {
+            Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
+            if (image8U.empty()) {
+                throw new RuntimeException("Could not read image: " + file.getAbsolutePath());
+            }
+            Mat image32F = new Mat();
+            int floatType;
+            if (image8U.channels() == 1) {
+                floatType = CvType.CV_32FC1;
+            } else {
+                floatType = CvType.CV_32FC3;
+            }
+            image8U.convertTo(image32F, floatType);
+            floatFrames.add(image32F);
+        }
+        return floatFrames;
+    }
+
+    /**
+     * Konwertuje listę obrazów float (CV_32F) do formatu 8-bitowego (CV_8U).
+     */
+    private static List<Mat> convertFramesTo8U(List<Mat> floatFrames) {
+        List<Mat> frames8U = new ArrayList<>();
+        for (Mat floatFrame : floatFrames) {
+            Mat frame8U = new Mat();
+            floatFrame.convertTo(frame8U, CvType.CV_8U);
+            frames8U.add(frame8U);
+        }
+        return frames8U;
+    }
+
+    /**
+     * Waliduje dane wejściowe dla funkcji przetwarzania obrazów.
+     */
+    private static void validateInputs(List<File> imageFiles, int windowSize, String outputPath) {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            throw new IllegalArgumentException("No image files provided for processing.");
+        }
+        if (windowSize <= 0) {
+            throw new IllegalArgumentException("Window size must be greater than 0.");
+        }
+        if (outputPath == null || outputPath.isEmpty()) {
+            throw new IllegalArgumentException("Output path cannot be null or empty.");
+        }
+    }
 }
