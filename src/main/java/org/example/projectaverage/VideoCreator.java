@@ -48,7 +48,6 @@ public class VideoCreator {
             return;
         }
 
-        // Zapis klatek
         for (Mat frame : frames) {
             writer.write(frame);
         }

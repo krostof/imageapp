@@ -169,14 +169,11 @@ public class ImageAverageInterface {
 
         List<File> selectedImages = Collections.list(imageListModel.elements());
 
-        // 3. Tworzymy wideo w tle (SwingWorker)
+        // Tworzenie wideo
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() {
-                // Tutaj musimy mieć metodę w ImageAverageProcessor,
-                // która pozwala określić docelową ścieżkę
-                // np. processImages(List<File>, int, String) albo
-                // processImagesCustomPath(selectedImages, windowSize, targetFile.getAbsolutePath())
+                // Wywołanie metody z ImageAverageProcessor która przetwarza obrazy na wideo
                 return ImageAverageProcessor.processImagesToCustomPath(
                         selectedImages,
                         windowSize,
@@ -188,7 +185,7 @@ public class ImageAverageInterface {
             protected void done() {
                 try {
                     String outputPath = get();
-                    // Wyświetlamy informację o zapisie
+                    // Wyświetlanie informacji o zapisie
                     JOptionPane.showMessageDialog(frame,
                             "Video saved at: " + outputPath);
                 } catch (Exception ex) {
@@ -220,13 +217,14 @@ public class ImageAverageInterface {
         fileChooser.setSelectedFile(new File("overall_average.jpg")); // domyślna nazwa pliku
         int result = fileChooser.showSaveDialog(frame);
         if (result != JFileChooser.APPROVE_OPTION) {
-            return; // Użytkownik anulował wybór
+            return; // anulowanie wyboru
         }
         File outputFile = fileChooser.getSelectedFile();
 
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             @Override
             protected String doInBackground() {
+                // Wywołanie metody z ImageAverageProcessor która oblicza średni z obrazów
                 return ImageAverageProcessor.calculateOverallAverage(selectedImages, outputFile.getAbsolutePath());
             }
 

@@ -34,28 +34,33 @@ public class ImageAverageProcessor {
         if (outputPath == null || outputPath.isEmpty()) {
             throw new IllegalArgumentException("Output path cannot be null or empty.");
         }
-
+        /*
+        Mat to podstawowy obiekt danych w OpenCV,
+        który jest wykorzystywany do przechowywania obrazów,
+        macierzy, oraz innych typów danych numerycznych.
+         */
         List<Mat> floatFrames = new ArrayList<>();
         for (File file : imageFiles) {
-            Mat image8U = imageLoader.loadImage(file.getAbsolutePath()); // CV_8U
+            Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
             Mat image32F = new Mat();
             int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
             image8U.convertTo(image32F, floatType);
             floatFrames.add(image32F);
         }
 
-        // 2. Obliczenie ruchomego uśredniania w float
+        // Format float (CV_32F) pozwala uniknąć przepełnienia wartości pikseli,
+        // które może wystąpić podczas sumowania obrazów 8-bitowych.
         List<Mat> averagedFramesFloat = averagingService.calculateMovingAverage(floatFrames, windowSize);
 
-        // 3. Konwersja każdej klatki do 8-bit i zapis do pliku wideo
+        //  Konwersja każdej klatki do 8-bit i zapis do pliku wideo
         List<Mat> averagedFrames8U = new ArrayList<>();
         for (Mat floatFrame : averagedFramesFloat) {
             Mat frame8U = new Mat();
-            floatFrame.convertTo(frame8U, CvType.CV_8U);  // teraz nie będzie sztucznej saturacji
+            floatFrame.convertTo(frame8U, CvType.CV_8U);
             averagedFrames8U.add(frame8U);
         }
 
-        // 4. Tworzenie wideo
+        //  Tworzenie wideo
         videoCreator.createVideo(averagedFrames8U, outputPath);
         return outputPath;
     }
@@ -69,24 +74,35 @@ public class ImageAverageProcessor {
             throw new IllegalArgumentException("No image files provided for averaging.");
         }
 
-        // 1. Wczytanie obrazów (8-bit), konwersja do float
+        //  Wczytanie obrazów, konwersja do float
         List<Mat> floatFrames = new ArrayList<>();
         for (File file : imageFiles) {
+            // Wczytanie obrazu
             Mat image8U = imageLoader.loadImage(file.getAbsolutePath());
+            //Sprawdzenie, czy obraz został poprawnie wczytany
             if (image8U.empty()) {
                 throw new RuntimeException("Could not read image: " + file.getAbsolutePath());
             }
-
+            // Storzenie nowej macierzy image32F, która przechowuje obraz w formacie float (CV_32F)
+            // CV_32FC1: Obraz jednokanałowy
+            // CV_32FC3: Obraz trzykanałowy
             Mat image32F = new Mat();
-            int floatType = (image8U.channels() == 1) ? CvType.CV_32FC1 : CvType.CV_32FC3;
+            int floatType;
+            if (image8U.channels() == 1) {
+                floatType = CvType.CV_32FC1;
+            } else {
+                floatType = CvType.CV_32FC3;
+            }
+
+            // Konwersja obrazu 8-bitowego do float
             image8U.convertTo(image32F, floatType);
             floatFrames.add(image32F);
         }
 
-        // 2. Wyliczenie uśrednionego obrazu w float
+        //  Wyliczenie uśrednionego obrazu w float
         Mat averageFloat = averagingService.calculateOverallAverage(floatFrames);
 
-        // 3. Rzutowanie z powrotem do 8-bit i zapis do pliku
+        //  Rzutowanie do 8-bit i zapis do pliku
         Mat average8U = new Mat();
         averageFloat.convertTo(average8U, CvType.CV_8U);
 
